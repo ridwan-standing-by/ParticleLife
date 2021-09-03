@@ -1,11 +1,23 @@
 package com.ridwanstandingby.particlelife.domain
 
 import android.graphics.Canvas
+import android.graphics.Color
+import android.graphics.Paint
 import com.ridwanstandingby.verve.animation.AnimationRenderer
 
 class ParticleLifeRenderer : AnimationRenderer() {
 
+    var getParticles: (() -> List<Particle>)? = null
+
     override fun updateCanvas(canvas: Canvas) {
-        // TODO("Not yet implemented")
+        canvas.drawColor(Color.BLACK)
+
+        getParticles?.invoke()?.forEach {
+            canvas.drawCircle(
+                it.x.toFloat(),
+                it.y.toFloat(),
+                6f,
+                Paint().apply { color = it.species.color })
+        }
     }
 }
