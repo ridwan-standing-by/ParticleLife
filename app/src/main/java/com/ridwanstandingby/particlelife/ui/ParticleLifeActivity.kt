@@ -9,6 +9,7 @@ import com.ridwanstandingby.particlelife.domain.ParticleLifeRenderer
 import com.ridwanstandingby.verve.activities.AnimationActivity
 import com.ridwanstandingby.verve.animation.AnimationRule
 import com.ridwanstandingby.verve.animation.AnimationView
+import com.ridwanstandingby.verve.math.IntVector2
 
 class ParticleLifeActivity : AnimationActivity() {
 
@@ -19,11 +20,11 @@ class ParticleLifeActivity : AnimationActivity() {
         }
     }
 
-    override fun defineAnimationView(): AnimationView = AnimationView(
+    override fun defineAnimationView(viewSize: IntVector2): AnimationView = AnimationView(
         this,
         AnimationRule(
             ::ParticleLifeAnimation,
-            ParticleLifeParameters(),
+            ParticleLifeParameters(viewSize.x.toDouble(), viewSize.y.toDouble()),
             ParticleLifeRenderer(),
             ParticleLifeInput()
         )

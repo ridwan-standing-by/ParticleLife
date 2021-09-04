@@ -16,7 +16,7 @@ class ParticleLifeRenderer : AnimationRenderer() {
             canvas.drawCircle(
                 it.x.toFloat(),
                 it.y.toFloat(),
-                6f,
+                7f,
                 Paint().apply { color = it.species.color })
         }
     }
