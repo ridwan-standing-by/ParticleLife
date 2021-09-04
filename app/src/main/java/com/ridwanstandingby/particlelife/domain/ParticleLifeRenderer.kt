@@ -2,7 +2,6 @@ package com.ridwanstandingby.particlelife.domain
 
 import android.graphics.Canvas
 import android.graphics.Color
-import android.graphics.Paint
 import com.ridwanstandingby.verve.animation.AnimationRenderer
 
 class ParticleLifeRenderer : AnimationRenderer() {
@@ -17,7 +16,8 @@ class ParticleLifeRenderer : AnimationRenderer() {
                 it.x.toFloat(),
                 it.y.toFloat(),
                 7f,
-                Paint().apply { color = it.species.color })
+                it.species.paint
+            )
         }
     }
 }
