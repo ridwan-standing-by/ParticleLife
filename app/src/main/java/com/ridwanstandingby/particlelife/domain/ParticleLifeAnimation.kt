@@ -19,7 +19,7 @@ class ParticleLifeAnimation(
     renderer,
     input
 ) {
-    private val particles = parameters.generateRandomParticles()
+    private val particles = parameters.initialParticles
 
     init {
         renderer.getParticles = { particles }
@@ -32,20 +32,20 @@ class ParticleLifeAnimation(
         nSteps += 1.0
         println("averageDt $averageDt")
 
-        with(parameters) {
+        with(parameters.runtime) {
             val dts = dt * timeScale
             particles.forEach outer@{ a ->
                 particles.forEach { b ->
-                    val xDiff = toroidalDiff(a.x, b.x, parameters.xMax)
+                    val xDiff = toroidalDiff(a.x, b.x, xMax)
                     if (abs(xDiff) > newtonMax) return@forEach
-                    val yDiff = toroidalDiff(a.y, b.y, parameters.yMax)
+                    val yDiff = toroidalDiff(a.y, b.y, yMax)
 
                     val distance2 = xDiff.sq() + yDiff.sq()
                     if (distance2 < newtonMax2 && a !== b) {
                         val distance = sqrt(distance2)
                         val force = interactionForce(
                             distance,
-                            characteristicMatrix[a.species]!![b.species]!!
+                            interactionMatrix[a.species]!![b.species]!!
                         )
                         a.xv += dts * force * xDiff / distance
                         a.yv += dts * force * yDiff / distance
@@ -74,68 +74,148 @@ class ParticleLifeAnimation(
     }
 
     /** Degree of repulsion particle A feels from particle B */
-    private fun ParticleLifeParameters.interactionForce(
+    private fun ParticleLifeParameters.RuntimeParameters.interactionForce(
         distance: Double,
-        attractionCharacteristic: Double
+        interactionCharacteristic: Double
     ): Double =
         when {
             distance > newtonMax -> 0.0
-            distance > newtonMin -> attractionCharacteristic * (1.0 - abs(distance - newtonSemiInterval) / newtonSemiInterval)
+            distance > newtonMin -> interactionCharacteristic * (1.0 - abs(distance - newtonMid) / newtonSemiInterval)
             distance > fermiRange -> 0.0
             else -> fermiForceScaleByFermiRange * (fermiRange - distance)
         } * forceScale
 }
 
 class ParticleLifeParameters(
-    val xMax: Double,
-    val yMax: Double,
-    val nParticles: Int = 600,
-    val fermiForceScale: Double = 100.0,
-    val fermiRange: Double = 16.0,
-    val newtonMax: Double = 80.0,
-    val newtonMin: Double = 16.0,
-    val forceScale: Double = 100.0,
-    val friction: Double = 0.5,
-    val timeScale: Double = 1.0,
-    val species: List<Species> = generateRandomSpecies(),
-    val characteristicMatrix: Map<Species, Map<Species, Double>> = generateRandomForceMatrix(species)
+    val generation: GenerationParameters,
+    val runtime: RuntimeParameters,
+    val species: List<Species>,
+    val initialParticles: List<Particle>
 ) : AnimationParameters() {
 
-    val newtonMax2: Double = newtonMax.sq()
-    val newtonMid = (newtonMax + newtonMin) / 2
-    val newtonSemiInterval = newtonMax - newtonMid
+    data class GenerationParameters(
+        val nParticles: Int = 600,
+        val nSpecies: Int = 6,
+        val maxRepulsion: Double = 1.0,
+        val maxAttraction: Double = -1.0
+    ) {
+        fun generateRandomSpecies(): List<Species> =
+            listOf(
+                Species(Color.RED),
+                Species(Color.YELLOW),
+                Species(Color.GREEN),
+                Species(Color.CYAN),
+                Species(Color.BLUE),
+                Species(Color.MAGENTA),
+                Species(Color.GRAY),
+                Species(Color.WHITE)
+            ).take(
+                when {
+                    nSpecies < MIN_SPECIES -> MIN_SPECIES
+                    nSpecies > MAX_SPECIES -> MAX_SPECIES
+                    else -> nSpecies
+                }
+            )
 
-    val fermiForceScaleByFermiRange = fermiForceScale / fermiRange
+        fun generateRandomInteractionMatrix(species: List<Species>) =
+            species.associateWith {
+                species.associateWith {
+                    Random.nextDouble(maxAttraction, maxRepulsion)
+                }
+            }
 
-    fun generateRandomParticles(): List<Particle> {
-        return List(nParticles) {
-            Particle(
-                x = Random.nextDouble(from = 0.0, until = xMax),
-                y = Random.nextDouble(from = 0.0, until = yMax),
-                xv = 0.0,
-                yv = 0.0,
-                species = species.random()
+        fun generateRandomParticles(
+            xMax: Double,
+            yMax: Double,
+            species: List<Species>
+        ): List<Particle> {
+            return List(nParticles) {
+                Particle(
+                    x = Random.nextDouble(from = 0.0, until = xMax),
+                    y = Random.nextDouble(from = 0.0, until = yMax),
+                    xv = 0.0,
+                    yv = 0.0,
+                    species = species.random()
+                )
+            }
+        }
+
+        companion object {
+            const val MIN_SPECIES = 1
+            const val MAX_SPECIES = 8
+        }
+    }
+
+    class RuntimeParameters(
+        var xMax: Double,
+        var yMax: Double,
+        val interactionMatrix: Map<Species, Map<Species, Double>>,
+        fermiForceScale: Double = 100.0,
+        fermiRange: Double = 16.0,
+        newtonMax: Double = 80.0,
+        newtonMin: Double = 16.0,
+        var forceScale: Double = 100.0,
+        var friction: Double = 0.5,
+        var timeScale: Double = 1.0
+    ) {
+
+        var fermiForceScale: Double = fermiForceScale
+            set(value) {
+                field = value
+                recompute()
+            }
+        var fermiRange = fermiRange
+            set(value) {
+                field = value
+                recompute()
+            }
+        var newtonMax = newtonMax
+            set(value) {
+                field = value
+                recompute()
+            }
+        var newtonMin = newtonMin
+            set(value) {
+                field = value
+                recompute()
+            }
+
+        var newtonMax2: Double = 0.0
+            private set
+        var newtonMid: Double = 0.0
+            private set
+        var newtonSemiInterval: Double = 0.0
+            private set
+        var fermiForceScaleByFermiRange: Double = 0.0
+            private set
+
+        init {
+            recompute()
+        }
+
+        private fun recompute() {
+            newtonMax2 = newtonMax.sq()
+            newtonMid = (newtonMax + newtonMin) / 2
+            newtonSemiInterval = newtonMax - newtonMid
+            fermiForceScaleByFermiRange = fermiForceScale / fermiRange
+        }
+    }
+
+    companion object {
+        fun buildDefault(xMax: Double, yMax: Double): ParticleLifeParameters {
+            val generationParameters = GenerationParameters()
+            val species = generationParameters.generateRandomSpecies()
+            val interactionMatrix = generationParameters.generateRandomInteractionMatrix(species)
+            val initialParticles = generationParameters.generateRandomParticles(xMax, yMax, species)
+            return ParticleLifeParameters(
+                generation = generationParameters,
+                runtime = RuntimeParameters(xMax, yMax, interactionMatrix),
+                species = species,
+                initialParticles = initialParticles
             )
         }
     }
 }
-
-fun generateRandomSpecies(): List<Species> =
-    listOf(
-        Species(Color.RED),
-        Species(Color.YELLOW),
-        Species(Color.GREEN),
-        Species(Color.CYAN),
-        Species(Color.BLUE),
-        Species(Color.MAGENTA)
-    )
-
-fun generateRandomForceMatrix(species: List<Species>) =
-    species.associateWith {
-        species.associateWith {
-            Random.nextDouble(-1.0, 1.0)
-        }
-    }
 
 data class Particle(
     var x: Double,

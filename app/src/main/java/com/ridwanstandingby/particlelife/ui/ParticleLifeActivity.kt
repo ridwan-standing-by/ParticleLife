@@ -24,7 +24,7 @@ class ParticleLifeActivity : AnimationActivity() {
         this,
         AnimationRule(
             ::ParticleLifeAnimation,
-            ParticleLifeParameters(viewSize.x.toDouble(), viewSize.y.toDouble()),
+            ParticleLifeParameters.buildDefault(viewSize.x.toDouble(), viewSize.y.toDouble()),
             ParticleLifeRenderer(),
             ParticleLifeInput()
         )
