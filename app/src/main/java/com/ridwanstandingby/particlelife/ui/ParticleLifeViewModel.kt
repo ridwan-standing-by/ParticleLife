@@ -1,6 +1,7 @@
 package com.ridwanstandingby.particlelife.ui
 
 import android.content.res.Resources
+import android.view.Surface
 import androidx.lifecycle.ViewModel
 import com.ridwanstandingby.particlelife.domain.ParticleLifeAnimation
 import com.ridwanstandingby.particlelife.domain.ParticleLifeInput
@@ -24,9 +25,18 @@ class ParticleLifeViewModel(val animationRunner: AnimationRunner) : ViewModel() 
         animationRunner.start(ParticleLifeAnimation(parameters, renderer, input))
     }
 
-    fun onViewSizeChanged(viewSize: FloatVector2) {
-        parameters.runtime.xMax = viewSize.x.toDouble()
-        parameters.runtime.yMax = viewSize.y.toDouble()
+    fun onViewSizeChanged(viewSize: FloatVector2, rotation: Int) {
+        when (rotation) {
+            Surface.ROTATION_0, Surface.ROTATION_180 -> {
+                parameters.runtime.xMax = viewSize.x.toDouble()
+                parameters.runtime.yMax = viewSize.y.toDouble()
+            }
+            else -> {
+                parameters.runtime.xMax = viewSize.y.toDouble()
+                parameters.runtime.yMax = viewSize.x.toDouble()
+            }
+        }
+        renderer.screenRotation = rotation
     }
 
     override fun onCleared() {

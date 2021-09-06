@@ -1,6 +1,7 @@
 package com.ridwanstandingby.particlelife.ui
 
 import android.os.Bundle
+import android.view.Display
 import androidx.activity.compose.setContent
 import com.ridwanstandingby.verve.activities.AnimationActivity
 import com.ridwanstandingby.verve.animation.AnimationRunner
