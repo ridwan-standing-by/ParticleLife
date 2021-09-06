@@ -4,7 +4,7 @@ import android.graphics.Canvas
 import android.graphics.Color
 import com.ridwanstandingby.verve.animation.AnimationRenderer
 
-class ParticleLifeRenderer : AnimationRenderer() {
+class ParticleLifeRenderer() : AnimationRenderer() {
 
     var getParticles: (() -> List<Particle>)? = null
 
@@ -15,9 +15,13 @@ class ParticleLifeRenderer : AnimationRenderer() {
             canvas.drawCircle(
                 it.x.toFloat(),
                 it.y.toFloat(),
-                7f,
+                PARTICLE_RADIUS,
                 it.species.paint
             )
         }
+    }
+
+    companion object {
+        private const val PARTICLE_RADIUS = 7f
     }
 }

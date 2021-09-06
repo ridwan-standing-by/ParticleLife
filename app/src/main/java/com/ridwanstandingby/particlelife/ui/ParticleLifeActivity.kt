@@ -2,31 +2,21 @@ package com.ridwanstandingby.particlelife.ui
 
 import android.os.Bundle
 import androidx.activity.compose.setContent
-import com.ridwanstandingby.particlelife.domain.ParticleLifeAnimation
-import com.ridwanstandingby.particlelife.domain.ParticleLifeInput
-import com.ridwanstandingby.particlelife.domain.ParticleLifeParameters
-import com.ridwanstandingby.particlelife.domain.ParticleLifeRenderer
 import com.ridwanstandingby.verve.activities.AnimationActivity
-import com.ridwanstandingby.verve.animation.AnimationRule
-import com.ridwanstandingby.verve.animation.AnimationView
-import com.ridwanstandingby.verve.math.IntVector2
+import com.ridwanstandingby.verve.animation.AnimationRunner
+import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class ParticleLifeActivity : AnimationActivity() {
+
+    private val vm by viewModel<ParticleLifeViewModel>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            ParticleLifeActivityUi(::createAnimationView)
+            ParticleLifeActivityUi(::createAndAttachAnimationView, vm)
         }
+        vm.start()
     }
 
-    override fun defineAnimationView(viewSize: IntVector2): AnimationView = AnimationView(
-        this,
-        AnimationRule(
-            ::ParticleLifeAnimation,
-            ParticleLifeParameters.buildDefault(viewSize.x.toDouble(), viewSize.y.toDouble()),
-            ParticleLifeRenderer(),
-            ParticleLifeInput()
-        )
-    )
+    override fun getAnimationRunner(): AnimationRunner = vm.animationRunner
 }
