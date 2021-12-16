@@ -17,16 +17,16 @@ val Typography = Typography(
     body1 = TextStyle(
         fontFamily = fontFamily,
         fontWeight = FontWeight.Normal,
-        fontSize = 15.sp
+        fontSize = 14.sp
     ),
     button = TextStyle(
         fontFamily = fontFamily,
         fontWeight = FontWeight.W500,
-        fontSize = 15.sp
+        fontSize = 14.sp
     ),
     caption = TextStyle(
         fontFamily = fontFamily,
         fontWeight = FontWeight.Normal,
-        fontSize = 12.sp
+        fontSize = 10.sp
     )
 )

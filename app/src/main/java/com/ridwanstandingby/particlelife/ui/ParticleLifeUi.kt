@@ -3,6 +3,8 @@ package com.ridwanstandingby.particlelife.ui
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Tune
@@ -20,6 +22,7 @@ import com.ridwanstandingby.particlelife.domain.ParticleLifeParameters
 import com.ridwanstandingby.particlelife.ui.theme.ParticleLifeTheme
 import com.ridwanstandingby.verve.animation.AnimationView
 import com.ridwanstandingby.verve.math.FloatVector2
+import kotlin.math.roundToInt
 
 @Composable
 fun ParticleLifeActivityUi(
@@ -29,17 +32,17 @@ fun ParticleLifeActivityUi(
     // TODO hoist to view model for orientation changes
     val controlPanelExpanded = remember { mutableStateOf(false) }
     val selectedTabIndex = remember { mutableStateOf(0) }
-    val runtimeParameters =
-        remember { mutableStateOf(vm.parameters.runtime, policy = neverEqualPolicy()) }
-    val generationParameters =
-        remember { mutableStateOf(vm.parameters.generation, policy = neverEqualPolicy()) }
+    val runtimeParameters = derivedStateOf { vm.parameters.value.runtime }
+    val generationParameters = derivedStateOf { vm.parameters.value.generation }
     ParticleLifeUi(
         createAnimationView = createAnimationView,
         onViewSizeChanged = vm::onViewSizeChanged,
         controlPanelExpanded = controlPanelExpanded,
         selectedTabIndex = selectedTabIndex,
         runtimeParameters = runtimeParameters,
-        generationParameters = generationParameters
+        generationParameters = generationParameters,
+        runtimeParametersChanged = vm::changeRuntimeParameters,
+        generationParametersChanged = vm::changeGenerationParameters
     )
 }
 
@@ -49,8 +52,10 @@ fun ParticleLifeUi(
     onViewSizeChanged: (FloatVector2, Int) -> Unit,
     controlPanelExpanded: MutableState<Boolean>,
     selectedTabIndex: MutableState<Int>,
-    runtimeParameters: MutableState<ParticleLifeParameters.RuntimeParameters>,
-    generationParameters: MutableState<ParticleLifeParameters.GenerationParameters>
+    runtimeParameters: State<ParticleLifeParameters.RuntimeParameters>,
+    generationParameters: State<ParticleLifeParameters.GenerationParameters>,
+    runtimeParametersChanged: (ParticleLifeParameters.RuntimeParameters.() -> Unit) -> Unit,
+    generationParametersChanged: (ParticleLifeParameters.GenerationParameters.() -> Unit) -> Unit
 ) {
     ParticleLifeTheme {
         Scaffold {
@@ -74,25 +79,27 @@ fun ParticleLifeUi(
                     })
                 }
                 ControlPanelUi(
-                    controlPanelExpanded = controlPanelExpanded,
-                    selectedTabIndex = selectedTabIndex,
-                    runtimeParameters = runtimeParameters,
-                    generationParameters = generationParameters
+                    controlPanelExpanded,
+                    selectedTabIndex,
+                    runtimeParameters,
+                    generationParameters,
+                    runtimeParametersChanged,
+                    generationParametersChanged
                 )
             }
         }
     }
 }
 
-val fabDiameter = 56.dp
-
 @OptIn(ExperimentalAnimationApi::class)
 @Composable
 fun ControlPanelUi(
     controlPanelExpanded: MutableState<Boolean>,
     selectedTabIndex: MutableState<Int>,
-    runtimeParameters: MutableState<ParticleLifeParameters.RuntimeParameters>,
-    generationParameters: MutableState<ParticleLifeParameters.GenerationParameters>
+    runtimeParameters: State<ParticleLifeParameters.RuntimeParameters>,
+    generationParameters: State<ParticleLifeParameters.GenerationParameters>,
+    runtimeParametersChanged: (ParticleLifeParameters.RuntimeParameters.() -> Unit) -> Unit,
+    generationParametersChanged: (ParticleLifeParameters.GenerationParameters.() -> Unit) -> Unit
 ) {
     val controlPanelCardModifier = if (isPortrait()) {
         Modifier
@@ -107,7 +114,13 @@ fun ControlPanelUi(
     Box(modifier = Modifier.padding(40.dp)) {
         AnimatedVisibility(visible = controlPanelExpanded.value) {
             Card(modifier = controlPanelCardModifier) {
-                ControlPanelCardContent(selectedTabIndex, runtimeParameters, generationParameters)
+                ControlPanelCardContent(
+                    selectedTabIndex,
+                    runtimeParameters,
+                    generationParameters,
+                    runtimeParametersChanged,
+                    generationParametersChanged
+                )
             }
         }
         FloatingActionButton(onClick = {
@@ -121,14 +134,19 @@ fun ControlPanelUi(
 @Composable
 fun ControlPanelCardContent(
     selectedTabIndex: MutableState<Int>,
-    runtimeParameters: MutableState<ParticleLifeParameters.RuntimeParameters>,
-    generationParameters: MutableState<ParticleLifeParameters.GenerationParameters>
+    runtimeParameters: State<ParticleLifeParameters.RuntimeParameters>,
+    generationParameters: State<ParticleLifeParameters.GenerationParameters>,
+    runtimeParametersChanged: (ParticleLifeParameters.RuntimeParameters.() -> Unit) -> Unit,
+    generationParametersChanged: (ParticleLifeParameters.GenerationParameters.() -> Unit) -> Unit
 ) {
     Column {
         ControlPanelTabs(selectedTabIndex)
         when (ControlPanelTab.values()[selectedTabIndex.value]) {
-            ControlPanelTab.PHYSICS -> PhysicsContent(runtimeParameters)
-            ControlPanelTab.SPECIES -> SpeciesContent(generationParameters)
+            ControlPanelTab.PHYSICS -> PhysicsContent(runtimeParameters, runtimeParametersChanged)
+            ControlPanelTab.SPECIES -> SpeciesContent(
+                generationParameters,
+                generationParametersChanged
+            )
             ControlPanelTab.ABOUT -> AboutContent()
         }
     }
@@ -177,8 +195,15 @@ fun ControlPanelTab(
 }
 
 @Composable
-fun PhysicsContent(runtimeParameters: MutableState<ParticleLifeParameters.RuntimeParameters>) {
-    Column(Modifier.padding(16.dp)) {
+fun PhysicsContent(
+    runtimeParameters: State<ParticleLifeParameters.RuntimeParameters>,
+    runtimeParametersChanged: (ParticleLifeParameters.RuntimeParameters.() -> Unit) -> Unit
+) {
+    Column(
+        Modifier
+            .padding(horizontal = 16.dp, vertical = 4.dp)
+            .verticalScroll(rememberScrollState())
+    ) {
         Text(
             text = "Change global simulation parameters",
             textAlign = TextAlign.Center,
@@ -187,10 +212,10 @@ fun PhysicsContent(runtimeParameters: MutableState<ParticleLifeParameters.Runtim
                 .fillMaxWidth()
         )
         if (isPortrait()) {
-            FrictionWidget(runtimeParameters)
-            ForceStrengthWidget(runtimeParameters)
-            ForceRangeWidget(runtimeParameters)
-            TimeStepWidget(runtimeParameters)
+            FrictionWidget(runtimeParameters, runtimeParametersChanged)
+            ForceStrengthWidget(runtimeParameters, runtimeParametersChanged)
+            ForceRangeWidget(runtimeParameters, runtimeParametersChanged)
+            TimeStepWidget(runtimeParameters, runtimeParametersChanged)
         } else {
             Row(Modifier.fillMaxWidth()) {
                 Column(
@@ -198,8 +223,8 @@ fun PhysicsContent(runtimeParameters: MutableState<ParticleLifeParameters.Runtim
                         .weight(0.5f)
                         .padding(end = 12.dp)
                 ) {
-                    FrictionWidget(runtimeParameters)
-                    ForceStrengthWidget(runtimeParameters)
+                    FrictionWidget(runtimeParameters, runtimeParametersChanged)
+                    ForceStrengthWidget(runtimeParameters, runtimeParametersChanged)
                 }
                 Divider(
                     Modifier
@@ -211,8 +236,8 @@ fun PhysicsContent(runtimeParameters: MutableState<ParticleLifeParameters.Runtim
                         .weight(0.5f)
                         .padding(start = 12.dp)
                 ) {
-                    ForceRangeWidget(runtimeParameters)
-                    TimeStepWidget(runtimeParameters)
+                    ForceRangeWidget(runtimeParameters, runtimeParametersChanged)
+                    TimeStepWidget(runtimeParameters, runtimeParametersChanged)
                 }
             }
         }
@@ -220,7 +245,10 @@ fun PhysicsContent(runtimeParameters: MutableState<ParticleLifeParameters.Runtim
 }
 
 @Composable
-private fun FrictionWidget(runtimeParameters: MutableState<ParticleLifeParameters.RuntimeParameters>) {
+private fun FrictionWidget(
+    runtimeParameters: State<ParticleLifeParameters.RuntimeParameters>,
+    runtimeParametersChanged: (ParticleLifeParameters.RuntimeParameters.() -> Unit) -> Unit
+) {
     TextSliderPair(
         text = "Friction",
         description = "The amount by which particles are slowed over time.",
@@ -228,14 +256,16 @@ private fun FrictionWidget(runtimeParameters: MutableState<ParticleLifeParameter
         value = runtimeParameters.value.friction.toFloat(),
         range = 0f..5f,
         onValueChange = {
-            runtimeParameters.value =
-                runtimeParameters.value.apply { friction = it.toDouble() }
+            runtimeParametersChanged { friction = it.toDouble() }
         }
     )
 }
 
 @Composable
-private fun ForceStrengthWidget(runtimeParameters: MutableState<ParticleLifeParameters.RuntimeParameters>) {
+private fun ForceStrengthWidget(
+    runtimeParameters: State<ParticleLifeParameters.RuntimeParameters>,
+    runtimeParametersChanged: (ParticleLifeParameters.RuntimeParameters.() -> Unit) -> Unit
+) {
     TextSliderPair(
         text = "Force strength",
         description = "Global multiplier for all repulsive and attractive forces.",
@@ -243,14 +273,16 @@ private fun ForceStrengthWidget(runtimeParameters: MutableState<ParticleLifePara
         value = runtimeParameters.value.forceScale.toFloat(),
         range = 1f..500f,
         onValueChange = {
-            runtimeParameters.value =
-                runtimeParameters.value.apply { forceScale = it.toDouble() }
+            runtimeParametersChanged { forceScale = it.toDouble() }
         }
     )
 }
 
 @Composable
-private fun ForceRangeWidget(runtimeParameters: MutableState<ParticleLifeParameters.RuntimeParameters>) {
+private fun ForceRangeWidget(
+    runtimeParameters: State<ParticleLifeParameters.RuntimeParameters>,
+    runtimeParametersChanged: (ParticleLifeParameters.RuntimeParameters.() -> Unit) -> Unit
+) {
     TextSliderPair(
         text = "Force range",
         description = "Global multiplier for the range at which the repulsive and attractive forces act.",
@@ -258,14 +290,16 @@ private fun ForceRangeWidget(runtimeParameters: MutableState<ParticleLifeParamet
         value = runtimeParameters.value.newtonMax.toFloat(),
         range = 20f..200f,
         onValueChange = {
-            runtimeParameters.value =
-                runtimeParameters.value.apply { newtonMax = it.toDouble() }
+            runtimeParametersChanged { newtonMax = it.toDouble() }
         }
     )
 }
 
 @Composable
-private fun TimeStepWidget(runtimeParameters: MutableState<ParticleLifeParameters.RuntimeParameters>) {
+private fun TimeStepWidget(
+    runtimeParameters: State<ParticleLifeParameters.RuntimeParameters>,
+    runtimeParametersChanged: (ParticleLifeParameters.RuntimeParameters.() -> Unit) -> Unit
+) {
     TextSliderPair(
         text = "Time step",
         description = "Simulation time step multiplier. Lower values lead to higher fidelity but slower simulation, higher values lead to faster simulation with more instability.",
@@ -273,10 +307,125 @@ private fun TimeStepWidget(runtimeParameters: MutableState<ParticleLifeParameter
         value = runtimeParameters.value.timeScale.toFloat(),
         range = 0.1f..5f,
         onValueChange = {
-            runtimeParameters.value =
-                runtimeParameters.value.apply { timeScale = it.toDouble() }
+            runtimeParametersChanged { timeScale = it.toDouble() }
         }
     )
+}
+
+@Composable
+fun SpeciesContent(
+    generationParameters: State<ParticleLifeParameters.GenerationParameters>,
+    generationParametersChanged: (ParticleLifeParameters.GenerationParameters.() -> Unit) -> Unit
+) {
+    Column(
+        Modifier
+            .padding(horizontal = 16.dp, vertical = 4.dp)
+            .verticalScroll(rememberScrollState())
+    ) {
+        Text(
+            text = "Modify particle species, and how they interact. These settings only take effect upon generating new particles.",
+            textAlign = TextAlign.Center,
+            modifier = Modifier
+                .padding(4.dp)
+                .fillMaxWidth()
+        )
+
+        if (isPortrait()) {
+            NumberOfParticlesWidget(generationParameters, generationParametersChanged)
+            NumberOfSpeciesWidget(generationParameters, generationParametersChanged)
+            ForceValueRangeWidget(generationParameters, generationParametersChanged)
+        } else {
+            Row(Modifier.fillMaxWidth()) {
+                Column(
+                    Modifier
+                        .weight(0.5f)
+                        .padding(end = 12.dp)
+                ) {
+                    NumberOfParticlesWidget(generationParameters, generationParametersChanged)
+                    NumberOfSpeciesWidget(generationParameters, generationParametersChanged)
+                    ForceValueRangeWidget(generationParameters, generationParametersChanged)
+                }
+                Divider(
+                    Modifier
+                        .fillMaxHeight()
+                        .width(1.dp)
+                )
+                Column(
+                    Modifier
+                        .weight(0.5f)
+                        .padding(start = 12.dp)
+                ) {
+
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun NumberOfParticlesWidget(
+    generationParameters: State<ParticleLifeParameters.GenerationParameters>,
+    generationParametersChanged: (ParticleLifeParameters.GenerationParameters.() -> Unit) -> Unit
+) {
+    TextSliderPair(
+        text = "Number of particles",
+        description = "Too many particles will impact simulation performance",
+        valueToString = { it.roundToInt().toString() },
+        value = generationParameters.value.nParticles.toFloat(),
+        range = 50f..1200f,
+        onValueChange = {
+            generationParametersChanged { nParticles = it.roundToInt() }
+        }
+    )
+}
+
+@Composable
+private fun NumberOfSpeciesWidget(
+    generationParameters: State<ParticleLifeParameters.GenerationParameters>,
+    generationParametersChanged: (ParticleLifeParameters.GenerationParameters.() -> Unit) -> Unit
+) {
+    TextSliderPair(
+        text = "Number of species",
+        description = "More species increases the complexity",
+        valueToString = { it.roundToInt().toString() },
+        value = generationParameters.value.nSpecies.toFloat(),
+        range = 1f..10f,
+        onValueChange = {
+            generationParametersChanged { nSpecies = it.roundToInt() }
+        }
+    )
+}
+
+@Composable
+private fun ForceValueRangeWidget(
+    generationParameters: State<ParticleLifeParameters.GenerationParameters>,
+    generationParametersChanged: (ParticleLifeParameters.GenerationParameters.() -> Unit) -> Unit
+) {
+    TextRangePair(
+        text = "Force value range",
+        description = "Maximum and minimum values for repulsion/attraction forces between species. Positive values indicate repulsion and negative values indicate attraction.",
+        valueToString = { it.decimal(1) },
+        values = Pair(
+            generationParameters.value.maxAttraction.toFloat(),
+            generationParameters.value.maxRepulsion.toFloat()
+        ),
+        range = -2f..2f,
+        onValueChange = {
+            generationParametersChanged {
+                maxAttraction = it.first.toDouble()
+                maxRepulsion = it.second.toDouble()
+            }
+        }
+    )
+}
+
+@Composable
+fun GenerateNewParticlesButton() {
+    Button(onClick = {
+        // TODO Viewmodel generate random particles / new animation
+    }) {
+
+    }
 }
 
 @Composable
@@ -286,6 +435,7 @@ fun TextSliderPair(
     valueToString: (Float) -> String,
     value: Float,
     range: ClosedFloatingPointRange<Float>,
+    steps: Int = 0,
     onValueChange: (Float) -> Unit
 ) {
     Column(
@@ -309,6 +459,7 @@ fun TextSliderPair(
                 value = value,
                 onValueChange = onValueChange,
                 valueRange = range,
+                steps = steps,
                 modifier = Modifier
                     .weight(0.425f)
                     .align(Alignment.CenterVertically)
@@ -318,12 +469,60 @@ fun TextSliderPair(
     }
 }
 
+@OptIn(ExperimentalMaterialApi::class)
 @Composable
-fun SpeciesContent(generationParameters: MutableState<ParticleLifeParameters.GenerationParameters>) {
-    TODO("Not yet implemented")
+fun TextRangePair(
+    text: String,
+    description: String,
+    valueToString: (Float) -> String,
+    values: Pair<Float, Float>,
+    range: ClosedFloatingPointRange<Float>,
+    steps: Int = 0,
+    onValueChange: (Pair<Float, Float>) -> Unit
+) {
+    Column(
+        Modifier
+            .fillMaxWidth()
+            .padding(vertical = 4.dp)
+    ) {
+        Row(Modifier.fillMaxWidth()) {
+            Text(
+                text = text,
+                modifier = Modifier
+                    .weight(0.4f)
+                    .align(Alignment.CenterVertically)
+            )
+            Text(
+                text = valueToString(values.first), textAlign = TextAlign.End, modifier = Modifier
+                    .weight(0.1f)
+                    .align(Alignment.CenterVertically)
+            )
+            Box(
+                modifier = Modifier
+                    .weight(0.4f)
+                    .padding(horizontal = 8.dp)
+                    .align(Alignment.CenterVertically)
+            ) {
+                RangeSlider(
+                    values = values.first..values.second,
+                    onValueChange = { onValueChange(Pair(it.start, it.endInclusive)) },
+                    valueRange = range,
+                    steps = steps
+                )
+            }
+            Text(
+                text = valueToString(values.second),
+                textAlign = TextAlign.Start,
+                modifier = Modifier
+                    .weight(0.1f)
+                    .align(Alignment.CenterVertically)
+            )
+        }
+        Text(text = description, fontSize = MaterialTheme.typography.caption.fontSize)
+    }
 }
 
 @Composable
 fun AboutContent() {
-    TODO("Not yet implemented")
+//    TODO("Not yet implemented")
 }

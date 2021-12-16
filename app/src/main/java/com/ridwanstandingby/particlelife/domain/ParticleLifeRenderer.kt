@@ -2,22 +2,26 @@ package com.ridwanstandingby.particlelife.domain
 
 import android.graphics.Canvas
 import android.graphics.Color
+import android.graphics.Paint
 import android.view.Surface
 import com.ridwanstandingby.verve.animation.AnimationRenderer
 
 class ParticleLifeRenderer(var screenRotation: Int = Surface.ROTATION_0) : AnimationRenderer() {
 
     var getParticles: (() -> List<Particle>)? = null
+    var getSpecies: (() -> List<Species>)? = null
 
     override fun updateCanvas(canvas: Canvas) {
         canvas.drawColor(Color.BLACK)
+
+        val species = getSpecies?.invoke()
 
         getParticles?.invoke()?.forEach {
             canvas.drawCircle(
                 canvas.correctRotationX(it.x, it.y),
                 canvas.correctRotationY(it.x, it.y),
                 PARTICLE_RADIUS,
-                it.species.paint
+                species?.get(it.speciesIndex)?.paint ?: Paint()
             )
         }
     }

@@ -19,10 +19,11 @@ class ParticleLifeAnimation(
     renderer,
     input
 ) {
-    private val particles = parameters.initialParticles
+    var particles = parameters.initialParticles
 
     init {
         renderer.getParticles = { particles }
+        renderer.getSpecies = { parameters.species }
     }
 
     private var averageDt: Double = 0.0
@@ -45,7 +46,7 @@ class ParticleLifeAnimation(
                         val distance = sqrt(distance2)
                         val force = interactionForce(
                             distance,
-                            interactionMatrix[a.species]!![b.species]!!
+                            interactionMatrix[a.speciesIndex][b.speciesIndex]
                         )
                         a.xv += dts * force * xDiff / distance
                         a.yv += dts * force * yDiff / distance
@@ -94,10 +95,10 @@ class ParticleLifeParameters(
 ) : AnimationParameters() {
 
     data class GenerationParameters(
-        val nParticles: Int = 600,
-        val nSpecies: Int = 6,
-        val maxRepulsion: Double = 1.0,
-        val maxAttraction: Double = -1.0
+        var nParticles: Int = 600,
+        var nSpecies: Int = 6,
+        var maxRepulsion: Double = 1.0,
+        var maxAttraction: Double = -1.0
     ) {
         fun generateRandomSpecies(): List<Species> =
             listOf(
@@ -117,11 +118,17 @@ class ParticleLifeParameters(
                 }
             )
 
-        fun generateRandomInteractionMatrix(species: List<Species>) =
-            species.associateWith {
-                species.associateWith {
-                    Random.nextDouble(maxAttraction, maxRepulsion)
-                }
+        fun generateRandomInteractionValue() =
+            Random.nextDouble(maxAttraction, maxRepulsion)
+
+        fun generateRandomInteractionVector() =
+            Array(nSpecies) {
+                generateRandomInteractionValue()
+            }
+
+        fun generateRandomInteractionMatrix() =
+            Array(nSpecies) {
+                generateRandomInteractionVector()
             }
 
         fun generateRandomParticles(
@@ -135,7 +142,7 @@ class ParticleLifeParameters(
                     y = Random.nextDouble(from = 0.0, until = yMax),
                     xv = 0.0,
                     yv = 0.0,
-                    species = species.random()
+                    speciesIndex = species.indices.random()
                 )
             }
         }
@@ -149,7 +156,7 @@ class ParticleLifeParameters(
     class RuntimeParameters(
         var xMax: Double,
         var yMax: Double,
-        val interactionMatrix: Map<Species, Map<Species, Double>>,
+        val interactionMatrix: Array<Array<Double>>,
         fermiForceScale: Double = 100.0,
         fermiRange: Double = 16.0,
         newtonMax: Double = 80.0,
@@ -205,7 +212,7 @@ class ParticleLifeParameters(
         fun buildDefault(xMax: Double, yMax: Double): ParticleLifeParameters {
             val generationParameters = GenerationParameters()
             val species = generationParameters.generateRandomSpecies()
-            val interactionMatrix = generationParameters.generateRandomInteractionMatrix(species)
+            val interactionMatrix = generationParameters.generateRandomInteractionMatrix()
             val initialParticles = generationParameters.generateRandomParticles(xMax, yMax, species)
             return ParticleLifeParameters(
                 generation = generationParameters,
@@ -222,7 +229,7 @@ data class Particle(
     var y: Double,
     var xv: Double,
     var yv: Double,
-    val species: Species
+    val speciesIndex: Int
 )
 
 data class Species(val color: Int) {
