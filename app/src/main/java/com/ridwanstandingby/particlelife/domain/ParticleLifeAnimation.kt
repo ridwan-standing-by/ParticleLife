@@ -122,8 +122,10 @@ class ParticleLifeParameters(
                 Species(Color.CYAN),
                 Species(Color.BLUE),
                 Species(Color.MAGENTA),
-                Species(Color.WHITE),
-                Species(Color.GRAY)
+                Species(-0x7F007FFF),
+                Species(-0x7FFF7F00),
+                Species(Color.GRAY),
+                Species(Color.WHITE)
             ).take(
                 when {
                     nSpecies < MIN_SPECIES -> MIN_SPECIES
@@ -163,7 +165,7 @@ class ParticleLifeParameters(
 
         companion object {
             const val MIN_SPECIES = 1
-            const val MAX_SPECIES = 8
+            const val MAX_SPECIES = 10
         }
     }
 
@@ -180,7 +182,7 @@ class ParticleLifeParameters(
         var timeScale: Double = 1.0
     ) {
 
-        var fermiForceScale: Double = fermiForceScale
+        private var fermiForceScale: Double = fermiForceScale
             set(value) {
                 field = value
                 recompute()

@@ -411,7 +411,7 @@ private fun NumberOfSpeciesWidget(
         description = "More species increases the complexity",
         valueToString = { it.roundToInt().toString() },
         value = generationParameters.value.nSpecies.toFloat(),
-        range = 1f..8f,
+        range = 1f..10f,
         onValueChange = {
             generationParametersChanged { nSpecies = it.roundToInt() }
         }
