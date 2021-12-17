@@ -200,6 +200,19 @@ class ParticleLifeParameters(
             recompute()
         }
 
+        fun copy() = RuntimeParameters(
+            xMax = xMax,
+            yMax = yMax,
+            interactionMatrix = interactionMatrix,
+            fermiForceScale = fermiForceScale,
+            fermiRange = fermiRange,
+            newtonMax = newtonMax,
+            newtonMin = newtonMin,
+            forceScale = forceScale,
+            friction = friction,
+            timeScale = timeScale
+        )
+
         private fun recompute() {
             newtonMax2 = newtonMax.sq()
             newtonMid = (newtonMax + newtonMin) / 2

@@ -21,7 +21,7 @@ class ParticleLifeViewModel(val animationRunner: AnimationRunner) : ViewModel() 
         ), neverEqualPolicy()
     )
 
-    fun updateParameters(block: ParticleLifeParameters.() -> Unit) {
+    private fun updateParameters(block: ParticleLifeParameters.() -> Unit) {
         parameters.value = parameters.value.apply(block)
     }
 
@@ -51,11 +51,11 @@ class ParticleLifeViewModel(val animationRunner: AnimationRunner) : ViewModel() 
     }
 
     fun changeRuntimeParameters(block: ParticleLifeParameters.RuntimeParameters.() -> Unit) {
-
+        updateParameters { runtime.block() }
     }
 
     fun changeGenerationParameters(block: ParticleLifeParameters.GenerationParameters.() -> Unit) {
-
+        updateParameters { generation.block() }
     }
 
     fun onNumberOfSpeciesChanged(nSpeciesNew: Int) {

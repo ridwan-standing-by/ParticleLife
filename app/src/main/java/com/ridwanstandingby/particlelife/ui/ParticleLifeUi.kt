@@ -32,8 +32,8 @@ fun ParticleLifeActivityUi(
     // TODO hoist to view model for orientation changes
     val controlPanelExpanded = remember { mutableStateOf(false) }
     val selectedTabIndex = remember { mutableStateOf(0) }
-    val runtimeParameters = derivedStateOf { vm.parameters.value.runtime }
-    val generationParameters = derivedStateOf { vm.parameters.value.generation }
+    val runtimeParameters = derivedStateOf { vm.parameters.value.runtime.copy() }
+    val generationParameters = derivedStateOf { vm.parameters.value.generation.copy() }
     ParticleLifeUi(
         createAnimationView = createAnimationView,
         onViewSizeChanged = vm::onViewSizeChanged,
