@@ -313,7 +313,7 @@ private fun TimeStepWidget(
         description = "Simulation time step multiplier. Lower values lead to higher fidelity but slower simulation, higher values lead to faster simulation with more instability.",
         valueToString = { it.decimal(2) },
         value = runtimeParameters.value.timeScale.toFloat(),
-        range = 0.1f..5f,
+        range = 0.1f..3f,
         onValueChange = {
             runtimeParametersChanged { timeScale = it.toDouble() }
         }
@@ -537,5 +537,19 @@ fun TextRangePair(
 
 @Composable
 fun AboutContent() {
-//    TODO("Not yet implemented")
+    Column(
+        Modifier
+            .padding(horizontal = 16.dp, vertical = 4.dp)
+            .verticalScroll(rememberScrollState())
+    ) {
+        AboutText("A particle simulation, designed to illustrate life-like behaviour emerging from particles obeying a set of simple rules.")
+        AboutText("Each particle exerts a force on other nearby particles, depending on their species (represented by the different colours). This can either be a repulsion or an attraction, and is not necessarily symmetric. For example, species A can be attracted by species B, but species B can be repulsed by species A, which would result in A \"chasing\" B.")
+        AboutText("To avoid particles speeding up forever, a global friction is applied that slows particles down. Additionally, all particles repel each other if they get too close for comfort.")
+        AboutText("Play around with different settings to discover which parameters result in the most \"life-like\" creatures.")
+    }
+}
+
+@Composable
+fun AboutText(text: String) {
+    Text(text, modifier = Modifier.padding(vertical = 4.dp))
 }
