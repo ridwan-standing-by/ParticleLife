@@ -8,17 +8,22 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Tune
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.State
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Alignment.Companion.CenterHorizontally
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalView
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.compose.ui.zIndex
+import com.ridwanstandingby.particlelife.R
 import com.ridwanstandingby.particlelife.domain.ParticleLifeParameters
 import com.ridwanstandingby.particlelife.ui.theme.ParticleLifeTheme
 import com.ridwanstandingby.verve.animation.AnimationView
@@ -30,18 +35,13 @@ fun ParticleLifeActivityUi(
     createAnimationView: () -> AnimationView,
     vm: ParticleLifeViewModel
 ) {
-    // TODO hoist to view model for orientation changes
-    val controlPanelExpanded = remember { mutableStateOf(false) }
-    val selectedTabIndex = remember { mutableStateOf(0) }
-    val runtimeParameters = derivedStateOf { vm.parameters.value.runtime.copy() }
-    val generationParameters = derivedStateOf { vm.parameters.value.generation.copy() }
     ParticleLifeUi(
         createAnimationView = createAnimationView,
         onViewSizeChanged = vm::onViewSizeChanged,
-        controlPanelExpanded = controlPanelExpanded,
-        selectedTabIndex = selectedTabIndex,
-        runtimeParameters = runtimeParameters,
-        generationParameters = generationParameters,
+        controlPanelExpanded = vm.controlPanelExpanded,
+        selectedTabIndex = vm.selectedTabIndex,
+        runtimeParameters = derivedStateOf { vm.parameters.value.runtime.copy() },
+        generationParameters = derivedStateOf { vm.parameters.value.generation.copy() },
         runtimeParametersChanged = vm::changeRuntimeParameters,
         generationParametersChanged = vm::changeGenerationParameters,
         generateNewParticlesClicked = vm::generateNewParticles
@@ -213,7 +213,7 @@ fun PhysicsContent(
             .verticalScroll(rememberScrollState())
     ) {
         Text(
-            text = "Change global simulation parameters",
+            text = stringResource(R.string.physics_info),
             textAlign = TextAlign.Center,
             modifier = Modifier
                 .padding(4.dp)
@@ -258,8 +258,8 @@ private fun FrictionWidget(
     runtimeParametersChanged: (ParticleLifeParameters.RuntimeParameters.() -> Unit) -> Unit
 ) {
     TextSliderPair(
-        text = "Friction",
-        description = "The amount by which particles are slowed over time.",
+        text = stringResource(R.string.friction_label),
+        description = stringResource(R.string.friction_description),
         valueToString = { it.decimal(2) },
         value = runtimeParameters.value.friction.toFloat(),
         range = 0f..5f,
@@ -275,8 +275,8 @@ private fun ForceStrengthWidget(
     runtimeParametersChanged: (ParticleLifeParameters.RuntimeParameters.() -> Unit) -> Unit
 ) {
     TextSliderPair(
-        text = "Force strength",
-        description = "Global multiplier for all repulsive and attractive forces.",
+        text = stringResource(R.string.force_strength_label),
+        description = stringResource(R.string.force_strength_description),
         valueToString = { it.toInt().toString() },
         value = runtimeParameters.value.forceScale.toFloat(),
         range = 1f..500f,
@@ -292,8 +292,8 @@ private fun ForceRangeWidget(
     runtimeParametersChanged: (ParticleLifeParameters.RuntimeParameters.() -> Unit) -> Unit
 ) {
     TextSliderPair(
-        text = "Force range",
-        description = "Global multiplier for the range at which the repulsive and attractive forces act.",
+        text = stringResource(R.string.force_range_label),
+        description = stringResource(R.string.force_range_description),
         valueToString = { it.toInt().toString() },
         value = runtimeParameters.value.newtonMax.toFloat(),
         range = 20f..200f,
@@ -309,8 +309,8 @@ private fun TimeStepWidget(
     runtimeParametersChanged: (ParticleLifeParameters.RuntimeParameters.() -> Unit) -> Unit
 ) {
     TextSliderPair(
-        text = "Time step",
-        description = "Simulation time step multiplier. Lower values lead to higher fidelity but slower simulation, higher values lead to faster simulation with more instability.",
+        text = stringResource(R.string.time_step_label),
+        description = stringResource(R.string.time_step_description),
         valueToString = { it.decimal(2) },
         value = runtimeParameters.value.timeScale.toFloat(),
         range = 0.1f..3f,
@@ -332,7 +332,7 @@ fun ParticlesContent(
             .verticalScroll(rememberScrollState())
     ) {
         Text(
-            text = "Modify particles, species, and how they interact. These settings only take effect upon generating new particles.",
+            text = stringResource(R.string.particles_info),
             textAlign = TextAlign.Center,
             modifier = Modifier
                 .padding(4.dp)
@@ -380,7 +380,7 @@ private fun ColumnScope.GenerateNewParticlesButton(generateNewParticlesClicked: 
             .padding(vertical = 4.dp)
             .align(CenterHorizontally)
     ) {
-        Text("Generate New Particles")
+        Text(stringResource(R.string.generate_new_particles_label))
     }
 }
 
@@ -390,8 +390,8 @@ private fun NumberOfParticlesWidget(
     generationParametersChanged: (ParticleLifeParameters.GenerationParameters.() -> Unit) -> Unit
 ) {
     TextSliderPair(
-        text = "Number of particles",
-        description = "Too many particles will impact simulation performance",
+        text = stringResource(R.string.number_of_particles_label),
+        description = stringResource(R.string.number_of_particles_description),
         valueToString = { it.roundToInt().toString() },
         value = generationParameters.value.nParticles.toFloat(),
         range = 50f..1200f,
@@ -407,8 +407,8 @@ private fun NumberOfSpeciesWidget(
     generationParametersChanged: (ParticleLifeParameters.GenerationParameters.() -> Unit) -> Unit
 ) {
     TextSliderPair(
-        text = "Number of species",
-        description = "More species increases the complexity",
+        text = stringResource(R.string.number_of_species_label),
+        description = stringResource(R.string.number_of_species_description),
         valueToString = { it.roundToInt().toString() },
         value = generationParameters.value.nSpecies.toFloat(),
         range = 1f..10f,
@@ -424,8 +424,8 @@ private fun ForceValueRangeWidget(
     generationParametersChanged: (ParticleLifeParameters.GenerationParameters.() -> Unit) -> Unit
 ) {
     TextRangePair(
-        text = "Force value range",
-        description = "Maximum and minimum values for repulsion/attraction forces between species. Positive values indicate repulsion and negative values indicate attraction.",
+        text = stringResource(R.string.force_value_range_label),
+        description = stringResource(R.string.force_value_range_description),
         valueToString = { it.decimal(1) },
         values = Pair(
             generationParameters.value.maxAttraction.toFloat(),
@@ -542,10 +542,10 @@ fun AboutContent() {
             .padding(horizontal = 16.dp, vertical = 4.dp)
             .verticalScroll(rememberScrollState())
     ) {
-        AboutText("A particle simulation, designed to illustrate life-like behaviour emerging from particles obeying a set of simple rules.")
-        AboutText("Each particle exerts a force on other nearby particles, depending on their species (represented by the different colours). This can either be a repulsion or an attraction, and is not necessarily symmetric. For example, species A can be attracted by species B, but species B can be repulsed by species A, which would result in A \"chasing\" B.")
-        AboutText("To avoid particles speeding up forever, a global friction is applied that slows particles down. Additionally, all particles repel each other if they get too close for comfort.")
-        AboutText("Play around with different settings to discover which parameters result in the most \"life-like\" creatures.")
+        AboutText(stringResource(R.string.about_particle_simulation))
+        AboutText(stringResource(R.string.about_particle_force_explanation))
+        AboutText(stringResource(R.string.about_particle_extras))
+        AboutText(stringResource(R.string.about_particle_final))
     }
 }
 

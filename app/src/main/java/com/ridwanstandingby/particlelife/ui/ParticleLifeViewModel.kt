@@ -14,6 +14,9 @@ import com.ridwanstandingby.verve.math.FloatVector2
 
 class ParticleLifeViewModel(val animationRunner: AnimationRunner) : ViewModel() {
 
+    val controlPanelExpanded = mutableStateOf(false)
+    val selectedTabIndex = mutableStateOf(0)
+
     val parameters = mutableStateOf(
         ParticleLifeParameters.buildDefault(
             Resources.getSystem().displayMetrics.widthPixels.toDouble(),
