@@ -6,6 +6,7 @@ import com.ridwanstandingby.verve.animation.Animation
 import com.ridwanstandingby.verve.animation.AnimationParameters
 import com.ridwanstandingby.verve.math.sq
 import com.ridwanstandingby.verve.math.toroidalDiff
+import java.util.concurrent.locks.ReentrantLock
 import kotlin.math.abs
 import kotlin.math.sqrt
 import kotlin.random.Random
@@ -19,19 +20,31 @@ class ParticleLifeAnimation(
     renderer,
     input
 ) {
-    var particles = parameters.initialParticles
+    private var particles = parameters.initialParticles
 
     init {
         renderer.getParticles = { particles }
         renderer.getSpecies = { parameters.species }
     }
 
-    private var averageDt: Double = 0.0
-    private var nSteps: Double = 0.0
+    private val updateLock = ReentrantLock(true)
+    fun restart(newParameters: ParticleLifeParameters) {
+        updateLock.lock()
+        particles = emptyList()
+        renderer.getParticles = null
+        renderer.getSpecies = null
+        parameters.initialParticles = newParameters.initialParticles
+        parameters.runtime = newParameters.runtime
+        parameters.generation = newParameters.generation
+        parameters.species = newParameters.species
+        particles = newParameters.initialParticles
+        renderer.getParticles = { particles }
+        renderer.getSpecies = { parameters.species }
+        updateLock.unlock()
+    }
+
     override fun update(dt: Double) {
-        averageDt = (nSteps * averageDt + dt) / (nSteps + 1.0)
-        nSteps += 1.0
-        println("averageDt $averageDt")
+        updateLock.lock()
 
         with(parameters.runtime) {
             val dts = dt * timeScale
@@ -72,6 +85,7 @@ class ParticleLifeAnimation(
                 }
             }
         }
+        updateLock.unlock()
     }
 
     /** Degree of repulsion particle A feels from particle B */
@@ -88,10 +102,10 @@ class ParticleLifeAnimation(
 }
 
 class ParticleLifeParameters(
-    val generation: GenerationParameters,
-    val runtime: RuntimeParameters,
-    val species: List<Species>,
-    val initialParticles: List<Particle>
+    var generation: GenerationParameters,
+    var runtime: RuntimeParameters,
+    var species: List<Species>,
+    var initialParticles: List<Particle>
 ) : AnimationParameters() {
 
     data class GenerationParameters(
@@ -108,8 +122,8 @@ class ParticleLifeParameters(
                 Species(Color.CYAN),
                 Species(Color.BLUE),
                 Species(Color.MAGENTA),
-                Species(Color.GRAY),
-                Species(Color.WHITE)
+                Species(Color.WHITE),
+                Species(Color.GRAY)
             ).take(
                 when {
                     nSpecies < MIN_SPECIES -> MIN_SPECIES
@@ -200,18 +214,19 @@ class ParticleLifeParameters(
             recompute()
         }
 
-        fun copy() = RuntimeParameters(
-            xMax = xMax,
-            yMax = yMax,
-            interactionMatrix = interactionMatrix,
-            fermiForceScale = fermiForceScale,
-            fermiRange = fermiRange,
-            newtonMax = newtonMax,
-            newtonMin = newtonMin,
-            forceScale = forceScale,
-            friction = friction,
-            timeScale = timeScale
-        )
+        fun copy(interactionMatrix: Array<Array<Double>> = this.interactionMatrix) =
+            RuntimeParameters(
+                xMax = xMax,
+                yMax = yMax,
+                interactionMatrix = interactionMatrix,
+                fermiForceScale = fermiForceScale,
+                fermiRange = fermiRange,
+                newtonMax = newtonMax,
+                newtonMin = newtonMin,
+                forceScale = forceScale,
+                friction = friction,
+                timeScale = timeScale
+            )
 
         private fun recompute() {
             newtonMax2 = newtonMax.sq()

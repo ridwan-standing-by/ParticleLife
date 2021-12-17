@@ -10,6 +10,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Tune
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.Alignment.Companion.CenterHorizontally
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalDensity
@@ -42,7 +43,8 @@ fun ParticleLifeActivityUi(
         runtimeParameters = runtimeParameters,
         generationParameters = generationParameters,
         runtimeParametersChanged = vm::changeRuntimeParameters,
-        generationParametersChanged = vm::changeGenerationParameters
+        generationParametersChanged = vm::changeGenerationParameters,
+        generateNewParticlesClicked = vm::generateNewParticles
     )
 }
 
@@ -55,7 +57,8 @@ fun ParticleLifeUi(
     runtimeParameters: State<ParticleLifeParameters.RuntimeParameters>,
     generationParameters: State<ParticleLifeParameters.GenerationParameters>,
     runtimeParametersChanged: (ParticleLifeParameters.RuntimeParameters.() -> Unit) -> Unit,
-    generationParametersChanged: (ParticleLifeParameters.GenerationParameters.() -> Unit) -> Unit
+    generationParametersChanged: (ParticleLifeParameters.GenerationParameters.() -> Unit) -> Unit,
+    generateNewParticlesClicked: () -> Unit
 ) {
     ParticleLifeTheme {
         Scaffold {
@@ -84,7 +87,8 @@ fun ParticleLifeUi(
                     runtimeParameters,
                     generationParameters,
                     runtimeParametersChanged,
-                    generationParametersChanged
+                    generationParametersChanged,
+                    generateNewParticlesClicked
                 )
             }
         }
@@ -99,7 +103,8 @@ fun ControlPanelUi(
     runtimeParameters: State<ParticleLifeParameters.RuntimeParameters>,
     generationParameters: State<ParticleLifeParameters.GenerationParameters>,
     runtimeParametersChanged: (ParticleLifeParameters.RuntimeParameters.() -> Unit) -> Unit,
-    generationParametersChanged: (ParticleLifeParameters.GenerationParameters.() -> Unit) -> Unit
+    generationParametersChanged: (ParticleLifeParameters.GenerationParameters.() -> Unit) -> Unit,
+    generateNewParticlesClicked: () -> Unit
 ) {
     val controlPanelCardModifier = if (isPortrait()) {
         Modifier
@@ -119,7 +124,8 @@ fun ControlPanelUi(
                     runtimeParameters,
                     generationParameters,
                     runtimeParametersChanged,
-                    generationParametersChanged
+                    generationParametersChanged,
+                    generateNewParticlesClicked
                 )
             }
         }
@@ -137,15 +143,17 @@ fun ControlPanelCardContent(
     runtimeParameters: State<ParticleLifeParameters.RuntimeParameters>,
     generationParameters: State<ParticleLifeParameters.GenerationParameters>,
     runtimeParametersChanged: (ParticleLifeParameters.RuntimeParameters.() -> Unit) -> Unit,
-    generationParametersChanged: (ParticleLifeParameters.GenerationParameters.() -> Unit) -> Unit
+    generationParametersChanged: (ParticleLifeParameters.GenerationParameters.() -> Unit) -> Unit,
+    generateNewParticlesClicked: () -> Unit
 ) {
     Column {
         ControlPanelTabs(selectedTabIndex)
         when (ControlPanelTab.values()[selectedTabIndex.value]) {
             ControlPanelTab.PHYSICS -> PhysicsContent(runtimeParameters, runtimeParametersChanged)
-            ControlPanelTab.SPECIES -> SpeciesContent(
+            ControlPanelTab.PARTICLES -> ParticlesContent(
                 generationParameters,
-                generationParametersChanged
+                generationParametersChanged,
+                generateNewParticlesClicked
             )
             ControlPanelTab.ABOUT -> AboutContent()
         }
@@ -313,9 +321,10 @@ private fun TimeStepWidget(
 }
 
 @Composable
-fun SpeciesContent(
+fun ParticlesContent(
     generationParameters: State<ParticleLifeParameters.GenerationParameters>,
-    generationParametersChanged: (ParticleLifeParameters.GenerationParameters.() -> Unit) -> Unit
+    generationParametersChanged: (ParticleLifeParameters.GenerationParameters.() -> Unit) -> Unit,
+    generateNewParticlesClicked: () -> Unit
 ) {
     Column(
         Modifier
@@ -323,7 +332,7 @@ fun SpeciesContent(
             .verticalScroll(rememberScrollState())
     ) {
         Text(
-            text = "Modify particle species, and how they interact. These settings only take effect upon generating new particles.",
+            text = "Modify particles, species, and how they interact. These settings only take effect upon generating new particles.",
             textAlign = TextAlign.Center,
             modifier = Modifier
                 .padding(4.dp)
@@ -331,6 +340,7 @@ fun SpeciesContent(
         )
 
         if (isPortrait()) {
+            GenerateNewParticlesButton(generateNewParticlesClicked)
             NumberOfParticlesWidget(generationParameters, generationParametersChanged)
             NumberOfSpeciesWidget(generationParameters, generationParametersChanged)
             ForceValueRangeWidget(generationParameters, generationParametersChanged)
@@ -341,9 +351,8 @@ fun SpeciesContent(
                         .weight(0.5f)
                         .padding(end = 12.dp)
                 ) {
+                    GenerateNewParticlesButton(generateNewParticlesClicked)
                     NumberOfParticlesWidget(generationParameters, generationParametersChanged)
-                    NumberOfSpeciesWidget(generationParameters, generationParametersChanged)
-                    ForceValueRangeWidget(generationParameters, generationParametersChanged)
                 }
                 Divider(
                     Modifier
@@ -355,10 +364,23 @@ fun SpeciesContent(
                         .weight(0.5f)
                         .padding(start = 12.dp)
                 ) {
-
+                    NumberOfSpeciesWidget(generationParameters, generationParametersChanged)
+                    ForceValueRangeWidget(generationParameters, generationParametersChanged)
                 }
             }
         }
+    }
+}
+
+@Composable
+private fun ColumnScope.GenerateNewParticlesButton(generateNewParticlesClicked: () -> Unit) {
+    Button(
+        onClick = generateNewParticlesClicked,
+        modifier = Modifier
+            .padding(vertical = 4.dp)
+            .align(CenterHorizontally)
+    ) {
+        Text("Generate New Particles")
     }
 }
 
@@ -389,7 +411,7 @@ private fun NumberOfSpeciesWidget(
         description = "More species increases the complexity",
         valueToString = { it.roundToInt().toString() },
         value = generationParameters.value.nSpecies.toFloat(),
-        range = 1f..10f,
+        range = 1f..8f,
         onValueChange = {
             generationParametersChanged { nSpecies = it.roundToInt() }
         }
@@ -417,15 +439,6 @@ private fun ForceValueRangeWidget(
             }
         }
     )
-}
-
-@Composable
-fun GenerateNewParticlesButton() {
-    Button(onClick = {
-        // TODO Viewmodel generate random particles / new animation
-    }) {
-
-    }
 }
 
 @Composable

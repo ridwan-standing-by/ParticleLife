@@ -12,13 +12,13 @@ fun isPortrait(): Boolean =
     LocalConfiguration.current.orientation == Configuration.ORIENTATION_PORTRAIT
 
 enum class ControlPanelTab {
-    PHYSICS, SPECIES, ABOUT
+    PHYSICS, PARTICLES, ABOUT
 }
 
 fun ControlPanelTab.toTabNameString() =
     when (this) {
         ControlPanelTab.PHYSICS -> "Physics"// TODO
-        ControlPanelTab.SPECIES -> "Species"// TODO
+        ControlPanelTab.PARTICLES -> "Particles"// TODO
         ControlPanelTab.ABOUT -> "About"// TODO
     }
 

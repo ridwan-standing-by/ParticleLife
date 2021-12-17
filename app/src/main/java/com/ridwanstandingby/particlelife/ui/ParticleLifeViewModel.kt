@@ -25,15 +25,15 @@ class ParticleLifeViewModel(val animationRunner: AnimationRunner) : ViewModel() 
         parameters.value = parameters.value.apply(block)
     }
 
-    val preGenSpecies = mutableStateOf(parameters.value.species)
-    val preGenMatrix = mutableStateOf(parameters.value.runtime.interactionMatrix)
-
     private val renderer = ParticleLifeRenderer()
 
     private val input = ParticleLifeInput()
 
+    private lateinit var animation: ParticleLifeAnimation
     fun start() {
-        animationRunner.start(ParticleLifeAnimation(parameters.value, renderer, input))
+        animationRunner.start(
+            ParticleLifeAnimation(parameters.value, renderer, input).also { animation = it }
+        )
     }
 
     fun onViewSizeChanged(viewSize: FloatVector2, rotation: Int) {
@@ -58,40 +58,20 @@ class ParticleLifeViewModel(val animationRunner: AnimationRunner) : ViewModel() 
         updateParameters { generation.block() }
     }
 
-    fun onNumberOfSpeciesChanged(nSpeciesNew: Int) {
-        val oldSpecies = preGenSpecies.value.toList()
-
-        updateParameters { generation.nSpecies = nSpeciesNew }
-        preGenSpecies.value = parameters.value.generation.generateRandomSpecies()
-
-        val newSpecies = preGenSpecies.value
-        val oldMatrix = preGenMatrix.value
-        val newMatrix = oldMatrix.map { it.toMutableList() }.toMutableList()
-        val nSpeciesOld = oldMatrix.size
-
-        with(parameters.value.generation) {
-            if (nSpeciesNew < nSpeciesOld) {
-                (nSpeciesNew until nSpeciesOld).reversed().forEach { i ->
-                    newMatrix.removeAt(i)
-                    (0..nSpeciesNew).forEach { j ->
-                        newMatrix[j].removeAt(i)
-                    }
-                }
-            } else if (nSpeciesNew > nSpeciesOld) {
-                (nSpeciesOld until nSpeciesNew).forEach { i ->
-                    newMatrix[i] = generateRandomInteractionVector().toMutableList()
-                    (0..nSpeciesOld).forEach { j ->
-                        newMatrix[j][i] = generateRandomInteractionValue()
-                    }
-                }
-            }
-        }
-    }
-
     fun generateNewParticles() {
-        val species = parameters.value.generation.generateRandomSpecies()
-//        val particles = parameters.value.generation.generateRandomParticles()
-
+        val newParameters = with(parameters.value) {
+            val species = generation.generateRandomSpecies()
+            val interactionMatrix = generation.generateRandomInteractionMatrix()
+            val initialParticles =
+                generation.generateRandomParticles(runtime.xMax, runtime.yMax, species)
+            ParticleLifeParameters(
+                generation = generation.copy(),
+                runtime = runtime.copy(interactionMatrix = interactionMatrix),
+                species = species,
+                initialParticles = initialParticles
+            )
+        }
+        animation.restart(newParameters)
     }
 
     override fun onCleared() {
