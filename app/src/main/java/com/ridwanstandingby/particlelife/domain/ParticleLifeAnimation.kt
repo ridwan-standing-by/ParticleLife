@@ -135,7 +135,11 @@ class ParticleLifeParameters(
             )
 
         private fun generateRandomInteractionValue() =
-            Random.nextDouble(maxAttraction, maxRepulsion)
+            try {
+                Random.nextDouble(maxAttraction, maxRepulsion)
+            } catch (e: Exception) {
+                maxAttraction
+            }
 
         private fun generateRandomInteractionVector() =
             Array(nSpecies) {
