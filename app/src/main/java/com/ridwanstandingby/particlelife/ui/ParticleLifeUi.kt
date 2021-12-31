@@ -22,10 +22,12 @@ import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.compose.ui.zIndex
 import com.ridwanstandingby.particlelife.R
 import com.ridwanstandingby.particlelife.domain.ParticleLifeParameters
+import com.ridwanstandingby.particlelife.domain.Species
 import com.ridwanstandingby.particlelife.ui.theme.ParticleLifeTheme
 import com.ridwanstandingby.verve.animation.AnimationView
 import com.ridwanstandingby.verve.math.FloatVector2
@@ -41,8 +43,11 @@ fun ParticleLifeActivityUi(
         onViewSizeChanged = vm::onViewSizeChanged,
         controlPanelExpanded = vm.controlPanelExpanded,
         selectedTabIndex = vm.selectedTabIndex,
+        editForceValuePanelExpanded = vm.editForceValuePanelExpanded,
+        editForceValueSelectedSpeciesIndex = vm.editForceValueSelectedSpeciesIndex,
         runtimeParameters = derivedStateOf { vm.parameters.value.runtime.copy() },
         generationParameters = derivedStateOf { vm.parameters.value.generation.copy() },
+        species = derivedStateOf { vm.parameters.value.species },
         runtimeParametersChanged = vm::changeRuntimeParameters,
         generationParametersChanged = vm::changeGenerationParameters,
         generateNewParticlesClicked = vm::generateNewParticles
@@ -55,8 +60,11 @@ fun ParticleLifeUi(
     onViewSizeChanged: (FloatVector2, Int) -> Unit,
     controlPanelExpanded: MutableState<Boolean>,
     selectedTabIndex: MutableState<Int>,
+    editForceValuePanelExpanded: MutableState<Boolean>,
+    editForceValueSelectedSpeciesIndex: MutableState<Int>,
     runtimeParameters: State<ParticleLifeParameters.RuntimeParameters>,
     generationParameters: State<ParticleLifeParameters.GenerationParameters>,
+    species: State<List<Species>>,
     runtimeParametersChanged: (ParticleLifeParameters.RuntimeParameters.() -> Unit) -> Unit,
     generationParametersChanged: (ParticleLifeParameters.GenerationParameters.() -> Unit) -> Unit,
     generateNewParticlesClicked: () -> Unit
@@ -85,8 +93,11 @@ fun ParticleLifeUi(
                 ControlPanelUi(
                     controlPanelExpanded,
                     selectedTabIndex,
+                    editForceValuePanelExpanded,
+                    editForceValueSelectedSpeciesIndex,
                     runtimeParameters,
                     generationParameters,
+                    species,
                     runtimeParametersChanged,
                     generationParametersChanged,
                     generateNewParticlesClicked
@@ -101,13 +112,16 @@ fun ParticleLifeUi(
 fun ControlPanelUi(
     controlPanelExpanded: MutableState<Boolean>,
     selectedTabIndex: MutableState<Int>,
+    editForceValuePanelExpanded: MutableState<Boolean>,
+    editForceValueSelectedSpeciesIndex: MutableState<Int>,
     runtimeParameters: State<ParticleLifeParameters.RuntimeParameters>,
     generationParameters: State<ParticleLifeParameters.GenerationParameters>,
+    species: State<List<Species>>,
     runtimeParametersChanged: (ParticleLifeParameters.RuntimeParameters.() -> Unit) -> Unit,
     generationParametersChanged: (ParticleLifeParameters.GenerationParameters.() -> Unit) -> Unit,
     generateNewParticlesClicked: () -> Unit
 ) {
-    val controlPanelCardModifier = if (isPortrait()) {
+    val foregroundCardModifier = if (isPortrait()) {
         Modifier
             .fillMaxWidth()
             .wrapContentHeight()
@@ -119,8 +133,10 @@ fun ControlPanelUi(
 
     Box(modifier = Modifier.padding(40.dp)) {
         AnimatedVisibility(visible = controlPanelExpanded.value) {
-            Card(modifier = controlPanelCardModifier) {
+            Card(modifier = foregroundCardModifier) {
                 ControlPanelCardContent(
+                    controlPanelExpanded,
+                    editForceValuePanelExpanded,
                     selectedTabIndex,
                     runtimeParameters,
                     generationParameters,
@@ -130,8 +146,22 @@ fun ControlPanelUi(
                 )
             }
         }
+        AnimatedVisibility(visible = editForceValuePanelExpanded.value) {
+            Card(modifier = foregroundCardModifier) {
+                EditForceValuePanelCardContent(
+                    runtimeParameters,
+                    species,
+                    editForceValueSelectedSpeciesIndex
+                )
+            }
+        }
         FloatingActionButton(onClick = {
-            controlPanelExpanded.value = !controlPanelExpanded.value
+            if (editForceValuePanelExpanded.value) {
+                editForceValuePanelExpanded.value = false
+                controlPanelExpanded.value = false
+            } else {
+                controlPanelExpanded.value = !controlPanelExpanded.value
+            }
         }) {
             Icon(imageVector = Icons.Rounded.Tune, null)
         }
@@ -140,6 +170,8 @@ fun ControlPanelUi(
 
 @Composable
 fun ControlPanelCardContent(
+    controlPanelExpanded: MutableState<Boolean>,
+    editForceValuePanelExpanded: MutableState<Boolean>,
     selectedTabIndex: MutableState<Int>,
     runtimeParameters: State<ParticleLifeParameters.RuntimeParameters>,
     generationParameters: State<ParticleLifeParameters.GenerationParameters>,
@@ -152,6 +184,8 @@ fun ControlPanelCardContent(
         when (ControlPanelTab.values()[selectedTabIndex.value]) {
             ControlPanelTab.PHYSICS -> PhysicsContent(runtimeParameters, runtimeParametersChanged)
             ControlPanelTab.PARTICLES -> ParticlesContent(
+                controlPanelExpanded,
+                editForceValuePanelExpanded,
                 generationParameters,
                 generationParametersChanged,
                 generateNewParticlesClicked
@@ -282,7 +316,7 @@ private fun BoxScope.RandomiseButton(runtimeParametersChanged: (ParticleLifePara
         onClick = { runtimeParametersChanged { randomise() } },
         modifier = Modifier
             .padding(vertical = 4.dp)
-            .fillMaxWidth(0.93f)
+            .fillMaxWidth(0.95f)
             .align(Center)
     ) {
         Text(stringResource(R.string.randomise_label))
@@ -389,6 +423,8 @@ private fun TimeStepWidget(
 
 @Composable
 fun ParticlesContent(
+    controlPanelExpanded: MutableState<Boolean>,
+    editForceValuePanelExpanded: MutableState<Boolean>,
     generationParameters: State<ParticleLifeParameters.GenerationParameters>,
     generationParametersChanged: (ParticleLifeParameters.GenerationParameters.() -> Unit) -> Unit,
     generateNewParticlesClicked: () -> Unit
@@ -411,6 +447,7 @@ fun ParticlesContent(
             NumberOfParticlesWidget(generationParameters, generationParametersChanged)
             NumberOfSpeciesWidget(generationParameters, generationParametersChanged)
             ForceValueRangeWidget(generationParameters, generationParametersChanged)
+            EditForceValuesButton(controlPanelExpanded, editForceValuePanelExpanded)
         } else {
             Row(Modifier.fillMaxWidth()) {
                 Column(
@@ -433,6 +470,7 @@ fun ParticlesContent(
                 ) {
                     NumberOfSpeciesWidget(generationParameters, generationParametersChanged)
                     ForceValueRangeWidget(generationParameters, generationParametersChanged)
+                    EditForceValuesButton(controlPanelExpanded, editForceValuePanelExpanded)
                 }
             }
         }
@@ -445,7 +483,7 @@ private fun ColumnScope.GenerateNewParticlesButton(generateNewParticlesClicked: 
         onClick = generateNewParticlesClicked,
         modifier = Modifier
             .padding(vertical = 4.dp)
-            .fillMaxWidth(0.93f)
+            .fillMaxWidth(0.95f)
             .align(CenterHorizontally)
     ) {
         Text(stringResource(R.string.generate_new_particles_label))
@@ -507,6 +545,57 @@ private fun ForceValueRangeWidget(
             }
         }
     )
+}
+
+@Composable
+private fun ColumnScope.EditForceValuesButton(
+    controlPanelExpanded: MutableState<Boolean>,
+    editForceValuePanelExpanded: MutableState<Boolean>
+) {
+    Button(
+        onClick = {
+            controlPanelExpanded.value = false
+            editForceValuePanelExpanded.value = true
+        },
+        modifier = Modifier
+            .padding(top = 16.dp, bottom = 8.dp)
+            .fillMaxWidth(0.95f)
+            .align(CenterHorizontally)
+    ) {
+        Text(stringResource(R.string.edit_force_values_label))
+    }
+}
+
+@Composable
+private fun EditForceValuePanelCardContent(
+    runtimeParameters: State<ParticleLifeParameters.RuntimeParameters>,
+    species: State<List<Species>>,
+    editForceValueSelectedSpeciesIndex: MutableState<Int>
+) {
+    Column {
+        Card(
+            backgroundColor = MaterialTheme.colors.secondary,
+            contentColor = MaterialTheme.colors.onSecondary,
+            modifier = Modifier.height(fabDiameter).fillMaxWidth()
+        ) {
+            Text(
+                text = stringResource(id = R.string.edit_force_values_label),
+                style = MaterialTheme.typography.h5,
+                fontSize = 15.sp,
+                textAlign = TextAlign.Center,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 16.dp)
+            )
+        }
+        Text(
+            text = stringResource(R.string.edit_force_values_description),
+            textAlign = TextAlign.Center,
+            modifier = Modifier
+                .padding(4.dp)
+                .fillMaxWidth()
+        )
+    }
 }
 
 @Composable
