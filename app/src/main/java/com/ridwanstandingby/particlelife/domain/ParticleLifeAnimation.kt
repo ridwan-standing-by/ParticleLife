@@ -112,7 +112,7 @@ class ParticleLifeParameters(
         var nParticles: Int = N_PARTICLES_DEFAULT,
         var nSpecies: Int = N_SPECIES_DEFAULT,
         var maxRepulsion: Double = FORCE_VALUE_RANGE_UPPER_DEFAULT,
-        var maxAttraction: Double = -FORCE_VALUE_RANGE_LOWER_DEFAULT
+        var maxAttraction: Double = FORCE_VALUE_RANGE_LOWER_DEFAULT
     ) {
         fun generateRandomSpecies(): List<Species> =
             listOf(
@@ -285,7 +285,7 @@ class ParticleLifeParameters(
 
             const val PRESSURE_DEFAULT = 100.0
             const val PRESSURE_MIN = 1.0
-            const val PRESSURE_MAX = 1000.0
+            const val PRESSURE_MAX = 300.0
 
             const val PRESSURE_RANGE_DEFAULT = 16.0
 

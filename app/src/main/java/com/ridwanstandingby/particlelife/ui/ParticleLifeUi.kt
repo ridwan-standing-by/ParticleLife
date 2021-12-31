@@ -223,6 +223,7 @@ fun PhysicsContent(
             FrictionWidget(runtimeParameters, runtimeParametersChanged)
             ForceStrengthWidget(runtimeParameters, runtimeParametersChanged)
             ForceRangeWidget(runtimeParameters, runtimeParametersChanged)
+            PressureWidget(runtimeParameters, runtimeParametersChanged)
             TimeStepWidget(runtimeParameters, runtimeParametersChanged)
         } else {
             Row(Modifier.fillMaxWidth()) {
@@ -245,6 +246,7 @@ fun PhysicsContent(
                         .padding(start = 12.dp)
                 ) {
                     ForceRangeWidget(runtimeParameters, runtimeParametersChanged)
+                    PressureWidget(runtimeParameters, runtimeParametersChanged)
                     TimeStepWidget(runtimeParameters, runtimeParametersChanged)
                 }
             }
@@ -299,6 +301,23 @@ private fun ForceRangeWidget(
         range = ParticleLifeParameters.RuntimeParameters.FORCE_RANGE_MIN.toFloat()..ParticleLifeParameters.RuntimeParameters.FORCE_RANGE_MAX.toFloat(),
         onValueChange = {
             runtimeParametersChanged { newtonMax = it.toDouble() }
+        }
+    )
+}
+
+@Composable
+private fun PressureWidget(
+    runtimeParameters: State<ParticleLifeParameters.RuntimeParameters>,
+    runtimeParametersChanged: (ParticleLifeParameters.RuntimeParameters.() -> Unit) -> Unit
+) {
+    TextSliderPair(
+        text = stringResource(R.string.pressure_label),
+        description = stringResource(R.string.pressure_description),
+        valueToString = { it.toInt().toString() },
+        value = runtimeParameters.value.fermiForceScale.toFloat(),
+        range = ParticleLifeParameters.RuntimeParameters.PRESSURE_MIN.toFloat()..ParticleLifeParameters.RuntimeParameters.PRESSURE_MAX.toFloat(),
+        onValueChange = {
+            runtimeParametersChanged { fermiForceScale = it.toDouble() }
         }
     )
 }
@@ -431,7 +450,7 @@ private fun ForceValueRangeWidget(
             generationParameters.value.maxAttraction.toFloat(),
             generationParameters.value.maxRepulsion.toFloat()
         ),
-        range = -ParticleLifeParameters.GenerationParameters.FORCE_VALUE_RANGE_MIN.toFloat()..ParticleLifeParameters.GenerationParameters.FORCE_VALUE_RANGE_MAX.toFloat(),
+        range = ParticleLifeParameters.GenerationParameters.FORCE_VALUE_RANGE_MIN.toFloat()..ParticleLifeParameters.GenerationParameters.FORCE_VALUE_RANGE_MAX.toFloat(),
         onValueChange = {
             generationParametersChanged {
                 maxAttraction = it.first.toDouble()
