@@ -150,6 +150,7 @@ fun ControlPanelUi(
             Card(modifier = foregroundCardModifier) {
                 EditForceValuePanelCardContent(
                     runtimeParameters,
+                    runtimeParametersChanged,
                     species,
                     editForceValueSelectedSpeciesIndex
                 )
@@ -569,6 +570,7 @@ private fun ColumnScope.EditForceValuesButton(
 @Composable
 private fun EditForceValuePanelCardContent(
     runtimeParameters: State<ParticleLifeParameters.RuntimeParameters>,
+    runtimeParametersChanged: (ParticleLifeParameters.RuntimeParameters.() -> Unit) -> Unit,
     species: State<List<Species>>,
     editForceValueSelectedSpeciesIndex: MutableState<Int>
 ) {
@@ -576,7 +578,9 @@ private fun EditForceValuePanelCardContent(
         Card(
             backgroundColor = MaterialTheme.colors.secondary,
             contentColor = MaterialTheme.colors.onSecondary,
-            modifier = Modifier.height(fabDiameter).fillMaxWidth()
+            modifier = Modifier
+                .height(fabDiameter)
+                .fillMaxWidth()
         ) {
             Text(
                 text = stringResource(id = R.string.edit_force_values_label),
@@ -588,12 +592,69 @@ private fun EditForceValuePanelCardContent(
                     .padding(vertical = 16.dp)
             )
         }
+        Column(
+            Modifier
+                .padding(horizontal = 16.dp, vertical = 4.dp)
+                .verticalScroll(rememberScrollState())
+        ) {
+            Text(
+                text = stringResource(R.string.edit_force_values_description),
+                textAlign = TextAlign.Center,
+                modifier = Modifier
+                    .padding(4.dp)
+                    .fillMaxWidth()
+            )
+            species.value.forEachIndexed { index, thisSpecies ->
+                EditSpeciesForceValueSlider(
+                    thisSpeciesIndex = index,
+                    selectedSpeciesIndex = editForceValueSelectedSpeciesIndex,
+                    allSpecies = species.value,
+                    runtimeParameters = runtimeParameters,
+                    runtimeParametersChanged = runtimeParametersChanged
+                )
+            }
+        }
+    }
+}
+
+@Composable
+fun EditSpeciesForceValueSlider(
+    thisSpeciesIndex: Int,
+    selectedSpeciesIndex: MutableState<Int>,
+    allSpecies: List<Species>,
+    runtimeParameters: State<ParticleLifeParameters.RuntimeParameters>,
+    runtimeParametersChanged: (ParticleLifeParameters.RuntimeParameters.() -> Unit) -> Unit
+) {
+    Row(
+        Modifier
+            .fillMaxWidth()
+            .padding(vertical = 2.dp, horizontal = 8.dp)
+    ) {
+        val value =
+            runtimeParameters.value.interactionMatrix[selectedSpeciesIndex.value][thisSpeciesIndex].toFloat()
         Text(
-            text = stringResource(R.string.edit_force_values_description),
-            textAlign = TextAlign.Center,
+            text = thisSpeciesIndex.toString(),
             modifier = Modifier
-                .padding(4.dp)
-                .fillMaxWidth()
+                .weight(0.425f)
+                .align(Alignment.CenterVertically)
+        )
+        Text(
+            text = value.decimal(2), textAlign = TextAlign.End, modifier = Modifier
+                .weight(0.15f)
+                .align(Alignment.CenterVertically)
+        )
+        Slider(
+            value = value,
+            onValueChange = {
+                runtimeParametersChanged {
+                    interactionMatrix[selectedSpeciesIndex.value][thisSpeciesIndex] = it.toDouble()
+                }
+            },
+            valueRange = ParticleLifeParameters.GenerationParameters.FORCE_VALUE_RANGE_MIN.toFloat()..ParticleLifeParameters.GenerationParameters.FORCE_VALUE_RANGE_MAX.toFloat(),
+            steps = 0,
+            modifier = Modifier
+                .weight(0.425f)
+                .align(Alignment.CenterVertically)
         )
     }
 }
