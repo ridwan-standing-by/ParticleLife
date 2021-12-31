@@ -13,6 +13,7 @@ import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.State
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.Alignment.Companion.Center
 import androidx.compose.ui.Alignment.Companion.CenterHorizontally
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -220,9 +221,11 @@ fun PhysicsContent(
                 .fillMaxWidth()
         )
         if (isPortrait()) {
+            RandomiseAndResetButtons(runtimeParametersChanged)
             FrictionWidget(runtimeParameters, runtimeParametersChanged)
             ForceStrengthWidget(runtimeParameters, runtimeParametersChanged)
             ForceRangeWidget(runtimeParameters, runtimeParametersChanged)
+            PressureWidget(runtimeParameters, runtimeParametersChanged)
             TimeStepWidget(runtimeParameters, runtimeParametersChanged)
         } else {
             Row(Modifier.fillMaxWidth()) {
@@ -231,6 +234,7 @@ fun PhysicsContent(
                         .weight(0.5f)
                         .padding(end = 12.dp)
                 ) {
+                    RandomiseAndResetButtons(runtimeParametersChanged)
                     FrictionWidget(runtimeParameters, runtimeParametersChanged)
                     ForceStrengthWidget(runtimeParameters, runtimeParametersChanged)
                 }
@@ -245,10 +249,58 @@ fun PhysicsContent(
                         .padding(start = 12.dp)
                 ) {
                     ForceRangeWidget(runtimeParameters, runtimeParametersChanged)
+                    PressureWidget(runtimeParameters, runtimeParametersChanged)
                     TimeStepWidget(runtimeParameters, runtimeParametersChanged)
                 }
             }
         }
+    }
+}
+
+@Composable
+private fun RandomiseAndResetButtons(runtimeParametersChanged: (ParticleLifeParameters.RuntimeParameters.() -> Unit) -> Unit) {
+    Row(Modifier.fillMaxWidth()) {
+        Box(
+            Modifier
+                .weight(0.5f, fill = true)
+                .padding(end = 12.dp)
+        ) {
+            RandomiseButton(runtimeParametersChanged)
+        }
+        Box(
+            Modifier
+                .weight(0.5f, fill = true)
+                .padding(end = 12.dp)
+        ) {
+            ResetButton(runtimeParametersChanged)
+        }
+    }
+}
+
+
+@Composable
+private fun BoxScope.RandomiseButton(runtimeParametersChanged: (ParticleLifeParameters.RuntimeParameters.() -> Unit) -> Unit) {
+    Button(
+        onClick = { runtimeParametersChanged { randomise() } },
+        modifier = Modifier
+            .padding(vertical = 4.dp)
+            .fillMaxWidth(0.9f)
+            .align(Center)
+    ) {
+        Text(stringResource(R.string.randomise_label))
+    }
+}
+
+@Composable
+private fun BoxScope.ResetButton(runtimeParametersChanged: (ParticleLifeParameters.RuntimeParameters.() -> Unit) -> Unit) {
+    Button(
+        onClick = { runtimeParametersChanged { reset() } },
+        modifier = Modifier
+            .padding(vertical = 4.dp)
+            .fillMaxWidth(0.9f)
+            .align(Center)
+    ) {
+        Text(stringResource(R.string.reset_label))
     }
 }
 
@@ -262,7 +314,7 @@ private fun FrictionWidget(
         description = stringResource(R.string.friction_description),
         valueToString = { it.decimal(2) },
         value = runtimeParameters.value.friction.toFloat(),
-        range = 0f..5f,
+        range = ParticleLifeParameters.RuntimeParameters.FRICTION_MIN.toFloat()..ParticleLifeParameters.RuntimeParameters.FRICTION_MAX.toFloat(),
         onValueChange = {
             runtimeParametersChanged { friction = it.toDouble() }
         }
@@ -279,7 +331,7 @@ private fun ForceStrengthWidget(
         description = stringResource(R.string.force_strength_description),
         valueToString = { it.toInt().toString() },
         value = runtimeParameters.value.forceScale.toFloat(),
-        range = 1f..500f,
+        range = ParticleLifeParameters.RuntimeParameters.FORCE_STRENGTH_MIN.toFloat()..ParticleLifeParameters.RuntimeParameters.FORCE_STRENGTH_MAX.toFloat(),
         onValueChange = {
             runtimeParametersChanged { forceScale = it.toDouble() }
         }
@@ -296,9 +348,26 @@ private fun ForceRangeWidget(
         description = stringResource(R.string.force_range_description),
         valueToString = { it.toInt().toString() },
         value = runtimeParameters.value.newtonMax.toFloat(),
-        range = 20f..200f,
+        range = ParticleLifeParameters.RuntimeParameters.FORCE_RANGE_MIN.toFloat()..ParticleLifeParameters.RuntimeParameters.FORCE_RANGE_MAX.toFloat(),
         onValueChange = {
             runtimeParametersChanged { newtonMax = it.toDouble() }
+        }
+    )
+}
+
+@Composable
+private fun PressureWidget(
+    runtimeParameters: State<ParticleLifeParameters.RuntimeParameters>,
+    runtimeParametersChanged: (ParticleLifeParameters.RuntimeParameters.() -> Unit) -> Unit
+) {
+    TextSliderPair(
+        text = stringResource(R.string.pressure_label),
+        description = stringResource(R.string.pressure_description),
+        valueToString = { it.toInt().toString() },
+        value = runtimeParameters.value.fermiForceScale.toFloat(),
+        range = ParticleLifeParameters.RuntimeParameters.PRESSURE_MIN.toFloat()..ParticleLifeParameters.RuntimeParameters.PRESSURE_MAX.toFloat(),
+        onValueChange = {
+            runtimeParametersChanged { fermiForceScale = it.toDouble() }
         }
     )
 }
@@ -313,7 +382,7 @@ private fun TimeStepWidget(
         description = stringResource(R.string.time_step_description),
         valueToString = { it.decimal(2) },
         value = runtimeParameters.value.timeScale.toFloat(),
-        range = 0.1f..3f,
+        range = ParticleLifeParameters.RuntimeParameters.TIME_STEP_MIN.toFloat()..ParticleLifeParameters.RuntimeParameters.TIME_STEP_MAX.toFloat(),
         onValueChange = {
             runtimeParametersChanged { timeScale = it.toDouble() }
         }
@@ -394,7 +463,7 @@ private fun NumberOfParticlesWidget(
         description = stringResource(R.string.number_of_particles_description),
         valueToString = { it.roundToInt().toString() },
         value = generationParameters.value.nParticles.toFloat(),
-        range = 50f..1200f,
+        range = ParticleLifeParameters.GenerationParameters.N_PARTICLES_MIN.toFloat()..ParticleLifeParameters.GenerationParameters.N_PARTICLES_MAX.toFloat(),
         onValueChange = {
             generationParametersChanged { nParticles = it.roundToInt() }
         }
@@ -411,7 +480,7 @@ private fun NumberOfSpeciesWidget(
         description = stringResource(R.string.number_of_species_description),
         valueToString = { it.roundToInt().toString() },
         value = generationParameters.value.nSpecies.toFloat(),
-        range = 1f..10f,
+        range = ParticleLifeParameters.GenerationParameters.N_SPECIES_MIN.toFloat()..ParticleLifeParameters.GenerationParameters.N_SPECIES_MAX.toFloat(),
         onValueChange = {
             generationParametersChanged { nSpecies = it.roundToInt() }
         }
@@ -431,7 +500,7 @@ private fun ForceValueRangeWidget(
             generationParameters.value.maxAttraction.toFloat(),
             generationParameters.value.maxRepulsion.toFloat()
         ),
-        range = -2f..2f,
+        range = ParticleLifeParameters.GenerationParameters.FORCE_VALUE_RANGE_MIN.toFloat()..ParticleLifeParameters.GenerationParameters.FORCE_VALUE_RANGE_MAX.toFloat(),
         onValueChange = {
             generationParametersChanged {
                 maxAttraction = it.first.toDouble()
