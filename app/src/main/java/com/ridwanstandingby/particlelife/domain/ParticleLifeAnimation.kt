@@ -109,10 +109,10 @@ class ParticleLifeParameters(
 ) : AnimationParameters() {
 
     data class GenerationParameters(
-        var nParticles: Int = 600,
-        var nSpecies: Int = 6,
-        var maxRepulsion: Double = 1.0,
-        var maxAttraction: Double = -1.0
+        var nParticles: Int = N_PARTICLES_DEFAULT,
+        var nSpecies: Int = N_SPECIES_DEFAULT,
+        var maxRepulsion: Double = FORCE_VALUE_RANGE_UPPER_DEFAULT,
+        var maxAttraction: Double = -FORCE_VALUE_RANGE_LOWER_DEFAULT
     ) {
         fun generateRandomSpecies(): List<Species> =
             listOf(
@@ -128,8 +128,8 @@ class ParticleLifeParameters(
                 Species(Color.WHITE)
             ).take(
                 when {
-                    nSpecies < MIN_SPECIES -> MIN_SPECIES
-                    nSpecies > MAX_SPECIES -> MAX_SPECIES
+                    nSpecies < N_SPECIES_MIN -> N_SPECIES_MIN
+                    nSpecies > N_SPECIES_MAX -> N_SPECIES_MAX
                     else -> nSpecies
                 }
             )
@@ -168,8 +168,18 @@ class ParticleLifeParameters(
         }
 
         companion object {
-            const val MIN_SPECIES = 1
-            const val MAX_SPECIES = 10
+            const val N_PARTICLES_DEFAULT = 600
+            const val N_PARTICLES_MIN = 50
+            const val N_PARTICLES_MAX = 1200
+
+            const val N_SPECIES_DEFAULT = 6
+            const val N_SPECIES_MIN = 1
+            const val N_SPECIES_MAX = 10
+
+            const val FORCE_VALUE_RANGE_LOWER_DEFAULT = -1.0
+            const val FORCE_VALUE_RANGE_UPPER_DEFAULT = 1.0
+            const val FORCE_VALUE_RANGE_MIN = -2.0
+            const val FORCE_VALUE_RANGE_MAX = 2.0
         }
     }
 
@@ -177,16 +187,16 @@ class ParticleLifeParameters(
         var xMax: Double,
         var yMax: Double,
         val interactionMatrix: Array<Array<Double>>,
-        fermiForceScale: Double = 100.0,
-        fermiRange: Double = 16.0,
-        newtonMax: Double = 80.0,
-        newtonMin: Double = 16.0,
-        var forceScale: Double = 100.0,
-        var friction: Double = 0.5,
-        var timeScale: Double = 1.0
+        fermiForceScale: Double = PRESSURE_DEFAULT,
+        fermiRange: Double = PRESSURE_RANGE_DEFAULT,
+        newtonMax: Double = FORCE_RANGE_DEFAULT,
+        newtonMin: Double = FORCE_HORIZON_DEFAULT,
+        var forceScale: Double = FORCE_STRENGTH_DEFAULT,
+        var friction: Double = FRICTION_DEFAULT,
+        var timeScale: Double = TIME_STEP_DEFAULT
     ) {
 
-        private var fermiForceScale: Double = fermiForceScale
+        var fermiForceScale: Double = fermiForceScale
             set(value) {
                 field = value
                 recompute()
@@ -239,6 +249,49 @@ class ParticleLifeParameters(
             newtonMid = (newtonMax + newtonMin) / 2
             newtonSemiInterval = newtonMax - newtonMid
             fermiForceScaleByFermiRange = fermiForceScale / fermiRange
+        }
+
+        fun randomise() {
+            friction = Random.nextDouble(FRICTION_MIN, FRICTION_MAX)
+            newtonMax = Random.nextDouble(FORCE_RANGE_MIN, FORCE_RANGE_MAX)
+            forceScale = Random.nextDouble(FORCE_STRENGTH_MIN, FORCE_STRENGTH_MAX)
+            fermiForceScale = Random.nextDouble(PRESSURE_MIN, PRESSURE_MAX)
+        }
+
+        fun reset() {
+            fermiForceScale = PRESSURE_DEFAULT
+            fermiRange = PRESSURE_RANGE_DEFAULT
+            newtonMax = FORCE_RANGE_DEFAULT
+            newtonMin = FORCE_HORIZON_DEFAULT
+            forceScale = FORCE_STRENGTH_DEFAULT
+            friction = FRICTION_DEFAULT
+            timeScale = TIME_STEP_DEFAULT
+        }
+
+        companion object {
+            const val FRICTION_DEFAULT = 0.5
+            const val FRICTION_MIN = 0.0
+            const val FRICTION_MAX = 5.0
+
+            const val FORCE_STRENGTH_DEFAULT = 100.0
+            const val FORCE_STRENGTH_MIN = 1.0
+            const val FORCE_STRENGTH_MAX = 500.0
+
+            const val FORCE_RANGE_DEFAULT = 80.0
+            const val FORCE_RANGE_MIN = 20.0
+            const val FORCE_RANGE_MAX = 200.0
+
+            const val FORCE_HORIZON_DEFAULT = 16.0
+
+            const val PRESSURE_DEFAULT = 100.0
+            const val PRESSURE_MIN = 1.0
+            const val PRESSURE_MAX = 1000.0
+
+            const val PRESSURE_RANGE_DEFAULT = 16.0
+
+            const val TIME_STEP_DEFAULT = 1.0
+            const val TIME_STEP_MIN = 0.1
+            const val TIME_STEP_MAX = 3.0
         }
     }
 

@@ -262,7 +262,7 @@ private fun FrictionWidget(
         description = stringResource(R.string.friction_description),
         valueToString = { it.decimal(2) },
         value = runtimeParameters.value.friction.toFloat(),
-        range = 0f..5f,
+        range = ParticleLifeParameters.RuntimeParameters.FRICTION_MIN.toFloat()..ParticleLifeParameters.RuntimeParameters.FRICTION_MAX.toFloat(),
         onValueChange = {
             runtimeParametersChanged { friction = it.toDouble() }
         }
@@ -279,7 +279,7 @@ private fun ForceStrengthWidget(
         description = stringResource(R.string.force_strength_description),
         valueToString = { it.toInt().toString() },
         value = runtimeParameters.value.forceScale.toFloat(),
-        range = 1f..500f,
+        range = ParticleLifeParameters.RuntimeParameters.FORCE_STRENGTH_MIN.toFloat()..ParticleLifeParameters.RuntimeParameters.FORCE_STRENGTH_MAX.toFloat(),
         onValueChange = {
             runtimeParametersChanged { forceScale = it.toDouble() }
         }
@@ -296,7 +296,7 @@ private fun ForceRangeWidget(
         description = stringResource(R.string.force_range_description),
         valueToString = { it.toInt().toString() },
         value = runtimeParameters.value.newtonMax.toFloat(),
-        range = 20f..200f,
+        range = ParticleLifeParameters.RuntimeParameters.FORCE_RANGE_MIN.toFloat()..ParticleLifeParameters.RuntimeParameters.FORCE_RANGE_MAX.toFloat(),
         onValueChange = {
             runtimeParametersChanged { newtonMax = it.toDouble() }
         }
@@ -313,7 +313,7 @@ private fun TimeStepWidget(
         description = stringResource(R.string.time_step_description),
         valueToString = { it.decimal(2) },
         value = runtimeParameters.value.timeScale.toFloat(),
-        range = 0.1f..3f,
+        range = ParticleLifeParameters.RuntimeParameters.TIME_STEP_MIN.toFloat()..ParticleLifeParameters.RuntimeParameters.TIME_STEP_MAX.toFloat(),
         onValueChange = {
             runtimeParametersChanged { timeScale = it.toDouble() }
         }
@@ -394,7 +394,7 @@ private fun NumberOfParticlesWidget(
         description = stringResource(R.string.number_of_particles_description),
         valueToString = { it.roundToInt().toString() },
         value = generationParameters.value.nParticles.toFloat(),
-        range = 50f..1200f,
+        range = ParticleLifeParameters.GenerationParameters.N_PARTICLES_MIN.toFloat()..ParticleLifeParameters.GenerationParameters.N_PARTICLES_MAX.toFloat(),
         onValueChange = {
             generationParametersChanged { nParticles = it.roundToInt() }
         }
@@ -411,7 +411,7 @@ private fun NumberOfSpeciesWidget(
         description = stringResource(R.string.number_of_species_description),
         valueToString = { it.roundToInt().toString() },
         value = generationParameters.value.nSpecies.toFloat(),
-        range = 1f..10f,
+        range = ParticleLifeParameters.GenerationParameters.N_SPECIES_MIN.toFloat()..ParticleLifeParameters.GenerationParameters.N_SPECIES_MAX.toFloat(),
         onValueChange = {
             generationParametersChanged { nSpecies = it.roundToInt() }
         }
@@ -431,7 +431,7 @@ private fun ForceValueRangeWidget(
             generationParameters.value.maxAttraction.toFloat(),
             generationParameters.value.maxRepulsion.toFloat()
         ),
-        range = -2f..2f,
+        range = -ParticleLifeParameters.GenerationParameters.FORCE_VALUE_RANGE_MIN.toFloat()..ParticleLifeParameters.GenerationParameters.FORCE_VALUE_RANGE_MAX.toFloat(),
         onValueChange = {
             generationParametersChanged {
                 maxAttraction = it.first.toDouble()
