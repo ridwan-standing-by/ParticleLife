@@ -122,9 +122,9 @@ class ParticleLifeParameters(
                 Species(Color.CYAN),
                 Species(Color.BLUE),
                 Species(Color.MAGENTA),
-                Species(-0x7F007FFF),
-                Species(-0x7FFF7F00),
-                Species(Color.GRAY),
+                Species(-0x0F80C100),
+                Species(-0x0FFF80C1),
+                Species(-0x0FC0FF81),
                 Species(Color.WHITE)
             ).take(
                 when {
