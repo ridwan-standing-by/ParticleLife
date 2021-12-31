@@ -263,14 +263,12 @@ private fun RandomiseAndResetButtons(runtimeParametersChanged: (ParticleLifePara
         Box(
             Modifier
                 .weight(0.5f, fill = true)
-                .padding(end = 12.dp)
         ) {
             RandomiseButton(runtimeParametersChanged)
         }
         Box(
             Modifier
                 .weight(0.5f, fill = true)
-                .padding(end = 12.dp)
         ) {
             ResetButton(runtimeParametersChanged)
         }
@@ -284,7 +282,7 @@ private fun BoxScope.RandomiseButton(runtimeParametersChanged: (ParticleLifePara
         onClick = { runtimeParametersChanged { randomise() } },
         modifier = Modifier
             .padding(vertical = 4.dp)
-            .fillMaxWidth(0.9f)
+            .fillMaxWidth(0.93f)
             .align(Center)
     ) {
         Text(stringResource(R.string.randomise_label))
@@ -447,6 +445,7 @@ private fun ColumnScope.GenerateNewParticlesButton(generateNewParticlesClicked: 
         onClick = generateNewParticlesClicked,
         modifier = Modifier
             .padding(vertical = 4.dp)
+            .fillMaxWidth(0.93f)
             .align(CenterHorizontally)
     ) {
         Text(stringResource(R.string.generate_new_particles_label))

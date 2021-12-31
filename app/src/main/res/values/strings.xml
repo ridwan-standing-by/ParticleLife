@@ -7,8 +7,8 @@
     <string name="friction_description">The amount by which particles are slowed over time.</string>
     <string name="force_strength_label">Force strength</string>
     <string name="force_strength_description">Global multiplier for all repulsive and attractive forces.</string>
-    <string name="force_range_label">Force range</string>
-    <string name="force_range_description">Global multiplier for the range at which the repulsive and attractive forces act.</string>
+    <string name="force_range_label">Force distance</string>
+    <string name="force_range_description">Global multiplier for the distance at which the repulsive and attractive forces act.</string>
     <string name="pressure_label">Pressure</string>
     <string name="pressure_description">Strength of repulsion when particles get too close.</string>
     <string name="time_step_label">Time step</string>
