@@ -13,6 +13,7 @@ import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.State
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.Alignment.Companion.Center
 import androidx.compose.ui.Alignment.Companion.CenterHorizontally
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -220,6 +221,7 @@ fun PhysicsContent(
                 .fillMaxWidth()
         )
         if (isPortrait()) {
+            RandomiseAndResetButtons(runtimeParametersChanged)
             FrictionWidget(runtimeParameters, runtimeParametersChanged)
             ForceStrengthWidget(runtimeParameters, runtimeParametersChanged)
             ForceRangeWidget(runtimeParameters, runtimeParametersChanged)
@@ -232,6 +234,7 @@ fun PhysicsContent(
                         .weight(0.5f)
                         .padding(end = 12.dp)
                 ) {
+                    RandomiseAndResetButtons(runtimeParametersChanged)
                     FrictionWidget(runtimeParameters, runtimeParametersChanged)
                     ForceStrengthWidget(runtimeParameters, runtimeParametersChanged)
                 }
@@ -251,6 +254,53 @@ fun PhysicsContent(
                 }
             }
         }
+    }
+}
+
+@Composable
+private fun RandomiseAndResetButtons(runtimeParametersChanged: (ParticleLifeParameters.RuntimeParameters.() -> Unit) -> Unit) {
+    Row(Modifier.fillMaxWidth()) {
+        Box(
+            Modifier
+                .weight(0.5f, fill = true)
+                .padding(end = 12.dp)
+        ) {
+            RandomiseButton(runtimeParametersChanged)
+        }
+        Box(
+            Modifier
+                .weight(0.5f, fill = true)
+                .padding(end = 12.dp)
+        ) {
+            ResetButton(runtimeParametersChanged)
+        }
+    }
+}
+
+
+@Composable
+private fun BoxScope.RandomiseButton(runtimeParametersChanged: (ParticleLifeParameters.RuntimeParameters.() -> Unit) -> Unit) {
+    Button(
+        onClick = { runtimeParametersChanged { randomise() } },
+        modifier = Modifier
+            .padding(vertical = 4.dp)
+            .fillMaxWidth(0.9f)
+            .align(Center)
+    ) {
+        Text(stringResource(R.string.randomise_label))
+    }
+}
+
+@Composable
+private fun BoxScope.ResetButton(runtimeParametersChanged: (ParticleLifeParameters.RuntimeParameters.() -> Unit) -> Unit) {
+    Button(
+        onClick = { runtimeParametersChanged { reset() } },
+        modifier = Modifier
+            .padding(vertical = 4.dp)
+            .fillMaxWidth(0.9f)
+            .align(Center)
+    ) {
+        Text(stringResource(R.string.reset_label))
     }
 }
 

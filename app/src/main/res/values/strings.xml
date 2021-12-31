@@ -1,6 +1,8 @@
 <resources>
     <string name="app_name">Particle Life</string>
     <string name="physics_info">Change global simulation parameters</string>
+    <string name="randomise_label">Randomise</string>
+    <string name="reset_label">Reset</string>
     <string name="friction_label">Friction</string>
     <string name="friction_description">The amount by which particles are slowed over time.</string>
     <string name="force_strength_label">Force strength</string>
@@ -20,7 +22,7 @@
     <string name="force_value_range_label">Force value range</string>
     <string name="force_value_range_description">Maximum and minimum values for repulsion/attraction forces between species. Positive values indicate repulsion and negative values indicate attraction.</string>
     <string name="about_particle_simulation">A particle simulation, designed to illustrate life-like behaviour emerging from particles obeying a set of simple rules.</string>
-    <string name="about_particle_force_explanation">Each particle exerts a force on other nearby particles, depending on their species (represented by the different colours). This can either be a repulsion or an attraction, and is not necessarily symmetric. For example, species A can be attracted by species B, but species B can be repulsed by species A, which would result in A \"chasing\" B.</string>
-    <string name="about_particle_extras">To avoid particles speeding up forever, a global friction is applied that slows particles down. Additionally, all particles repel each other if they get too close for comfort.</string>
+    <string name="about_particle_force_explanation">Each particle exerts a force on other nearby particles, depending on their species (represented by the different colours). This can either be a repulsion or an attraction, and is not necessarily symmetric. For example, red can be attracted to green, but green could be repulsed by red, which would result in red \"chasing\" green.</string>
+    <string name="about_particle_extras">To avoid particles speeding up forever, a global friction is applied that slows particles down. Additionally, all particles repel each other if they get too close for comfort, like a kind of degeneracy pressure</string>
     <string name="about_particle_final">Play around with different settings to discover which parameters result in the most \"life-like\" creatures.</string>
 </resources>

@@ -285,7 +285,7 @@ class ParticleLifeParameters(
 
             const val PRESSURE_DEFAULT = 100.0
             const val PRESSURE_MIN = 1.0
-            const val PRESSURE_MAX = 300.0
+            const val PRESSURE_MAX = 250.0
 
             const val PRESSURE_RANGE_DEFAULT = 16.0
 
