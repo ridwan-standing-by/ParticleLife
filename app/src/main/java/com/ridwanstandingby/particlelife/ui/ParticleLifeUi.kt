@@ -461,6 +461,7 @@ fun ParticlesContent(
                 ) {
                     GenerateNewParticlesButton(generateNewParticlesClicked)
                     NumberOfParticlesWidget(generationParameters, generationParametersChanged)
+                    NumberOfSpeciesWidget(generationParameters, generationParametersChanged)
                 }
                 Divider(
                     Modifier
@@ -472,7 +473,6 @@ fun ParticlesContent(
                         .weight(0.5f)
                         .padding(start = 12.dp)
                 ) {
-                    NumberOfSpeciesWidget(generationParameters, generationParametersChanged)
                     ForceValueRangeWidget(generationParameters, generationParametersChanged)
                     EditForceValuesButton(controlPanelExpanded, editForceValuePanelExpanded)
                 }
