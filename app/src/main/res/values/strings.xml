@@ -23,6 +23,7 @@
     <string name="force_value_range_description">Maximum and minimum values for repulsion/attraction forces between species. Positive values indicate repulsion and negative values indicate attraction.</string>
     <string name="edit_force_values_label">Edit Current Force Values</string>
     <string name="edit_force_values_description">Tap a colour to view and edit that species\' interaction values with other species. Negative values indicate attraction, positive values indicate repulsion.</string>
+    <string name="edit_force_value_select_species_content_description">Select species</string>
     <string name="about_particle_simulation">A particle simulation, designed to illustrate life-like behaviour emerging from particles obeying a set of simple rules.</string>
     <string name="about_particle_force_explanation">Each particle exerts a force on other nearby particles, depending on their species (represented by the different colours). This can either be a repulsion or an attraction, and is not necessarily symmetric. For example, red can be attracted to green, but green could be repulsed by red, which would result in red \"chasing\" green.</string>
     <string name="about_particle_extras">To avoid particles speeding up forever, a global friction is applied that slows particles down. Additionally, all particles repel each other if they get too close for comfort, like a kind of degeneracy pressure</string>

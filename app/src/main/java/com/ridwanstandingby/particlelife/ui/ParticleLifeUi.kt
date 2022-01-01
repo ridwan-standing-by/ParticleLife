@@ -2,11 +2,14 @@ package com.ridwanstandingby.particlelife.ui
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.ExperimentalAnimationApi
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.ChevronRight
 import androidx.compose.material.icons.rounded.Tune
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
@@ -604,19 +607,64 @@ private fun EditForceValuePanelCardContent(
                     .padding(4.dp)
                     .fillMaxWidth()
             )
-            species.value.forEachIndexed { index, thisSpecies ->
-                EditSpeciesForceValueSlider(
-                    thisSpeciesIndex = index,
-                    selectedSpeciesIndex = editForceValueSelectedSpeciesIndex,
-                    allSpecies = species.value,
-                    runtimeParameters = runtimeParameters,
-                    runtimeParametersChanged = runtimeParametersChanged
-                )
+            if (isPortrait()) {
+                species.value.forEachIndexed { index, _ ->
+                    EditSpeciesForceValueSlider(
+                        thisSpeciesIndex = index,
+                        selectedSpeciesIndex = editForceValueSelectedSpeciesIndex,
+                        allSpecies = species.value,
+                        runtimeParameters = runtimeParameters,
+                        runtimeParametersChanged = runtimeParametersChanged
+                    )
+                }
+            } else {
+                Row(Modifier.fillMaxWidth()) {
+                    Column(
+                        Modifier
+                            .weight(0.5f)
+                            .padding(end = 12.dp)
+                    ) {
+                        species.value.chunked(ParticleLifeParameters.GenerationParameters.N_SPECIES_MAX / 2)
+                            .getOrNull(0)
+                            ?.forEachIndexed { index, _ ->
+                                EditSpeciesForceValueSlider(
+                                    thisSpeciesIndex = index,
+                                    selectedSpeciesIndex = editForceValueSelectedSpeciesIndex,
+                                    allSpecies = species.value,
+                                    runtimeParameters = runtimeParameters,
+                                    runtimeParametersChanged = runtimeParametersChanged
+                                )
+                            }
+                    }
+                    Divider(
+                        Modifier
+                            .fillMaxHeight()
+                            .width(1.dp)
+                    )
+                    Column(
+                        Modifier
+                            .weight(0.5f)
+                            .padding(start = 12.dp)
+                    ) {
+                        species.value.chunked(ParticleLifeParameters.GenerationParameters.N_SPECIES_MAX / 2)
+                            .getOrNull(1)
+                            ?.forEachIndexed { index, _ ->
+                                EditSpeciesForceValueSlider(
+                                    thisSpeciesIndex = index + ParticleLifeParameters.GenerationParameters.N_SPECIES_MAX / 2,
+                                    selectedSpeciesIndex = editForceValueSelectedSpeciesIndex,
+                                    allSpecies = species.value,
+                                    runtimeParameters = runtimeParameters,
+                                    runtimeParametersChanged = runtimeParametersChanged
+                                )
+                            }
+                    }
+                }
             }
         }
     }
 }
 
+@OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun EditSpeciesForceValueSlider(
     thisSpeciesIndex: Int,
@@ -632,12 +680,48 @@ fun EditSpeciesForceValueSlider(
     ) {
         val value =
             runtimeParameters.value.interactionMatrix[selectedSpeciesIndex.value][thisSpeciesIndex].toFloat()
-        Text(
-            text = thisSpeciesIndex.toString(),
+        val isSelected = thisSpeciesIndex == selectedSpeciesIndex.value
+        Box(
             modifier = Modifier
-                .weight(0.425f)
+                .weight(0.2125f)
+                .padding(vertical = 2.dp)
                 .align(Alignment.CenterVertically)
-        )
+        ) {
+            IconButton(
+                onClick = { selectedSpeciesIndex.value = thisSpeciesIndex },
+                modifier = Modifier
+                    .run {
+                        if (isSelected) background(
+                            color = MaterialTheme.colors.secondary,
+                            shape = RoundedCornerShape(50)
+                        ) else Modifier
+                    }
+                    .align(Center)
+            ) {
+                Icon(
+                    imageVector = Icons.Rounded.ChevronRight,
+                    contentDescription = stringResource(R.string.edit_force_value_select_species_content_description)
+                )
+            }
+        }
+        Box(
+            modifier = Modifier
+                .weight(0.2125f)
+                .padding(vertical = 2.dp)
+                .align(Alignment.CenterVertically)
+        ) {
+            IconButton(
+                onClick = { selectedSpeciesIndex.value = thisSpeciesIndex },
+                modifier = Modifier
+                    .align(Center)
+                    .fillMaxHeight()
+                    .background(
+                        color = Color(allSpecies[thisSpeciesIndex].color),
+                        shape = RoundedCornerShape(50)
+                    )
+            ) {
+            }
+        }
         Text(
             text = value.decimal(2), textAlign = TextAlign.End, modifier = Modifier
                 .weight(0.15f)
