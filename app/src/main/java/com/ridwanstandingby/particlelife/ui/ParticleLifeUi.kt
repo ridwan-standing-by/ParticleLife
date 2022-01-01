@@ -538,14 +538,14 @@ private fun ForceValueRangeWidget(
         description = stringResource(R.string.force_value_range_description),
         valueToString = { it.decimal(1) },
         values = Pair(
-            generationParameters.value.maxAttraction.toFloat(),
-            generationParameters.value.maxRepulsion.toFloat()
+            generationParameters.value.maxRepulsion.toFloat(),
+            generationParameters.value.maxAttraction.toFloat()
         ),
         range = ParticleLifeParameters.GenerationParameters.FORCE_VALUE_RANGE_MIN.toFloat()..ParticleLifeParameters.GenerationParameters.FORCE_VALUE_RANGE_MAX.toFloat(),
         onValueChange = {
             generationParametersChanged {
-                maxAttraction = it.first.toDouble()
-                maxRepulsion = it.second.toDouble()
+                maxRepulsion = it.first.toDouble()
+                maxAttraction = it.second.toDouble()
             }
         }
     )
