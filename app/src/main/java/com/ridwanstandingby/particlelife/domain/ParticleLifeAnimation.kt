@@ -95,7 +95,7 @@ class ParticleLifeAnimation(
     ): Double =
         when {
             distance > newtonMax -> 0.0
-            distance > newtonMin -> interactionCharacteristic * (1.0 - abs(distance - newtonMid) / newtonSemiInterval)
+            distance > newtonMin -> -interactionCharacteristic * (1.0 - abs(distance - newtonMid) / newtonSemiInterval)
             distance > fermiRange -> 0.0
             else -> fermiForceScaleByFermiRange * (fermiRange - distance)
         } * forceScale
@@ -111,8 +111,8 @@ class ParticleLifeParameters(
     data class GenerationParameters(
         var nParticles: Int = N_PARTICLES_DEFAULT,
         var nSpecies: Int = N_SPECIES_DEFAULT,
-        var maxRepulsion: Double = FORCE_VALUE_RANGE_UPPER_DEFAULT,
-        var maxAttraction: Double = FORCE_VALUE_RANGE_LOWER_DEFAULT
+        var maxAttraction: Double = FORCE_VALUE_RANGE_UPPER_DEFAULT,
+        var maxRepulsion: Double = FORCE_VALUE_RANGE_LOWER_DEFAULT
     ) {
         fun generateRandomSpecies(): List<Species> =
             listOf(
@@ -122,9 +122,9 @@ class ParticleLifeParameters(
                 Species(Color.CYAN),
                 Species(Color.BLUE),
                 Species(Color.MAGENTA),
-                Species(-0x0F80C100),
-                Species(-0x0FFF80C1),
-                Species(-0x0FC0FF81),
+                Species(-0x00C0FF91), // Purple
+                Species(-0x0090C100), // Brown
+                Species(-0x00909091), // Gray
                 Species(Color.WHITE)
             ).take(
                 when {
@@ -136,9 +136,9 @@ class ParticleLifeParameters(
 
         private fun generateRandomInteractionValue() =
             try {
-                Random.nextDouble(maxAttraction, maxRepulsion)
+                Random.nextDouble(maxRepulsion, maxAttraction)
             } catch (e: Exception) {
-                maxAttraction
+                maxRepulsion
             }
 
         private fun generateRandomInteractionVector() =
