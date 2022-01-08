@@ -193,7 +193,9 @@ class ParticleLifeParameters(
         newtonMin: Double = FORCE_HORIZON_DEFAULT,
         var forceScale: Double = FORCE_STRENGTH_DEFAULT,
         var friction: Double = FRICTION_DEFAULT,
-        var timeScale: Double = TIME_STEP_DEFAULT
+        var timeScale: Double = TIME_STEP_DEFAULT,
+        val handOfGodEnabled: Boolean = false,
+
     ) {
 
         var fermiForceScale: Double = fermiForceScale
@@ -292,6 +294,14 @@ class ParticleLifeParameters(
             const val TIME_STEP_DEFAULT = 1.0
             const val TIME_STEP_MIN = 0.1
             const val TIME_STEP_MAX = 3.0
+
+            const val HAND_OF_GOD_ENABLED_DEFAULT = false
+            const val SWIPE_TO_HERD_ENABLED_DEFAULT = true
+            const val SWIPE_TO_HERD_STRENGTH_DEFAULT = 20.0
+            const val SWIPE_TO_HERD_RADIUS_DEFAULT = 20.0
+            const val CORRAL_ENABLED_DEFAULT = true
+            const val CORRAL_STRENGTH_DEFAULT = 20.0
+            const val CORRAL_RADIUS_DEFAULT = 20.0
         }
     }
 
