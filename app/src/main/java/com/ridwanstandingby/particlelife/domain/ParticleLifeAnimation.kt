@@ -6,6 +6,7 @@ import android.graphics.Color
 import android.graphics.Paint
 import com.ridwanstandingby.verve.animation.Animation
 import com.ridwanstandingby.verve.animation.AnimationParameters
+import com.ridwanstandingby.verve.math.IntVector2
 import com.ridwanstandingby.verve.math.sq
 import com.ridwanstandingby.verve.math.toroidalDiff
 import com.ridwanstandingby.verve.sensor.swipe.Swipe
@@ -28,6 +29,9 @@ class ParticleLifeAnimation(
     init {
         renderer.getParticles = { particles }
         renderer.getSpecies = { parameters.species }
+        renderer.getBounds = {
+            IntVector2(parameters.runtime.yMax.toInt(), parameters.runtime.xMax.toInt())
+        }
     }
 
     private val updateLock = ReentrantLock(true)
@@ -110,17 +114,21 @@ class ParticleLifeAnimation(
         swipe: Swipe,
         dts: Double
     ) {
-        val swipeX = swipe.screenPosition.x.toDouble()
-        val swipeY = swipe.screenPosition.y.toDouble()
-        val swipeXv = swipe.screenVelocity.x.toDouble()
-        val swipeYv = swipe.screenVelocity.y.toDouble()
+        val swipeX = renderer.inverseTransformX(
+            swipe.screenPosition.x, swipe.screenPosition.y, yMax.toInt(), xMax.toInt()
+        )
+        val swipeY = renderer.inverseTransformY(
+            swipe.screenPosition.x, swipe.screenPosition.y, yMax.toInt(), xMax.toInt()
+        )
+        val swipeXv = renderer.inverseTransformDX(swipe.screenVelocity.x, swipe.screenVelocity.y)
+        val swipeYv = renderer.inverseTransformDY(swipe.screenVelocity.x, swipe.screenVelocity.y)
         particles.forEach { particle ->
             val xDiff = toroidalDiff(swipeX, particle.x, xMax)
             if (abs(xDiff) > herdRadius) return@forEach
             val yDiff = toroidalDiff(swipeY, particle.y, yMax)
 
             val distance2 = xDiff.sq() + yDiff.sq()
-            if (distance2 < herdRadius*herdRadius) {
+            if (distance2 < herdRadius * herdRadius) {
                 particle.xv += dts * herdStrength * swipeXv
                 particle.yv += dts * herdStrength * swipeYv
             }
