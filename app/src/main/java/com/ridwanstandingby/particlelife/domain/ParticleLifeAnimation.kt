@@ -1,3 +1,5 @@
+@file:Suppress("nothing_to_inline")
+
 package com.ridwanstandingby.particlelife.domain
 
 import android.graphics.Color
@@ -6,6 +8,7 @@ import com.ridwanstandingby.verve.animation.Animation
 import com.ridwanstandingby.verve.animation.AnimationParameters
 import com.ridwanstandingby.verve.math.sq
 import com.ridwanstandingby.verve.math.toroidalDiff
+import com.ridwanstandingby.verve.sensor.swipe.Swipe
 import java.util.concurrent.locks.ReentrantLock
 import kotlin.math.abs
 import kotlin.math.sqrt
@@ -48,48 +51,51 @@ class ParticleLifeAnimation(
 
         with(parameters.runtime) {
             val dts = dt * timeScale
+
             particles.forEach outer@{ a ->
                 particles.forEach { b ->
-                    val xDiff = toroidalDiff(a.x, b.x, xMax)
-                    if (abs(xDiff) > newtonMax) return@forEach
-                    val yDiff = toroidalDiff(a.y, b.y, yMax)
+                    applyInteractionForce(a, b, dts)
+                }
+            }
 
-                    val distance2 = xDiff.sq() + yDiff.sq()
-                    if (distance2 < newtonMax2 && a !== b) {
-                        val distance = sqrt(distance2)
-                        val force = interactionForce(
-                            distance,
-                            interactionMatrix[a.speciesIndex][b.speciesIndex]
-                        )
-                        a.xv += dts * force * xDiff / distance
-                        a.yv += dts * force * yDiff / distance
-                    }
+            if (handOfGodEnabled) {
+                if (herdEnabled) {
+                    input.getSwipes()?.forEach { applySwipeForce(it, dts) }
                 }
             }
 
             particles.forEach { particle ->
-                particle.xv *= (1 - friction * dts)
-                particle.yv *= (1 - friction * dts)
-
-                particle.x += particle.xv * dts
-                particle.y += particle.yv * dts
-
-                if (particle.x > xMax)
-                    particle.x = 0.0
-                else if (particle.x < 0.0)
-                    particle.x = xMax
-                if (particle.y > yMax)
-                    particle.y = 0.0
-                else if (particle.y < 0.0) {
-                    particle.y = yMax
-                }
+                applyFriction(particle, dts)
+                applyForwardTimeIntegration(particle, dts)
+                applyToroidalWrapping(particle)
             }
         }
         updateLock.unlock()
     }
 
+    private inline fun ParticleLifeParameters.RuntimeParameters.applyInteractionForce(
+        a: Particle,
+        b: Particle,
+        dts: Double
+    ) {
+        val xDiff = toroidalDiff(a.x, b.x, xMax)
+        if (abs(xDiff) > newtonMax) return
+        val yDiff = toroidalDiff(a.y, b.y, yMax)
+
+        val distance2 = xDiff.sq() + yDiff.sq()
+        if (distance2 < newtonMax2 && a !== b) {
+            val distance = sqrt(distance2)
+            val force = calculateInteractionForce(
+                distance,
+                interactionMatrix[a.speciesIndex][b.speciesIndex]
+            )
+            a.xv += dts * force * xDiff / distance
+            a.yv += dts * force * yDiff / distance
+        }
+    }
+
     /** Degree of repulsion particle A feels from particle B */
-    private fun ParticleLifeParameters.RuntimeParameters.interactionForce(
+    private inline fun ParticleLifeParameters.RuntimeParameters.calculateInteractionForce(
         distance: Double,
         interactionCharacteristic: Double
     ): Double =
@@ -99,6 +105,55 @@ class ParticleLifeAnimation(
             distance > fermiRange -> 0.0
             else -> fermiForceScaleByFermiRange * (fermiRange - distance)
         } * forceScale
+
+    private inline fun ParticleLifeParameters.RuntimeParameters.applySwipeForce(
+        swipe: Swipe,
+        dts: Double
+    ) {
+        val swipeX = swipe.screenPosition.x.toDouble()
+        val swipeY = swipe.screenPosition.y.toDouble()
+        val swipeXv = swipe.screenVelocity.x.toDouble()
+        val swipeYv = swipe.screenVelocity.y.toDouble()
+        particles.forEach { particle ->
+            val xDiff = toroidalDiff(swipeX, particle.x, xMax)
+            if (abs(xDiff) > herdRadius) return@forEach
+            val yDiff = toroidalDiff(swipeY, particle.y, yMax)
+
+            val distance2 = xDiff.sq() + yDiff.sq()
+            if (distance2 < herdRadius*herdRadius) {
+                particle.xv += dts * herdStrength * swipeXv
+                particle.yv += dts * herdStrength * swipeYv
+            }
+        }
+    }
+
+    private inline fun ParticleLifeParameters.RuntimeParameters.applyFriction(
+        particle: Particle,
+        dts: Double
+    ) {
+        particle.xv *= (1 - friction * dts)
+        particle.yv *= (1 - friction * dts)
+    }
+
+    private inline fun applyForwardTimeIntegration(
+        particle: Particle,
+        dts: Double
+    ) {
+        particle.x += particle.xv * dts
+        particle.y += particle.yv * dts
+    }
+
+    private inline fun ParticleLifeParameters.RuntimeParameters.applyToroidalWrapping(particle: Particle) {
+        if (particle.x > xMax)
+            particle.x = 0.0
+        else if (particle.x < 0.0)
+            particle.x = xMax
+        if (particle.y > yMax)
+            particle.y = 0.0
+        else if (particle.y < 0.0) {
+            particle.y = yMax
+        }
+    }
 }
 
 class ParticleLifeParameters(
@@ -311,13 +366,13 @@ class ParticleLifeParameters(
 
             const val HERD_ENABLED_DEFAULT = true
 
-            const val HERD_STRENGTH_DEFAULT = 20.0
-            const val HERD_STRENGTH_MIN = 1.0
-            const val HERD_STRENGTH_MAX = 200.0
+            const val HERD_STRENGTH_DEFAULT = 2.0
+            const val HERD_STRENGTH_MIN = 0.1
+            const val HERD_STRENGTH_MAX = 8.0
 
-            const val HERD_RADIUS_DEFAULT = 20.0
-            const val HERD_RADIUS_MIN = 1.0
-            const val HERD_RADIUS_MAX = 200.0
+            const val HERD_RADIUS_DEFAULT = 100.0
+            const val HERD_RADIUS_MIN = 20.0
+            const val HERD_RADIUS_MAX = 400.0
 
             const val BECKON_ENABLED_DEFAULT = true
 

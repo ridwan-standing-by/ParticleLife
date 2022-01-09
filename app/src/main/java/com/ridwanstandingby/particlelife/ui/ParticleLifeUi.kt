@@ -1,5 +1,6 @@
 package com.ridwanstandingby.particlelife.ui
 
+import android.view.MotionEvent
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.background
@@ -18,8 +19,10 @@ import androidx.compose.runtime.derivedStateOf
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Alignment.Companion.Center
 import androidx.compose.ui.Alignment.Companion.CenterHorizontally
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.pointer.pointerInteropFilter
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.stringResource
@@ -39,10 +42,12 @@ import kotlin.math.roundToInt
 @Composable
 fun ParticleLifeActivityUi(
     createAnimationView: () -> AnimationView,
+    onTouchEvent: (MotionEvent?) -> Boolean,
     vm: ParticleLifeViewModel
 ) {
     ParticleLifeUi(
         createAnimationView = createAnimationView,
+        onTouchEvent = onTouchEvent,
         onViewSizeChanged = vm::onViewSizeChanged,
         controlPanelExpanded = vm.controlPanelExpanded,
         selectedTabIndex = vm.selectedTabIndex,
@@ -58,9 +63,11 @@ fun ParticleLifeActivityUi(
     )
 }
 
+@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun ParticleLifeUi(
     createAnimationView: () -> AnimationView,
+    onTouchEvent: (MotionEvent?) -> Boolean,
     onViewSizeChanged: (FloatVector2, Int) -> Unit,
     controlPanelExpanded: MutableState<Boolean>,
     selectedTabIndex: MutableState<Int>,
@@ -81,19 +88,19 @@ fun ParticleLifeUi(
             ) {
                 with(LocalDensity.current) {
                     val rotation = LocalView.current.display.rotation
-                    AndroidView(modifier = Modifier.size(
-                        width = maxWidth,
-                        height = maxHeight,
-                    ), factory = {
-                        onViewSizeChanged(
-                            FloatVector2(maxWidth.toPx(), maxHeight.toPx()), rotation
-                        )
-                        createAnimationView()
-                    }, update = {
-                        onViewSizeChanged(
-                            FloatVector2(maxWidth.toPx(), maxHeight.toPx()), rotation
-                        )
-                    })
+                    AndroidView(modifier = Modifier
+                        .size(width = maxWidth, height = maxHeight)
+                        .pointerInteropFilter { onTouchEvent(it) },
+                        factory = {
+                            onViewSizeChanged(
+                                FloatVector2(maxWidth.toPx(), maxHeight.toPx()), rotation
+                            )
+                            createAnimationView()
+                        }, update = {
+                            onViewSizeChanged(
+                                FloatVector2(maxWidth.toPx(), maxHeight.toPx()), rotation
+                            )
+                        })
                 }
                 ControlPanelUi(
                     controlPanelExpanded,
@@ -645,7 +652,7 @@ private fun SwipeToHerdStrengthSliderWidget(
     TextSliderPair(
         text = stringResource(R.string.swipe_to_herd_strength_label),
         description = stringResource(R.string.swipe_to_herd_strength_description),
-        valueToString = { it.toInt().toString() },
+        valueToString = { it.decimal(2) },
         value = runtimeParameters.value.herdStrength.toFloat(),
         range = ParticleLifeParameters.RuntimeParameters.HERD_STRENGTH_MIN.toFloat()..ParticleLifeParameters.RuntimeParameters.HERD_STRENGTH_MAX.toFloat(),
         onValueChange = { runtimeParametersChanged { herdStrength = it.toDouble() } }

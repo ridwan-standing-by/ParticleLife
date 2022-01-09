@@ -1,5 +1,10 @@
 package com.ridwanstandingby.particlelife.domain
 
 import com.ridwanstandingby.verve.animation.AnimationInput
+import com.ridwanstandingby.verve.sensor.swipe.SwipeDetector
 
-class ParticleLifeInput : AnimationInput()
+class ParticleLifeInput(
+    var swipeDetector: SwipeDetector? = null
+) : AnimationInput() {
+    fun getSwipes() = swipeDetector?.swipes
+}
