@@ -18,6 +18,7 @@ class ParticleLifeViewModel(val animationRunner: AnimationRunner) : ViewModel() 
     val selectedTabIndex = mutableStateOf(0)
     val editForceValuePanelExpanded = mutableStateOf(false)
     val editForceValueSelectedSpeciesIndex = mutableStateOf(0)
+    val editHandOfGodPanelExpanded = mutableStateOf(false)
 
     val parameters = mutableStateOf(
         ParticleLifeParameters.buildDefault(

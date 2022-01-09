@@ -1,5 +1,8 @@
 <resources>
     <string name="app_name">Particle Life</string>
+    <string name="physics_title">Physics</string>
+    <string name="particles_title">Particles</string>
+    <string name="about_title">About</string>
     <string name="physics_info">Change global simulation parameters</string>
     <string name="randomise_label">Randomise</string>
     <string name="reset_label">Reset</string>
@@ -13,6 +16,23 @@
     <string name="pressure_description">Strength of repulsion when particles get too close.</string>
     <string name="time_step_label">Time step</string>
     <string name="time_step_description">Simulation time step multiplier. Lower values lead to higher fidelity but slower simulation, higher values lead to faster simulation with more instability.</string>
+    <string name="enable_hand_of_god_label">Hand of God</string>
+    <string name="enable_hand_of_god_description">Enable, disable, or edit manual intervention gestures.</string>
+    <string name="hand_of_god_settings_button_content_description">Edit Hand of God settings</string>
+    <string name="hand_of_god_settings_title">Hand of God Settings</string>
+    <string name="hand_of_god_settings_description">Edit the settings for gestures that allow manual control over the movement of particles.</string>
+    <string name="swipe_to_herd_label">Swipe to herd</string>
+    <string name="swipe_to_herd_description">Swiping on the screen will move particles around.</string>
+    <string name="swipe_to_herd_strength_label">Swiping strength</string>
+    <string name="swipe_to_herd_strength_description">Force applied to particles while swiping.</string>
+    <string name="swipe_to_herd_range_label">Swiping area</string>
+    <string name="swipe_to_herd_range_description">Area of effect of swiping force.</string>
+    <string name="press_to_beckon_label">Press to beckon</string>
+    <string name="press_to_beckon_description">Prolonged pressing on the screen will attract particles.</string>
+    <string name="press_to_beckon_strength_label">Beckon strength</string>
+    <string name="press_to_beckon_strength_description">Force applied to particles while pressing.</string>
+    <string name="press_to_beckon_range_label">Beckon distance</string>
+    <string name="press_to_beckon_range_description">Distance at which particles will be affected while pressing.</string>
     <string name="particles_info">Modify particles, species, and how they interact. These settings only take effect upon generating new particles.</string>
     <string name="generate_new_particles_label">Generate Random Particles</string>
     <string name="number_of_particles_label">Number of particles</string>

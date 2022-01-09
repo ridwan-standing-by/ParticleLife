@@ -48,6 +48,7 @@ fun ParticleLifeActivityUi(
         selectedTabIndex = vm.selectedTabIndex,
         editForceValuePanelExpanded = vm.editForceValuePanelExpanded,
         editForceValueSelectedSpeciesIndex = vm.editForceValueSelectedSpeciesIndex,
+        editHandOfGodPanelExpanded = vm.editHandOfGodPanelExpanded,
         runtimeParameters = derivedStateOf { vm.parameters.value.runtime.copy() },
         generationParameters = derivedStateOf { vm.parameters.value.generation.copy() },
         species = derivedStateOf { vm.parameters.value.species },
@@ -65,6 +66,7 @@ fun ParticleLifeUi(
     selectedTabIndex: MutableState<Int>,
     editForceValuePanelExpanded: MutableState<Boolean>,
     editForceValueSelectedSpeciesIndex: MutableState<Int>,
+    editHandOfGodPanelExpanded: MutableState<Boolean>,
     runtimeParameters: State<ParticleLifeParameters.RuntimeParameters>,
     generationParameters: State<ParticleLifeParameters.GenerationParameters>,
     species: State<List<Species>>,
@@ -98,6 +100,7 @@ fun ParticleLifeUi(
                     selectedTabIndex,
                     editForceValuePanelExpanded,
                     editForceValueSelectedSpeciesIndex,
+                    editHandOfGodPanelExpanded,
                     runtimeParameters,
                     generationParameters,
                     species,
@@ -117,6 +120,7 @@ fun ControlPanelUi(
     selectedTabIndex: MutableState<Int>,
     editForceValuePanelExpanded: MutableState<Boolean>,
     editForceValueSelectedSpeciesIndex: MutableState<Int>,
+    editHandOfGodPanelExpanded: MutableState<Boolean>,
     runtimeParameters: State<ParticleLifeParameters.RuntimeParameters>,
     generationParameters: State<ParticleLifeParameters.GenerationParameters>,
     species: State<List<Species>>,
@@ -140,6 +144,7 @@ fun ControlPanelUi(
                 ControlPanelCardContent(
                     controlPanelExpanded,
                     editForceValuePanelExpanded,
+                    editHandOfGodPanelExpanded,
                     selectedTabIndex,
                     runtimeParameters,
                     generationParameters,
@@ -159,12 +164,24 @@ fun ControlPanelUi(
                 )
             }
         }
+        AnimatedVisibility(visible = editHandOfGodPanelExpanded.value) {
+            Card(modifier = foregroundCardModifier) {
+                EditHandOfGodPanelCardContent(
+                    runtimeParameters,
+                    runtimeParametersChanged
+                )
+            }
+        }
         FloatingActionButton(onClick = {
-            if (editForceValuePanelExpanded.value) {
-                editForceValuePanelExpanded.value = false
-                controlPanelExpanded.value = false
-            } else {
-                controlPanelExpanded.value = !controlPanelExpanded.value
+            when {
+                editForceValuePanelExpanded.value || editHandOfGodPanelExpanded.value -> {
+                    editForceValuePanelExpanded.value = false
+                    editHandOfGodPanelExpanded.value = false
+                    controlPanelExpanded.value = false
+                }
+                else -> {
+                    controlPanelExpanded.value = !controlPanelExpanded.value
+                }
             }
         }) {
             Icon(imageVector = Icons.Rounded.Tune, null)
@@ -176,6 +193,7 @@ fun ControlPanelUi(
 fun ControlPanelCardContent(
     controlPanelExpanded: MutableState<Boolean>,
     editForceValuePanelExpanded: MutableState<Boolean>,
+    editHandOfGodPanelExpanded: MutableState<Boolean>,
     selectedTabIndex: MutableState<Int>,
     runtimeParameters: State<ParticleLifeParameters.RuntimeParameters>,
     generationParameters: State<ParticleLifeParameters.GenerationParameters>,
@@ -186,7 +204,12 @@ fun ControlPanelCardContent(
     Column {
         ControlPanelTabs(selectedTabIndex)
         when (ControlPanelTab.values()[selectedTabIndex.value]) {
-            ControlPanelTab.PHYSICS -> PhysicsContent(runtimeParameters, runtimeParametersChanged)
+            ControlPanelTab.PHYSICS -> PhysicsContent(
+                controlPanelExpanded,
+                editHandOfGodPanelExpanded,
+                runtimeParameters,
+                runtimeParametersChanged
+            )
             ControlPanelTab.PARTICLES -> ParticlesContent(
                 controlPanelExpanded,
                 editForceValuePanelExpanded,
@@ -232,7 +255,7 @@ fun ControlPanelTab(
         onClick = { selectedTabIndex.value = ControlPanelTab.values().indexOf(tab) },
         text = {
             Text(
-                text = tab.toTabNameString(),
+                text = stringResource(tab.toTabNameString()),
                 textAlign = TextAlign.Center,
                 modifier = Modifier
                     .fillMaxWidth()
@@ -243,6 +266,8 @@ fun ControlPanelTab(
 
 @Composable
 fun PhysicsContent(
+    controlPanelExpanded: MutableState<Boolean>,
+    editHandOfGodPanelExpanded: MutableState<Boolean>,
     runtimeParameters: State<ParticleLifeParameters.RuntimeParameters>,
     runtimeParametersChanged: (ParticleLifeParameters.RuntimeParameters.() -> Unit) -> Unit
 ) {
@@ -265,6 +290,12 @@ fun PhysicsContent(
             ForceRangeWidget(runtimeParameters, runtimeParametersChanged)
             PressureWidget(runtimeParameters, runtimeParametersChanged)
             TimeStepWidget(runtimeParameters, runtimeParametersChanged)
+            HandOfGodEnabledSwitchWidget(
+                controlPanelExpanded,
+                editHandOfGodPanelExpanded,
+                runtimeParameters,
+                runtimeParametersChanged
+            )
         } else {
             Row(Modifier.fillMaxWidth()) {
                 Column(
@@ -275,6 +306,7 @@ fun PhysicsContent(
                     RandomiseAndResetButtons(runtimeParametersChanged)
                     FrictionWidget(runtimeParameters, runtimeParametersChanged)
                     ForceStrengthWidget(runtimeParameters, runtimeParametersChanged)
+                    ForceRangeWidget(runtimeParameters, runtimeParametersChanged)
                 }
                 Divider(
                     Modifier
@@ -286,9 +318,14 @@ fun PhysicsContent(
                         .weight(0.5f)
                         .padding(start = 12.dp)
                 ) {
-                    ForceRangeWidget(runtimeParameters, runtimeParametersChanged)
                     PressureWidget(runtimeParameters, runtimeParametersChanged)
                     TimeStepWidget(runtimeParameters, runtimeParametersChanged)
+                    HandOfGodEnabledSwitchWidget(
+                        controlPanelExpanded,
+                        editHandOfGodPanelExpanded,
+                        runtimeParameters,
+                        runtimeParametersChanged
+                    )
                 }
             }
         }
@@ -422,6 +459,254 @@ private fun TimeStepWidget(
         onValueChange = {
             runtimeParametersChanged { timeScale = it.toDouble() }
         }
+    )
+}
+
+@Composable
+private fun HandOfGodEnabledSwitchWidget(
+    controlPanelExpanded: MutableState<Boolean>,
+    editHandOfGodPanelExpanded: MutableState<Boolean>,
+    runtimeParameters: State<ParticleLifeParameters.RuntimeParameters>,
+    runtimeParametersChanged: (ParticleLifeParameters.RuntimeParameters.() -> Unit) -> Unit
+) {
+    Column(
+        Modifier
+            .fillMaxWidth()
+            .padding(vertical = 4.dp)
+    ) {
+        Row(Modifier.fillMaxWidth()) {
+            Text(
+                text = stringResource(R.string.enable_hand_of_god_label),
+                modifier = Modifier
+                    .weight(0.425f)
+                    .align(Alignment.CenterVertically)
+            )
+            Switch(
+                checked = runtimeParameters.value.handOfGodEnabled,
+                onCheckedChange = { runtimeParametersChanged { handOfGodEnabled = it } },
+                modifier = Modifier
+                    .weight(0.275f)
+                    .align(Alignment.CenterVertically)
+            )
+            Button(
+                onClick = {
+                    controlPanelExpanded.value = false
+                    editHandOfGodPanelExpanded.value = true
+                },
+                enabled = runtimeParameters.value.handOfGodEnabled,
+                modifier = Modifier
+                    .weight(0.3f)
+                    .align(Alignment.CenterVertically)
+            ) {
+                Icon(
+                    imageVector = Icons.Rounded.Tune,
+                    contentDescription = stringResource(R.string.hand_of_god_settings_button_content_description)
+                )
+            }
+        }
+        Text(
+            text = stringResource(R.string.enable_hand_of_god_description),
+            fontSize = MaterialTheme.typography.caption.fontSize
+        )
+    }
+}
+
+@Composable
+private fun EditHandOfGodPanelCardContent(
+    runtimeParameters: State<ParticleLifeParameters.RuntimeParameters>,
+    runtimeParametersChanged: (ParticleLifeParameters.RuntimeParameters.() -> Unit) -> Unit
+) {
+    Column {
+        Card(
+            backgroundColor = MaterialTheme.colors.secondary,
+            contentColor = MaterialTheme.colors.onSecondary,
+            modifier = Modifier
+                .height(fabDiameter)
+                .fillMaxWidth()
+        ) {
+            Text(
+                text = stringResource(id = R.string.hand_of_god_settings_title),
+                style = MaterialTheme.typography.h5,
+                fontSize = 15.sp,
+                textAlign = TextAlign.Center,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 16.dp)
+            )
+        }
+        Column(
+            Modifier
+                .padding(horizontal = 16.dp, vertical = 4.dp)
+                .verticalScroll(rememberScrollState())
+        ) {
+            Text(
+                text = stringResource(R.string.hand_of_god_settings_description),
+                textAlign = TextAlign.Center,
+                modifier = Modifier
+                    .padding(4.dp)
+                    .fillMaxWidth()
+            )
+            if (isPortrait()) {
+                SwipeToHerdEnabledSwitchWidget(runtimeParameters, runtimeParametersChanged)
+                AnimatedVisibility(visible = runtimeParameters.value.herdEnabled) {
+                    Column {
+                        SwipeToHerdStrengthSliderWidget(runtimeParameters, runtimeParametersChanged)
+                        SwipeToHerdRangeSliderWidget(runtimeParameters, runtimeParametersChanged)
+                    }
+                }
+                Divider(
+                    Modifier
+                        .fillMaxWidth()
+                        .width(1.dp)
+                        .padding(top = 12.dp)
+                )
+                PressToBeckonEnabledSwitchWidget(runtimeParameters, runtimeParametersChanged)
+                AnimatedVisibility(visible = runtimeParameters.value.beckonEnabled) {
+                    Column {
+                        PressToBeckonStrengthSliderWidget(
+                            runtimeParameters,
+                            runtimeParametersChanged
+                        )
+                        PressToBeckonRangeSliderWidget(runtimeParameters, runtimeParametersChanged)
+                    }
+                }
+            } else {
+                Row(modifier = Modifier.fillMaxWidth()) {
+                    Column(
+                        Modifier
+                            .weight(0.5f)
+                            .padding(end = 12.dp)
+                    ) {
+                        SwipeToHerdEnabledSwitchWidget(runtimeParameters, runtimeParametersChanged)
+                        AnimatedVisibility(visible = runtimeParameters.value.herdEnabled) {
+                            Column {
+                                SwipeToHerdStrengthSliderWidget(
+                                    runtimeParameters,
+                                    runtimeParametersChanged
+                                )
+                                SwipeToHerdRangeSliderWidget(
+                                    runtimeParameters,
+                                    runtimeParametersChanged
+                                )
+                            }
+                        }
+                    }
+                    Divider(
+                        Modifier
+                            .fillMaxHeight()
+                            .width(1.dp)
+                    )
+                    Column(
+                        Modifier
+                            .weight(0.5f)
+                            .padding(start = 12.dp)
+                    ) {
+                        PressToBeckonEnabledSwitchWidget(
+                            runtimeParameters,
+                            runtimeParametersChanged
+                        )
+                        AnimatedVisibility(visible = runtimeParameters.value.beckonEnabled) {
+                            Column {
+                                PressToBeckonStrengthSliderWidget(
+                                    runtimeParameters,
+                                    runtimeParametersChanged
+                                )
+                                PressToBeckonRangeSliderWidget(
+                                    runtimeParameters,
+                                    runtimeParametersChanged
+                                )
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun SwipeToHerdEnabledSwitchWidget(
+    runtimeParameters: State<ParticleLifeParameters.RuntimeParameters>,
+    runtimeParametersChanged: (ParticleLifeParameters.RuntimeParameters.() -> Unit) -> Unit
+) {
+    TextSwitchPair(
+        text = stringResource(R.string.swipe_to_herd_label),
+        description = stringResource(R.string.swipe_to_herd_description),
+        checked = runtimeParameters.value.herdEnabled,
+        onToggle = { runtimeParametersChanged { herdEnabled = it } }
+    )
+}
+
+@Composable
+private fun SwipeToHerdStrengthSliderWidget(
+    runtimeParameters: State<ParticleLifeParameters.RuntimeParameters>,
+    runtimeParametersChanged: (ParticleLifeParameters.RuntimeParameters.() -> Unit) -> Unit
+) {
+    TextSliderPair(
+        text = stringResource(R.string.swipe_to_herd_strength_label),
+        description = stringResource(R.string.swipe_to_herd_strength_description),
+        valueToString = { it.toInt().toString() },
+        value = runtimeParameters.value.herdStrength.toFloat(),
+        range = ParticleLifeParameters.RuntimeParameters.HERD_STRENGTH_MIN.toFloat()..ParticleLifeParameters.RuntimeParameters.HERD_STRENGTH_MAX.toFloat(),
+        onValueChange = { runtimeParametersChanged { herdStrength = it.toDouble() } }
+    )
+}
+
+@Composable
+private fun SwipeToHerdRangeSliderWidget(
+    runtimeParameters: State<ParticleLifeParameters.RuntimeParameters>,
+    runtimeParametersChanged: (ParticleLifeParameters.RuntimeParameters.() -> Unit) -> Unit
+) {
+    TextSliderPair(
+        text = stringResource(R.string.swipe_to_herd_range_label),
+        description = stringResource(R.string.swipe_to_herd_range_description),
+        valueToString = { it.toInt().toString() },
+        value = runtimeParameters.value.herdRadius.toFloat(),
+        range = ParticleLifeParameters.RuntimeParameters.HERD_RADIUS_MIN.toFloat()..ParticleLifeParameters.RuntimeParameters.HERD_RADIUS_MAX.toFloat(),
+        onValueChange = { runtimeParametersChanged { herdRadius = it.toDouble() } }
+    )
+}
+
+@Composable
+private fun PressToBeckonEnabledSwitchWidget(
+    runtimeParameters: State<ParticleLifeParameters.RuntimeParameters>,
+    runtimeParametersChanged: (ParticleLifeParameters.RuntimeParameters.() -> Unit) -> Unit
+) {
+    TextSwitchPair(
+        text = stringResource(R.string.press_to_beckon_label),
+        description = stringResource(R.string.press_to_beckon_description),
+        checked = runtimeParameters.value.beckonEnabled,
+        onToggle = { runtimeParametersChanged { beckonEnabled = it } }
+    )
+}
+
+@Composable
+private fun PressToBeckonStrengthSliderWidget(
+    runtimeParameters: State<ParticleLifeParameters.RuntimeParameters>,
+    runtimeParametersChanged: (ParticleLifeParameters.RuntimeParameters.() -> Unit) -> Unit
+) {
+    TextSliderPair(
+        text = stringResource(R.string.press_to_beckon_strength_label),
+        description = stringResource(R.string.press_to_beckon_strength_description),
+        valueToString = { it.toInt().toString() },
+        value = runtimeParameters.value.beckonStrength.toFloat(),
+        range = ParticleLifeParameters.RuntimeParameters.BECKON_STRENGTH_MIN.toFloat()..ParticleLifeParameters.RuntimeParameters.BECKON_STRENGTH_MAX.toFloat(),
+        onValueChange = { runtimeParametersChanged { beckonStrength = it.toDouble() } }
+    )
+}
+
+@Composable
+private fun PressToBeckonRangeSliderWidget(
+    runtimeParameters: State<ParticleLifeParameters.RuntimeParameters>,
+    runtimeParametersChanged: (ParticleLifeParameters.RuntimeParameters.() -> Unit) -> Unit
+) {
+    TextSliderPair(
+        text = stringResource(R.string.press_to_beckon_range_label),
+        description = stringResource(R.string.press_to_beckon_range_description),
+        valueToString = { it.toInt().toString() },
+        value = runtimeParameters.value.beckonRadius.toFloat(),
+        range = ParticleLifeParameters.RuntimeParameters.BECKON_RADIUS_MIN.toFloat()..ParticleLifeParameters.RuntimeParameters.BECKON_RADIUS_MAX.toFloat(),
+        onValueChange = { runtimeParametersChanged { beckonRadius = it.toDouble() } }
     )
 }
 
@@ -830,6 +1115,37 @@ fun TextRangePair(
                 textAlign = TextAlign.Start,
                 modifier = Modifier
                     .weight(0.1f)
+                    .align(Alignment.CenterVertically)
+            )
+        }
+        Text(text = description, fontSize = MaterialTheme.typography.caption.fontSize)
+    }
+}
+
+@Composable
+fun TextSwitchPair(
+    text: String,
+    description: String,
+    checked: Boolean,
+    onToggle: (Boolean) -> Unit
+) {
+    Column(
+        Modifier
+            .fillMaxWidth()
+            .padding(vertical = 4.dp)
+    ) {
+        Row(Modifier.fillMaxWidth()) {
+            Text(
+                text = text,
+                modifier = Modifier
+                    .weight(0.725f)
+                    .align(Alignment.CenterVertically)
+            )
+            Switch(
+                checked = checked,
+                onCheckedChange = { onToggle(it) },
+                modifier = Modifier
+                    .weight(0.275f)
                     .align(Alignment.CenterVertically)
             )
         }

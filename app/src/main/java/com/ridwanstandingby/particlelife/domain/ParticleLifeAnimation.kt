@@ -194,8 +194,13 @@ class ParticleLifeParameters(
         var forceScale: Double = FORCE_STRENGTH_DEFAULT,
         var friction: Double = FRICTION_DEFAULT,
         var timeScale: Double = TIME_STEP_DEFAULT,
-        val handOfGodEnabled: Boolean = false,
-
+        var handOfGodEnabled: Boolean = HAND_OF_GOD_ENABLED_DEFAULT,
+        var herdEnabled: Boolean = HERD_ENABLED_DEFAULT,
+        var herdStrength: Double = HERD_STRENGTH_DEFAULT,
+        var herdRadius: Double = HERD_RADIUS_DEFAULT,
+        var beckonEnabled: Boolean = BECKON_ENABLED_DEFAULT,
+        var beckonStrength: Double = BECKON_STRENGTH_DEFAULT,
+        var beckonRadius: Double = BECKON_RADIUS_DEFAULT
     ) {
 
         var fermiForceScale: Double = fermiForceScale
@@ -243,7 +248,14 @@ class ParticleLifeParameters(
                 newtonMin = newtonMin,
                 forceScale = forceScale,
                 friction = friction,
-                timeScale = timeScale
+                timeScale = timeScale,
+                handOfGodEnabled = handOfGodEnabled,
+                herdEnabled = herdEnabled,
+                herdStrength = herdStrength,
+                herdRadius = herdRadius,
+                beckonEnabled = beckonEnabled,
+                beckonStrength = beckonStrength,
+                beckonRadius = beckonRadius
             )
 
         private fun recompute() {
@@ -296,12 +308,27 @@ class ParticleLifeParameters(
             const val TIME_STEP_MAX = 3.0
 
             const val HAND_OF_GOD_ENABLED_DEFAULT = false
-            const val SWIPE_TO_HERD_ENABLED_DEFAULT = true
-            const val SWIPE_TO_HERD_STRENGTH_DEFAULT = 20.0
-            const val SWIPE_TO_HERD_RADIUS_DEFAULT = 20.0
-            const val CORRAL_ENABLED_DEFAULT = true
-            const val CORRAL_STRENGTH_DEFAULT = 20.0
-            const val CORRAL_RADIUS_DEFAULT = 20.0
+
+            const val HERD_ENABLED_DEFAULT = true
+
+            const val HERD_STRENGTH_DEFAULT = 20.0
+            const val HERD_STRENGTH_MIN = 1.0
+            const val HERD_STRENGTH_MAX = 200.0
+
+            const val HERD_RADIUS_DEFAULT = 20.0
+            const val HERD_RADIUS_MIN = 1.0
+            const val HERD_RADIUS_MAX = 200.0
+
+            const val BECKON_ENABLED_DEFAULT = true
+
+            const val BECKON_STRENGTH_DEFAULT = 20.0
+            const val BECKON_STRENGTH_MIN = 1.0
+            const val BECKON_STRENGTH_MAX = 200.0
+
+            const val BECKON_RADIUS_DEFAULT = 20.0
+            const val BECKON_RADIUS_MIN = 1.0
+            const val BECKON_RADIUS_MAX = 200.0
+
         }
     }
 
