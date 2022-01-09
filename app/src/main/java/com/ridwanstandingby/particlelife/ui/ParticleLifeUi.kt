@@ -695,7 +695,7 @@ private fun PressToBeckonStrengthSliderWidget(
     TextSliderPair(
         text = stringResource(R.string.press_to_beckon_strength_label),
         description = stringResource(R.string.press_to_beckon_strength_description),
-        valueToString = { it.toInt().toString() },
+        valueToString = { it.decimal(2) },
         value = runtimeParameters.value.beckonStrength.toFloat(),
         range = ParticleLifeParameters.RuntimeParameters.BECKON_STRENGTH_MIN.toFloat()..ParticleLifeParameters.RuntimeParameters.BECKON_STRENGTH_MAX.toFloat(),
         onValueChange = { runtimeParametersChanged { beckonStrength = it.toDouble() } }

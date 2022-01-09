@@ -11,6 +11,7 @@ import com.ridwanstandingby.particlelife.domain.ParticleLifeParameters
 import com.ridwanstandingby.particlelife.domain.ParticleLifeRenderer
 import com.ridwanstandingby.verve.animation.AnimationRunner
 import com.ridwanstandingby.verve.math.FloatVector2
+import com.ridwanstandingby.verve.sensor.press.PressDetector
 import com.ridwanstandingby.verve.sensor.swipe.SwipeDetector
 
 class ParticleLifeViewModel(val animationRunner: AnimationRunner) : ViewModel() {
@@ -37,8 +38,9 @@ class ParticleLifeViewModel(val animationRunner: AnimationRunner) : ViewModel() 
     private val input = ParticleLifeInput()
 
     private lateinit var animation: ParticleLifeAnimation
-    fun start(swipeDetector: SwipeDetector) {
+    fun start(swipeDetector: SwipeDetector, pressDetector: PressDetector) {
         input.swipeDetector = swipeDetector
+        input.pressDetector = pressDetector
         animationRunner.start(
             ParticleLifeAnimation(parameters.value, renderer, input).also { animation = it }
         )
