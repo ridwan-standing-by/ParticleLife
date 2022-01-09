@@ -6,7 +6,6 @@ import android.graphics.Color
 import android.graphics.Paint
 import com.ridwanstandingby.verve.animation.Animation
 import com.ridwanstandingby.verve.animation.AnimationParameters
-import com.ridwanstandingby.verve.math.IntVector2
 import com.ridwanstandingby.verve.math.sq
 import com.ridwanstandingby.verve.math.toroidalDiff
 import com.ridwanstandingby.verve.sensor.swipe.Swipe
@@ -29,9 +28,6 @@ class ParticleLifeAnimation(
     init {
         renderer.getParticles = { particles }
         renderer.getSpecies = { parameters.species }
-        renderer.getBounds = {
-            IntVector2(parameters.runtime.yMax.toInt(), parameters.runtime.xMax.toInt())
-        }
     }
 
     private val updateLock = ReentrantLock(true)
@@ -114,12 +110,8 @@ class ParticleLifeAnimation(
         swipe: Swipe,
         dts: Double
     ) {
-        val swipeX = renderer.inverseTransformX(
-            swipe.screenPosition.x, swipe.screenPosition.y, yMax.toInt(), xMax.toInt()
-        )
-        val swipeY = renderer.inverseTransformY(
-            swipe.screenPosition.x, swipe.screenPosition.y, yMax.toInt(), xMax.toInt()
-        )
+        val swipeX = renderer.inverseTransformX(swipe.screenPosition.x, swipe.screenPosition.y)
+        val swipeY = renderer.inverseTransformY(swipe.screenPosition.x, swipe.screenPosition.y)
         val swipeXv = renderer.inverseTransformDX(swipe.screenVelocity.x, swipe.screenVelocity.y)
         val swipeYv = renderer.inverseTransformDY(swipe.screenVelocity.x, swipe.screenVelocity.y)
         particles.forEach { particle ->

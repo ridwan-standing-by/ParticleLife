@@ -11,25 +11,27 @@ class ParticleLifeRenderer(var screenRotation: Int = Surface.ROTATION_0) : Anima
 
     var getParticles: (() -> List<Particle>)? = null
     var getSpecies: (() -> List<Species>)? = null
-    var getBounds: (() -> IntVector2)? = null
+    var width: Int = 0
+    var height: Int = 0
 
     override fun updateCanvas(canvas: Canvas) {
         canvas.drawColor(Color.BLACK)
 
         val species = getSpecies?.invoke()
-        val (width, height) = getBounds?.invoke() ?: IntVector2(canvas.width, canvas.height)
+        width = canvas.width
+        height = canvas.height
 
         getParticles?.invoke()?.forEach {
             canvas.drawCircle(
-                transformX(it.x, it.y, width, height),
-                transformY(it.x, it.y, width, height),
+                transformX(it.x, it.y),
+                transformY(it.x, it.y),
                 PARTICLE_RADIUS,
                 species?.get(it.speciesIndex)?.paint ?: Paint()
             )
         }
     }
 
-    private fun transformX(x: Double, y: Double, width: Int, height: Int): Float =
+    private fun transformX(x: Double, y: Double): Float =
         when (screenRotation) {
             Surface.ROTATION_90 -> y
             Surface.ROTATION_180 -> height - x
@@ -37,7 +39,7 @@ class ParticleLifeRenderer(var screenRotation: Int = Surface.ROTATION_0) : Anima
             else -> x
         }.toFloat()
 
-    private fun transformY(x: Double, y: Double, width: Int, height: Int): Float =
+    private fun transformY(x: Double, y: Double): Float =
         when (screenRotation) {
             Surface.ROTATION_90 -> height - x
             Surface.ROTATION_180 -> width - y
@@ -45,7 +47,7 @@ class ParticleLifeRenderer(var screenRotation: Int = Surface.ROTATION_0) : Anima
             else -> y
         }.toFloat()
 
-    fun inverseTransformX(x: Float, y: Float, width: Int, height: Int): Double =
+    fun inverseTransformX(x: Float, y: Float): Double =
         when (screenRotation) {
             Surface.ROTATION_90 -> width - y
             Surface.ROTATION_180 -> height - x
@@ -53,7 +55,7 @@ class ParticleLifeRenderer(var screenRotation: Int = Surface.ROTATION_0) : Anima
             else -> x
         }.toDouble()
 
-    fun inverseTransformY(x: Float, y: Float, width: Int, height: Int): Double =
+    fun inverseTransformY(x: Float, y: Float): Double =
         when (screenRotation) {
             Surface.ROTATION_90 -> x
             Surface.ROTATION_180 -> width - y
