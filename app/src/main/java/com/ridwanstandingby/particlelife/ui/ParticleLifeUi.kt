@@ -1171,6 +1171,7 @@ fun AboutContent() {
         AboutText(stringResource(R.string.about_particle_force_explanation))
         AboutText(stringResource(R.string.about_particle_extras))
         AboutText(stringResource(R.string.about_particle_final))
+        AboutText(stringResource(R.string.about_particle_hand_of_god))
     }
 }
 
