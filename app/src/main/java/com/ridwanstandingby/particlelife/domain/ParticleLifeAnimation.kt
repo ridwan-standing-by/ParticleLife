@@ -61,7 +61,9 @@ class ParticleLifeAnimation(
                     input.getSwipes()?.forEach { applySwipeForce(it, dts) }
                 }
                 if (beckonEnabled) {
-                    input.getPresses(dt)?.forEach { applyPressForce(it, dts) }
+                    input.getPresses(dt)
+                        ?.also { resolveEasterEgg(it) }
+                        ?.forEach { applyPressForce(it, dts) }
                 }
             }
 
@@ -142,7 +144,6 @@ class ParticleLifeAnimation(
 
             val distance2 = xDiff.sq() + yDiff.sq()
             if (distance2 < beckonRadius * beckonRadius) {
-                val distance = sqrt(distance2)
                 particle.xv += dts * beckonStrength * xDiff
                 particle.yv += dts * beckonStrength * yDiff
             }
@@ -174,6 +175,13 @@ class ParticleLifeAnimation(
             particle.y = 0.0
         else if (particle.y < 0.0) {
             particle.y = yMax
+        }
+    }
+
+    private inline fun resolveEasterEgg(presses: MutableList<Press>) {
+        if (presses.size >= 4 && presses.any { it.runningTime > 1.0 }) {
+            presses.forEach { it.runningTime = 0.0 }
+            renderer.easterEgg = !renderer.easterEgg
         }
     }
 }

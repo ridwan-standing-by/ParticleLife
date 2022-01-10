@@ -1,18 +1,20 @@
 package com.ridwanstandingby.particlelife.domain
 
-import android.graphics.Canvas
-import android.graphics.Color
-import android.graphics.Paint
+import android.graphics.*
 import android.view.Surface
 import com.ridwanstandingby.verve.animation.AnimationRenderer
-import com.ridwanstandingby.verve.math.IntVector2
 
-class ParticleLifeRenderer(var screenRotation: Int = Surface.ROTATION_0) : AnimationRenderer() {
+class ParticleLifeRenderer(
+    var screenRotation: Int = Surface.ROTATION_0,
+    private val easterBitmap: Bitmap? = null
+) : AnimationRenderer() {
 
     var getParticles: (() -> List<Particle>)? = null
     var getSpecies: (() -> List<Species>)? = null
-    var width: Int = 0
-    var height: Int = 0
+    private var width: Int = 0
+    private var height: Int = 0
+
+    var easterEgg: Boolean = false
 
     override fun updateCanvas(canvas: Canvas) {
         canvas.drawColor(Color.BLACK)
@@ -20,6 +22,11 @@ class ParticleLifeRenderer(var screenRotation: Int = Surface.ROTATION_0) : Anima
         val species = getSpecies?.invoke()
         width = canvas.width
         height = canvas.height
+
+        if (easterEgg) {
+            canvas.deployEasterEgg()
+            return
+        }
 
         getParticles?.invoke()?.forEach {
             canvas.drawCircle(
@@ -78,6 +85,15 @@ class ParticleLifeRenderer(var screenRotation: Int = Surface.ROTATION_0) : Anima
             Surface.ROTATION_270 -> -x
             else -> y
         }.toDouble()
+
+    private fun Canvas.deployEasterEgg() {
+        if (easterBitmap == null) return
+        getParticles?.invoke()?.forEach {
+            val x = transformX(it.x, it.y)
+            val y = transformY(it.x, it.y)
+            drawBitmap(easterBitmap, null, RectF(x - 16f, y - 16f, x + 16f, y + 16f), null)
+        }
+    }
 
     companion object {
         private const val PARTICLE_RADIUS = 7f

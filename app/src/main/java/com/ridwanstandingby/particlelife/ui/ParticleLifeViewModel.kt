@@ -1,6 +1,7 @@
 package com.ridwanstandingby.particlelife.ui
 
 import android.content.res.Resources
+import android.graphics.Bitmap
 import android.view.Surface
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.neverEqualPolicy
@@ -14,7 +15,10 @@ import com.ridwanstandingby.verve.math.FloatVector2
 import com.ridwanstandingby.verve.sensor.press.PressDetector
 import com.ridwanstandingby.verve.sensor.swipe.SwipeDetector
 
-class ParticleLifeViewModel(val animationRunner: AnimationRunner) : ViewModel() {
+class ParticleLifeViewModel(
+    val animationRunner: AnimationRunner,
+    private val easterBitmap: Bitmap
+) : ViewModel() {
 
     val controlPanelExpanded = mutableStateOf(false)
     val selectedTabIndex = mutableStateOf(0)
@@ -33,7 +37,7 @@ class ParticleLifeViewModel(val animationRunner: AnimationRunner) : ViewModel() 
         parameters.value = parameters.value.apply(block)
     }
 
-    private val renderer = ParticleLifeRenderer()
+    private val renderer = ParticleLifeRenderer(easterBitmap = easterBitmap)
 
     private val input = ParticleLifeInput()
 
