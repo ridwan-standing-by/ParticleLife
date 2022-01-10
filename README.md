@@ -7,3 +7,5 @@ Each particle exerts a force on other nearby particles, depending on their speci
 To avoid particles speeding up forever, a global friction is applied that slows particles down. Additionally, all particles repel each other if they get too close for comfort, like a kind of degeneracy pressure.
 
 Play around with different settings to discover which parameters result in the most "life-like" creatures.
+
+If you feel like you want to give your critters a nudge in the right direction, enable Hand of God to herd (by swiping) or beckon (by pressing) particles to your whim.
