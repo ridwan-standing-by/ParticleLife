@@ -443,7 +443,7 @@ private fun PressureWidget(
     TextSliderPair(
         text = stringResource(R.string.pressure_label),
         description = stringResource(R.string.pressure_description),
-        valueToString = { it.toInt().toString() },
+        valueToString = { it.decimal(2) },
         value = runtimeParameters.value.fermiForceScale.toFloat(),
         range = ParticleLifeParameters.RuntimeParameters.PRESSURE_MIN.toFloat()..ParticleLifeParameters.RuntimeParameters.PRESSURE_MAX.toFloat(),
         onValueChange = {

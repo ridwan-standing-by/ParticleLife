@@ -48,28 +48,27 @@ class ParticleLifeAnimation(
         updateLock.lock()
 
         with(parameters.runtime) {
-            val dts = dt * timeScale
 
             particles.forEach outer@{ a ->
                 particles.forEach { b ->
-                    applyInteractionForce(a, b, dts)
+                    applyInteractionForce(a, b)
                 }
             }
 
             if (handOfGodEnabled) {
                 if (herdEnabled) {
-                    input.getSwipes()?.forEach { applySwipeForce(it, dts) }
+                    input.getSwipes()?.forEach { applySwipeForce(it) }
                 }
                 if (beckonEnabled) {
                     input.getPresses(dt)
                         ?.also { resolveEasterEgg(it) }
-                        ?.forEach { applyPressForce(it, dts) }
+                        ?.forEach { applyPressForce(it) }
                 }
             }
 
             particles.forEach { particle ->
-                applyFriction(particle, dts)
-                applyForwardTimeIntegration(particle, dts)
+                applyFriction(particle)
+                applyForwardTimeIntegration(particle, dt, timeScale)
                 applyToroidalWrapping(particle)
             }
         }
@@ -78,8 +77,7 @@ class ParticleLifeAnimation(
 
     private inline fun ParticleLifeParameters.RuntimeParameters.applyInteractionForce(
         a: Particle,
-        b: Particle,
-        dts: Double
+        b: Particle
     ) {
         val xDiff = toroidalDiff(a.x, b.x, xMax)
         if (abs(xDiff) > newtonMax) return
@@ -92,8 +90,8 @@ class ParticleLifeAnimation(
                 distance,
                 interactionMatrix[a.speciesIndex][b.speciesIndex]
             )
-            a.xv += dts * force * xDiff / distance
-            a.yv += dts * force * yDiff / distance
+            a.xv += force * xDiff / distance
+            a.yv += force * yDiff / distance
         }
     }
 
@@ -109,10 +107,7 @@ class ParticleLifeAnimation(
             else -> fermiForceScaleByFermiRange * (fermiRange - distance)
         } * forceScale
 
-    private inline fun ParticleLifeParameters.RuntimeParameters.applySwipeForce(
-        swipe: Swipe,
-        dts: Double
-    ) {
+    private inline fun ParticleLifeParameters.RuntimeParameters.applySwipeForce(swipe: Swipe) {
         val swipeX = renderer.inverseTransformX(swipe.screenPosition.x, swipe.screenPosition.y)
         val swipeY = renderer.inverseTransformY(swipe.screenPosition.x, swipe.screenPosition.y)
         val swipeXv = renderer.inverseTransformDX(swipe.screenVelocity.x, swipe.screenVelocity.y)
@@ -124,16 +119,13 @@ class ParticleLifeAnimation(
 
             val distance2 = xDiff.sq() + yDiff.sq()
             if (distance2 < herdRadius * herdRadius) {
-                particle.xv += dts * herdStrength * swipeXv
-                particle.yv += dts * herdStrength * swipeYv
+                particle.xv += herdStrength * swipeXv
+                particle.yv += herdStrength * swipeYv
             }
         }
     }
 
-    private inline fun ParticleLifeParameters.RuntimeParameters.applyPressForce(
-        press: Press,
-        dts: Double
-    ) {
+    private inline fun ParticleLifeParameters.RuntimeParameters.applyPressForce(press: Press) {
         if (press.runningTime < beckonPressThresholdTimeDefault) return
         val pressX = renderer.inverseTransformX(press.screenPosition.x, press.screenPosition.y)
         val pressY = renderer.inverseTransformY(press.screenPosition.x, press.screenPosition.y)
@@ -144,24 +136,23 @@ class ParticleLifeAnimation(
 
             val distance2 = xDiff.sq() + yDiff.sq()
             if (distance2 < beckonRadius * beckonRadius) {
-                particle.xv += dts * beckonStrength * xDiff
-                particle.yv += dts * beckonStrength * yDiff
+                particle.xv += beckonStrength * xDiff
+                particle.yv += beckonStrength * yDiff
             }
         }
     }
 
-    private inline fun ParticleLifeParameters.RuntimeParameters.applyFriction(
-        particle: Particle,
-        dts: Double
-    ) {
-        particle.xv *= (1 - friction * dts)
-        particle.yv *= (1 - friction * dts)
+    private inline fun ParticleLifeParameters.RuntimeParameters.applyFriction(particle: Particle) {
+        particle.xv *= 1 - friction
+        particle.yv *= 1 - friction
     }
 
     private inline fun applyForwardTimeIntegration(
         particle: Particle,
-        dts: Double
+        dt: Double,
+        timeScale: Double
     ) {
+        val dts = dt * timeScale
         particle.x += particle.xv * dts
         particle.y += particle.yv * dts
     }

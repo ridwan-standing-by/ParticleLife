@@ -188,9 +188,9 @@ class ParticleLifeParameters(
         }
 
         companion object {
-            const val FRICTION_DEFAULT = 1.0
+            const val FRICTION_DEFAULT = 0.2
             const val FRICTION_MIN = 0.0
-            const val FRICTION_MAX = 5.0
+            const val FRICTION_MAX = 1.0
 
             const val FORCE_STRENGTH_DEFAULT = 100.0
             const val FORCE_STRENGTH_MIN = 1.0
@@ -202,9 +202,9 @@ class ParticleLifeParameters(
 
             const val FORCE_HORIZON_DEFAULT = 16.0
 
-            const val PRESSURE_DEFAULT = 100.0
-            const val PRESSURE_MIN = 1.0
-            const val PRESSURE_MAX = 250.0
+            const val PRESSURE_DEFAULT = 2.0
+            const val PRESSURE_MIN = 0.0
+            const val PRESSURE_MAX = 4.0
 
             const val PRESSURE_RANGE_DEFAULT = 16.0
 
