@@ -229,7 +229,6 @@ class ParticleLifeParameters(
                         forceStrengthScale *= 2.0
                         forceDistanceScale *= 3.0
                         pressureStrength *= 2.0
-                        timeScale *= 0.5
                     }
                 }
             }
@@ -275,13 +274,11 @@ class ParticleLifeParameters(
 
             const val HERD_ENABLED_DEFAULT = true
 
-            const val HERD_STRENGTH_DEFAULT = 1.0
+            const val HERD_STRENGTH_DEFAULT = 2.0
             const val HERD_STRENGTH_MIN = 0.1
-            const val HERD_STRENGTH_MAX = 4.0
+            const val HERD_STRENGTH_MAX = 8.0
 
-            const val HERD_STRENGTH_WEIGHT = 0.04
-
-            const val HERD_RADIUS_DEFAULT = 100.0
+            const val HERD_RADIUS_DEFAULT = 160.0
             const val HERD_RADIUS_MIN = 20.0
             const val HERD_RADIUS_MAX = 400.0
 
@@ -289,11 +286,9 @@ class ParticleLifeParameters(
 
             const val BECKON_PRESS_THRESHOLD_TIME_DEFAULT = 0.05
 
-            const val BECKON_STRENGTH_DEFAULT = 1.0
+            const val BECKON_STRENGTH_DEFAULT = 2.0
             const val BECKON_STRENGTH_MIN = 0.1
-            const val BECKON_STRENGTH_MAX = 4.0
-
-            const val BECKON_STRENGTH_WEIGHT = 0.02
+            const val BECKON_STRENGTH_MAX = 8.0
 
             const val BECKON_RADIUS_DEFAULT = 400.0
             const val BECKON_RADIUS_MIN = 50.0
