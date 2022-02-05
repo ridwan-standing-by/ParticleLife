@@ -22,8 +22,10 @@ class ParticleLifeViewModel(
 
     val controlPanelExpanded = mutableStateOf(false)
     val selectedTabIndex = mutableStateOf(0)
-    val editForceValuePanelExpanded = mutableStateOf(false)
-    val editForceValueSelectedSpeciesIndex = mutableStateOf(0)
+    val editForceStrengthsPanelExpanded = mutableStateOf(false)
+    val editForceStrengthsSelectedSpeciesIndex = mutableStateOf(0)
+    val editForceDistancesPanelExpanded = mutableStateOf(false)
+    val editForceDistancesSelectedSpeciesIndex = mutableStateOf(0)
     val editHandOfGodPanelExpanded = mutableStateOf(false)
 
     val parameters = mutableStateOf(
@@ -91,7 +93,8 @@ class ParticleLifeViewModel(
             )
         }
         animation.restart(newParameters)
-        editForceValueSelectedSpeciesIndex.value = 0
+        editForceStrengthsSelectedSpeciesIndex.value = 0
+        editForceDistancesSelectedSpeciesIndex.value = 0
         parameters.value = newParameters
     }
 
