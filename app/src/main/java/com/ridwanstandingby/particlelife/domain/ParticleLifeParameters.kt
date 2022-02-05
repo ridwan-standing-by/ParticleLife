@@ -91,9 +91,9 @@ class ParticleLifeParameters(
         }
 
         companion object {
-            const val N_PARTICLES_DEFAULT = 500
+            const val N_PARTICLES_DEFAULT = 600
             const val N_PARTICLES_MIN = 50
-            const val N_PARTICLES_MAX = 1000
+            const val N_PARTICLES_MAX = 1200
 
             const val N_SPECIES_DEFAULT = 6
             const val N_SPECIES_MIN = 1
@@ -104,8 +104,8 @@ class ParticleLifeParameters(
             const val FORCE_STRENGTH_RANGE_MIN = -2.0
             const val FORCE_STRENGTH_RANGE_MAX = 2.0
 
-            const val FORCE_DISTANCE_RANGE_LOWER_DEFAULT = 20.0
-            const val FORCE_DISTANCE_RANGE_UPPER_DEFAULT = 120.0
+            const val FORCE_DISTANCE_RANGE_LOWER_DEFAULT = 64.0
+            const val FORCE_DISTANCE_RANGE_UPPER_DEFAULT = 128.0
             const val FORCE_DISTANCE_RANGE_MIN = 16.0
             const val FORCE_DISTANCE_RANGE_MAX = 200.0
         }
@@ -203,7 +203,6 @@ class ParticleLifeParameters(
                 override fun applyPreset(runtimeParameters: RuntimeParameters) {
                     with(runtimeParameters) {
                         reset()
-                        friction *= 2.0
                         forceStrengthScale *= 2.0
                         forceDistanceScale *= 0.5
                     }
@@ -276,9 +275,11 @@ class ParticleLifeParameters(
 
             const val HERD_ENABLED_DEFAULT = true
 
-            const val HERD_STRENGTH_DEFAULT = 2.0
+            const val HERD_STRENGTH_DEFAULT = 1.0
             const val HERD_STRENGTH_MIN = 0.1
-            const val HERD_STRENGTH_MAX = 8.0
+            const val HERD_STRENGTH_MAX = 4.0
+
+            const val HERD_STRENGTH_WEIGHT = 0.04
 
             const val HERD_RADIUS_DEFAULT = 100.0
             const val HERD_RADIUS_MIN = 20.0
@@ -291,6 +292,8 @@ class ParticleLifeParameters(
             const val BECKON_STRENGTH_DEFAULT = 1.0
             const val BECKON_STRENGTH_MIN = 0.1
             const val BECKON_STRENGTH_MAX = 4.0
+
+            const val BECKON_STRENGTH_WEIGHT = 0.02
 
             const val BECKON_RADIUS_DEFAULT = 400.0
             const val BECKON_RADIUS_MIN = 50.0

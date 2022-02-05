@@ -112,8 +112,8 @@ class ParticleLifeAnimation(
 
             val distance2 = xDiff.sq() + yDiff.sq()
             if (distance2 < herdRadius * herdRadius) {
-                particle.xv += herdStrength * swipeXv
-                particle.yv += herdStrength * swipeYv
+                particle.xv += swipeXv * herdStrength * ParticleLifeParameters.RuntimeParameters.HERD_STRENGTH_WEIGHT
+                particle.yv += swipeYv * herdStrength * ParticleLifeParameters.RuntimeParameters.HERD_STRENGTH_WEIGHT
             }
         }
     }
@@ -129,8 +129,8 @@ class ParticleLifeAnimation(
 
             val distance2 = xDiff.sq() + yDiff.sq()
             if (distance2 < beckonRadius * beckonRadius) {
-                particle.xv += beckonStrength * xDiff
-                particle.yv += beckonStrength * yDiff
+                particle.xv += xDiff * beckonStrength * ParticleLifeParameters.RuntimeParameters.BECKON_STRENGTH_WEIGHT
+                particle.yv += yDiff * beckonStrength * ParticleLifeParameters.RuntimeParameters.BECKON_STRENGTH_WEIGHT
             }
         }
     }
