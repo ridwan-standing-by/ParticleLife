@@ -4,12 +4,14 @@ package com.ridwanstandingby.particlelife.domain
 
 import android.graphics.Paint
 import com.ridwanstandingby.verve.animation.Animation
+import com.ridwanstandingby.verve.math.FloatVector2
 import com.ridwanstandingby.verve.math.sq
 import com.ridwanstandingby.verve.math.toroidalDiff
 import com.ridwanstandingby.verve.sensor.press.Press
 import com.ridwanstandingby.verve.sensor.swipe.Swipe
 import java.util.concurrent.locks.ReentrantLock
 import kotlin.math.abs
+import kotlin.math.pow
 import kotlin.math.sqrt
 
 class ParticleLifeAnimation(
@@ -86,26 +88,16 @@ class ParticleLifeAnimation(
         val distance2 = xDiff.sq() + yDiff.sq()
         if (distance2 < newtonMax2 && a !== b) {
             val distance = sqrt(distance2)
-            val force = calculateInteractionForce(
-                distance,
-                interactionMatrix[a.speciesIndex][b.speciesIndex]
-            )
+            val force = when {
+                distance > newtonMax -> 0.0
+                distance > newtonMin -> -interactionMatrix[a.speciesIndex][b.speciesIndex] * (1.0 - abs(distance - newtonMid) / newtonSemiInterval) * forceScale
+                distance > fermiRange -> 0.0
+                else -> fermiForceScale * (1.0 - distance/fermiRange)
+            }
             a.xv += force * xDiff / distance
             a.yv += force * yDiff / distance
         }
     }
-
-    /** Degree of repulsion particle A feels from particle B */
-    private inline fun ParticleLifeParameters.RuntimeParameters.calculateInteractionForce(
-        distance: Double,
-        interactionCharacteristic: Double
-    ): Double =
-        when {
-            distance > newtonMax -> 0.0
-            distance > newtonMin -> -interactionCharacteristic * (1.0 - abs(distance - newtonMid) / newtonSemiInterval)
-            distance > fermiRange -> 0.0
-            else -> fermiForceScaleByFermiRange * (fermiRange - distance)
-        } * forceScale
 
     private inline fun ParticleLifeParameters.RuntimeParameters.applySwipeForce(swipe: Swipe) {
         val swipeX = renderer.inverseTransformX(swipe.screenPosition.x, swipe.screenPosition.y)

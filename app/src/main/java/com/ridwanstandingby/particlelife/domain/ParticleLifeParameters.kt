@@ -91,8 +91,8 @@ class ParticleLifeParameters(
         var xMax: Double,
         var yMax: Double,
         val interactionMatrix: Array<Array<Double>>,
-        fermiForceScale: Double = PRESSURE_DEFAULT,
-        fermiRange: Double = PRESSURE_RANGE_DEFAULT,
+        var fermiForceScale: Double = PRESSURE_DEFAULT,
+        var fermiRange: Double = PRESSURE_RANGE_DEFAULT,
         newtonMax: Double = FORCE_RANGE_DEFAULT,
         newtonMin: Double = FORCE_HORIZON_DEFAULT,
         var forceScale: Double = FORCE_STRENGTH_DEFAULT,
@@ -108,16 +108,6 @@ class ParticleLifeParameters(
         var beckonRadius: Double = BECKON_RADIUS_DEFAULT
     ) {
 
-        var fermiForceScale: Double = fermiForceScale
-            set(value) {
-                field = value
-                recompute()
-            }
-        var fermiRange = fermiRange
-            set(value) {
-                field = value
-                recompute()
-            }
         var newtonMax = newtonMax
             set(value) {
                 field = value
@@ -134,8 +124,6 @@ class ParticleLifeParameters(
         var newtonMid: Double = 0.0
             private set
         var newtonSemiInterval: Double = 0.0
-            private set
-        var fermiForceScaleByFermiRange: Double = 0.0
             private set
 
         init {
@@ -167,7 +155,6 @@ class ParticleLifeParameters(
             newtonMax2 = newtonMax.sq()
             newtonMid = (newtonMax + newtonMin) / 2
             newtonSemiInterval = newtonMax - newtonMid
-            fermiForceScaleByFermiRange = fermiForceScale / fermiRange
         }
 
         fun randomise() {
@@ -188,13 +175,13 @@ class ParticleLifeParameters(
         }
 
         companion object {
-            const val FRICTION_DEFAULT = 0.2
+            const val FRICTION_DEFAULT = 0.02
             const val FRICTION_MIN = 0.0
-            const val FRICTION_MAX = 1.0
+            const val FRICTION_MAX = 0.2
 
-            const val FORCE_STRENGTH_DEFAULT = 100.0
-            const val FORCE_STRENGTH_MIN = 1.0
-            const val FORCE_STRENGTH_MAX = 500.0
+            const val FORCE_STRENGTH_DEFAULT = 1.0
+            const val FORCE_STRENGTH_MIN = 0.01
+            const val FORCE_STRENGTH_MAX = 10.0
 
             const val FORCE_RANGE_DEFAULT = 80.0
             const val FORCE_RANGE_MIN = 20.0
@@ -202,9 +189,9 @@ class ParticleLifeParameters(
 
             const val FORCE_HORIZON_DEFAULT = 16.0
 
-            const val PRESSURE_DEFAULT = 2.0
+            const val PRESSURE_DEFAULT = 100.0
             const val PRESSURE_MIN = 0.0
-            const val PRESSURE_MAX = 4.0
+            const val PRESSURE_MAX = 400.0
 
             const val PRESSURE_RANGE_DEFAULT = 16.0
 

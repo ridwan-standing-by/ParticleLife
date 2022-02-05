@@ -409,7 +409,7 @@ private fun ForceStrengthWidget(
     TextSliderPair(
         text = stringResource(R.string.force_strength_label),
         description = stringResource(R.string.force_strength_description),
-        valueToString = { it.toInt().toString() },
+        valueToString = { it.decimal(2) },
         value = runtimeParameters.value.forceScale.toFloat(),
         range = ParticleLifeParameters.RuntimeParameters.FORCE_STRENGTH_MIN.toFloat()..ParticleLifeParameters.RuntimeParameters.FORCE_STRENGTH_MAX.toFloat(),
         onValueChange = {
@@ -443,7 +443,7 @@ private fun PressureWidget(
     TextSliderPair(
         text = stringResource(R.string.pressure_label),
         description = stringResource(R.string.pressure_description),
-        valueToString = { it.decimal(2) },
+        valueToString = { it.toInt().toString() },
         value = runtimeParameters.value.fermiForceScale.toFloat(),
         range = ParticleLifeParameters.RuntimeParameters.PRESSURE_MIN.toFloat()..ParticleLifeParameters.RuntimeParameters.PRESSURE_MAX.toFloat(),
         onValueChange = {
