@@ -2,6 +2,8 @@ package com.ridwanstandingby.particlelife.domain
 
 import android.graphics.Color
 import com.ridwanstandingby.verve.animation.AnimationParameters
+import kotlin.math.log2
+import kotlin.math.pow
 import kotlin.math.sqrt
 import kotlin.random.Random
 
@@ -157,12 +159,23 @@ class ParticleLifeParameters(
         )
 
         fun randomise() {
-            friction = Random.nextDouble(FRICTION_MIN, FRICTION_MAX)
+            friction = 2.0.pow(Random.nextDouble(log2(FRICTION_MIN), log2(FRICTION_MAX)))
             forceStrengthScale =
-                Random.nextDouble(FORCE_STRENGTH_SCALE_MIN, FORCE_STRENGTH_SCALE_MAX)
+                2.0.pow(
+                    Random.nextDouble(
+                        log2(FORCE_STRENGTH_SCALE_MIN),
+                        log2(FORCE_STRENGTH_SCALE_MAX)
+                    )
+                )
             forceDistanceScale =
-                Random.nextDouble(FORCE_DISTANCE_SCALE_MIN, FORCE_DISTANCE_SCALE_MAX)
-            pressureStrength = Random.nextDouble(PRESSURE_STRENGTH_MIN, PRESSURE_STRENGTH_MAX)
+                2.0.pow(
+                    Random.nextDouble(
+                        log2(FORCE_DISTANCE_SCALE_MIN),
+                        log2(FORCE_DISTANCE_SCALE_MAX)
+                    )
+                )
+            pressureStrength =
+                2.0.pow(Random.nextDouble(log2(PRESSURE_STRENGTH_MIN), log2(PRESSURE_STRENGTH_MAX)))
         }
 
         fun reset() {
