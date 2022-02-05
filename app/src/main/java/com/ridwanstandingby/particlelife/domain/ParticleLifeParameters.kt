@@ -91,9 +91,9 @@ class ParticleLifeParameters(
         }
 
         companion object {
-            const val N_PARTICLES_DEFAULT = 600
+            const val N_PARTICLES_DEFAULT = 500
             const val N_PARTICLES_MIN = 50
-            const val N_PARTICLES_MAX = 1200
+            const val N_PARTICLES_MAX = 1000
 
             const val N_SPECIES_DEFAULT = 6
             const val N_SPECIES_MIN = 1
@@ -187,8 +187,68 @@ class ParticleLifeParameters(
             timeScale = TIME_STEP_DEFAULT
         }
 
+        sealed class Preset {
+
+            abstract fun applyPreset(runtimeParameters: RuntimeParameters)
+
+            object BalancedChaos : Preset() {
+                override fun applyPreset(runtimeParameters: RuntimeParameters) {
+                    with(runtimeParameters) {
+                        reset()
+                    }
+                }
+            }
+
+            object LittleCreatures : Preset() {
+                override fun applyPreset(runtimeParameters: RuntimeParameters) {
+                    with(runtimeParameters) {
+                        reset()
+                        friction *= 2.0
+                        forceStrengthScale *= 2.0
+                        forceDistanceScale *= 0.5
+                    }
+                }
+            }
+
+            object LargeCreatures : Preset() {
+                override fun applyPreset(runtimeParameters: RuntimeParameters) {
+                    with(runtimeParameters) {
+                        reset()
+                        friction *= 2.0
+                        forceStrengthScale *= 0.5
+                        forceDistanceScale *= 2.0
+                        pressureStrength *= 2.0
+                    }
+                }
+            }
+
+            object Behemoths : Preset() {
+                override fun applyPreset(runtimeParameters: RuntimeParameters) {
+                    with(runtimeParameters) {
+                        reset()
+                        friction *= 6.0
+                        forceStrengthScale *= 2.0
+                        forceDistanceScale *= 3.0
+                        pressureStrength *= 2.0
+                        timeScale *= 0.5
+                    }
+                }
+            }
+
+            object Custom : Preset() {
+                override fun applyPreset(runtimeParameters: RuntimeParameters) {
+                    /* do nothing */
+                }
+            }
+
+            companion object {
+                fun default(): Preset = BalancedChaos
+                val ALL = listOf(BalancedChaos, LittleCreatures, LargeCreatures, Behemoths, Custom)
+            }
+        }
+
         companion object {
-            const val FRICTION_DEFAULT = 0.02
+            const val FRICTION_DEFAULT = 0.01
             const val FRICTION_MIN = 0.001
             const val FRICTION_MAX = 0.4
 
@@ -240,8 +300,11 @@ class ParticleLifeParameters(
     }
 
     companion object {
-        fun buildDefault(xMax: Double, yMax: Double): ParticleLifeParameters {
-            val generationParameters = GenerationParameters()
+        fun buildDefault(
+            xMax: Double,
+            yMax: Double,
+            generationParameters: GenerationParameters
+        ): ParticleLifeParameters {
             val species = generationParameters.generateRandomSpecies()
             val forceStrengths = generationParameters.generateRandomForceStrengthMatrix()
             val (forceDistanceLowerBounds, forceDistanceUpperBounds) = generationParameters.generateRandomForceDistanceMatrices()

@@ -4,18 +4,17 @@ import android.view.MotionEvent
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.background
+import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.Casino
 import androidx.compose.material.icons.rounded.ChevronRight
 import androidx.compose.material.icons.rounded.Tune
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.State
-import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Alignment.Companion.Center
 import androidx.compose.ui.Alignment.Companion.CenterHorizontally
@@ -24,6 +23,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInteropFilter
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
@@ -53,6 +53,7 @@ fun ParticleLifeActivityUi(
         onViewSizeChanged = vm::onViewSizeChanged,
         controlPanelExpanded = vm.controlPanelExpanded,
         selectedTabIndex = vm.selectedTabIndex,
+        selectedPreset = vm.selectedPreset,
         editForceStrengthsPanelExpanded = vm.editForceStrengthsPanelExpanded,
         editForceStrengthsSelectedSpeciesIndex = vm.editForceStrengthsSelectedSpeciesIndex,
         editForceDistancesPanelExpanded = vm.editForceDistancesPanelExpanded,
@@ -75,6 +76,7 @@ fun ParticleLifeUi(
     onViewSizeChanged: (FloatVector2, Int) -> Unit,
     controlPanelExpanded: MutableState<Boolean>,
     selectedTabIndex: MutableState<Int>,
+    selectedPreset: MutableState<ParticleLifeParameters.RuntimeParameters.Preset>,
     editForceStrengthsPanelExpanded: MutableState<Boolean>,
     editForceStrengthsSelectedSpeciesIndex: MutableState<Int>,
     editForceDistancesPanelExpanded: MutableState<Boolean>,
@@ -111,6 +113,7 @@ fun ParticleLifeUi(
                 ControlPanelUi(
                     controlPanelExpanded,
                     selectedTabIndex,
+                    selectedPreset,
                     editForceStrengthsPanelExpanded,
                     editForceStrengthsSelectedSpeciesIndex,
                     editForceDistancesPanelExpanded,
@@ -133,6 +136,7 @@ fun ParticleLifeUi(
 fun ControlPanelUi(
     controlPanelExpanded: MutableState<Boolean>,
     selectedTabIndex: MutableState<Int>,
+    selectedPreset: MutableState<ParticleLifeParameters.RuntimeParameters.Preset>,
     editForceStrengthsPanelExpanded: MutableState<Boolean>,
     editForceStrengthsSelectedSpeciesIndex: MutableState<Int>,
     editForceDistancesPanelExpanded: MutableState<Boolean>,
@@ -164,6 +168,7 @@ fun ControlPanelUi(
                     editForceDistancesPanelExpanded,
                     editHandOfGodPanelExpanded,
                     selectedTabIndex,
+                    selectedPreset,
                     runtimeParameters,
                     generationParameters,
                     runtimeParametersChanged,
@@ -225,6 +230,7 @@ fun ControlPanelCardContent(
     editForceDistancesPanelExpanded: MutableState<Boolean>,
     editHandOfGodPanelExpanded: MutableState<Boolean>,
     selectedTabIndex: MutableState<Int>,
+    selectedPreset: MutableState<ParticleLifeParameters.RuntimeParameters.Preset>,
     runtimeParameters: State<ParticleLifeParameters.RuntimeParameters>,
     generationParameters: State<ParticleLifeParameters.GenerationParameters>,
     runtimeParametersChanged: (ParticleLifeParameters.RuntimeParameters.() -> Unit) -> Unit,
@@ -237,6 +243,7 @@ fun ControlPanelCardContent(
             ControlPanelTab.PHYSICS -> PhysicsContent(
                 controlPanelExpanded,
                 editHandOfGodPanelExpanded,
+                selectedPreset,
                 runtimeParameters,
                 runtimeParametersChanged
             )
@@ -299,6 +306,7 @@ fun ControlPanelTab(
 fun PhysicsContent(
     controlPanelExpanded: MutableState<Boolean>,
     editHandOfGodPanelExpanded: MutableState<Boolean>,
+    selectedPreset: MutableState<ParticleLifeParameters.RuntimeParameters.Preset>,
     runtimeParameters: State<ParticleLifeParameters.RuntimeParameters>,
     runtimeParametersChanged: (ParticleLifeParameters.RuntimeParameters.() -> Unit) -> Unit
 ) {
@@ -315,12 +323,12 @@ fun PhysicsContent(
                 .fillMaxWidth()
         )
         if (isPortrait()) {
-            RandomiseAndResetButtons(runtimeParametersChanged)
-            FrictionWidget(runtimeParameters, runtimeParametersChanged)
-            ForceStrengthWidget(runtimeParameters, runtimeParametersChanged)
-            ForceRangeWidget(runtimeParameters, runtimeParametersChanged)
-            PressureWidget(runtimeParameters, runtimeParametersChanged)
-            TimeStepWidget(runtimeParameters, runtimeParametersChanged)
+            PresetSelectionAndRandomiseButton(selectedPreset, runtimeParametersChanged)
+            FrictionWidget(selectedPreset, runtimeParameters, runtimeParametersChanged)
+            ForceStrengthWidget(selectedPreset, runtimeParameters, runtimeParametersChanged)
+            ForceRangeWidget(selectedPreset, runtimeParameters, runtimeParametersChanged)
+            PressureWidget(selectedPreset, runtimeParameters, runtimeParametersChanged)
+            TimeStepWidget(selectedPreset, runtimeParameters, runtimeParametersChanged)
             HandOfGodEnabledSwitchWidget(
                 controlPanelExpanded,
                 editHandOfGodPanelExpanded,
@@ -334,10 +342,10 @@ fun PhysicsContent(
                         .weight(0.5f)
                         .padding(end = 12.dp)
                 ) {
-                    RandomiseAndResetButtons(runtimeParametersChanged)
-                    FrictionWidget(runtimeParameters, runtimeParametersChanged)
-                    ForceStrengthWidget(runtimeParameters, runtimeParametersChanged)
-                    ForceRangeWidget(runtimeParameters, runtimeParametersChanged)
+                    PresetSelectionAndRandomiseButton(selectedPreset, runtimeParametersChanged)
+                    FrictionWidget(selectedPreset, runtimeParameters, runtimeParametersChanged)
+                    ForceStrengthWidget(selectedPreset, runtimeParameters, runtimeParametersChanged)
+                    ForceRangeWidget(selectedPreset, runtimeParameters, runtimeParametersChanged)
                 }
                 Divider(
                     Modifier
@@ -349,8 +357,8 @@ fun PhysicsContent(
                         .weight(0.5f)
                         .padding(start = 12.dp)
                 ) {
-                    PressureWidget(runtimeParameters, runtimeParametersChanged)
-                    TimeStepWidget(runtimeParameters, runtimeParametersChanged)
+                    PressureWidget(selectedPreset, runtimeParameters, runtimeParametersChanged)
+                    TimeStepWidget(selectedPreset, runtimeParameters, runtimeParametersChanged)
                     HandOfGodEnabledSwitchWidget(
                         controlPanelExpanded,
                         editHandOfGodPanelExpanded,
@@ -364,52 +372,110 @@ fun PhysicsContent(
 }
 
 @Composable
-private fun RandomiseAndResetButtons(runtimeParametersChanged: (ParticleLifeParameters.RuntimeParameters.() -> Unit) -> Unit) {
-    Row(Modifier.fillMaxWidth()) {
-        Box(
-            Modifier
-                .weight(0.5f, fill = true)
-        ) {
-            RandomiseButton(runtimeParametersChanged)
-        }
-        Box(
-            Modifier
-                .weight(0.5f, fill = true)
-        ) {
-            ResetButton(runtimeParametersChanged)
-        }
-    }
-}
-
-
-@Composable
-private fun BoxScope.RandomiseButton(runtimeParametersChanged: (ParticleLifeParameters.RuntimeParameters.() -> Unit) -> Unit) {
-    Button(
-        onClick = { runtimeParametersChanged { randomise() } },
-        modifier = Modifier
-            .padding(vertical = 4.dp)
-            .fillMaxWidth(0.95f)
-            .align(Center)
+private fun PresetSelectionAndRandomiseButton(
+    selectedPreset: MutableState<ParticleLifeParameters.RuntimeParameters.Preset>,
+    runtimeParametersChanged: (ParticleLifeParameters.RuntimeParameters.() -> Unit) -> Unit
+) {
+    Row(
+        Modifier
+            .fillMaxWidth()
+            .height(IntrinsicSize.Min)
     ) {
-        Text(stringResource(R.string.randomise_label))
+        Box(
+            Modifier
+                .weight(0.80f, fill = true)
+        ) {
+            PresetSelectionWidget(selectedPreset, runtimeParametersChanged)
+        }
+        Box(
+            Modifier
+                .weight(0.20f, fill = true)
+                .fillMaxHeight()
+        ) {
+            RandomiseButton(selectedPreset, runtimeParametersChanged)
+        }
     }
 }
 
+@OptIn(ExperimentalMaterialApi::class)
 @Composable
-private fun BoxScope.ResetButton(runtimeParametersChanged: (ParticleLifeParameters.RuntimeParameters.() -> Unit) -> Unit) {
-    Button(
-        onClick = { runtimeParametersChanged { reset() } },
+private fun BoxScope.PresetSelectionWidget(
+    selectedPreset: MutableState<ParticleLifeParameters.RuntimeParameters.Preset>,
+    runtimeParametersChanged: (ParticleLifeParameters.RuntimeParameters.() -> Unit) -> Unit
+) {
+
+    val presets = ParticleLifeParameters.RuntimeParameters.Preset.ALL
+    var expanded by remember { mutableStateOf(false) }
+
+    val focusManager = LocalFocusManager.current
+    ExposedDropdownMenuBox(
+        expanded = expanded,
+        onExpandedChange = {
+            expanded = !expanded
+            focusManager.clearFocus()
+        },
         modifier = Modifier
             .padding(vertical = 4.dp)
             .fillMaxWidth(0.9f)
             .align(Center)
     ) {
-        Text(stringResource(R.string.reset_label))
+        TextField(
+            readOnly = true,
+            value = stringResource(selectedPreset.value.nameString()),
+            onValueChange = { },
+            enabled = true,
+            label = { Text(stringResource(R.string.preset_label)) },
+            trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
+            colors = ExposedDropdownMenuDefaults.textFieldColors(),
+            modifier = Modifier.focusable(enabled = false)
+        )
+        ExposedDropdownMenu(
+            expanded = expanded,
+            onDismissRequest = {
+                expanded = false
+                focusManager.clearFocus()
+            }
+        ) {
+
+            presets.forEach { preset ->
+                DropdownMenuItem(
+                    onClick = {
+                        selectedPreset.value = preset
+                        runtimeParametersChanged { preset.applyPreset(this) }
+                        expanded = false
+                        focusManager.clearFocus()
+                    }
+                ) {
+                    Text(stringResource(preset.nameString()))
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun BoxScope.RandomiseButton(
+    selectedPreset: MutableState<ParticleLifeParameters.RuntimeParameters.Preset>,
+    runtimeParametersChanged: (ParticleLifeParameters.RuntimeParameters.() -> Unit) -> Unit
+) {
+    Button(
+        onClick = {
+            runtimeParametersChanged { randomise() }
+            selectedPreset.value = ParticleLifeParameters.RuntimeParameters.Preset.Custom
+        },
+        modifier = Modifier
+            .padding(vertical = 4.dp)
+            .fillMaxWidth(0.95f)
+            .fillMaxHeight()
+            .align(Center)
+    ) {
+        Icon(imageVector = Icons.Rounded.Casino, stringResource(R.string.randomise_label))
     }
 }
 
 @Composable
 private fun FrictionWidget(
+    selectedPreset: MutableState<ParticleLifeParameters.RuntimeParameters.Preset>,
     runtimeParameters: State<ParticleLifeParameters.RuntimeParameters>,
     runtimeParametersChanged: (ParticleLifeParameters.RuntimeParameters.() -> Unit) -> Unit
 ) {
@@ -421,12 +487,14 @@ private fun FrictionWidget(
         range = ParticleLifeParameters.RuntimeParameters.FRICTION_MIN.toFloat()..ParticleLifeParameters.RuntimeParameters.FRICTION_MAX.toFloat(),
         onValueChange = {
             runtimeParametersChanged { friction = it.toDouble() }
+            selectedPreset.value = ParticleLifeParameters.RuntimeParameters.Preset.Custom
         }
     )
 }
 
 @Composable
 private fun ForceStrengthWidget(
+    selectedPreset: MutableState<ParticleLifeParameters.RuntimeParameters.Preset>,
     runtimeParameters: State<ParticleLifeParameters.RuntimeParameters>,
     runtimeParametersChanged: (ParticleLifeParameters.RuntimeParameters.() -> Unit) -> Unit
 ) {
@@ -438,12 +506,14 @@ private fun ForceStrengthWidget(
         range = ParticleLifeParameters.RuntimeParameters.FORCE_STRENGTH_SCALE_MIN.toFloat()..ParticleLifeParameters.RuntimeParameters.FORCE_STRENGTH_SCALE_MAX.toFloat(),
         onValueChange = {
             runtimeParametersChanged { forceStrengthScale = it.toDouble() }
+            selectedPreset.value = ParticleLifeParameters.RuntimeParameters.Preset.Custom
         }
     )
 }
 
 @Composable
 private fun ForceRangeWidget(
+    selectedPreset: MutableState<ParticleLifeParameters.RuntimeParameters.Preset>,
     runtimeParameters: State<ParticleLifeParameters.RuntimeParameters>,
     runtimeParametersChanged: (ParticleLifeParameters.RuntimeParameters.() -> Unit) -> Unit
 ) {
@@ -455,12 +525,14 @@ private fun ForceRangeWidget(
         range = ParticleLifeParameters.RuntimeParameters.FORCE_DISTANCE_SCALE_MIN.toFloat()..ParticleLifeParameters.RuntimeParameters.FORCE_DISTANCE_SCALE_MAX.toFloat(),
         onValueChange = {
             runtimeParametersChanged { forceDistanceScale = it.toDouble() }
+            selectedPreset.value = ParticleLifeParameters.RuntimeParameters.Preset.Custom
         }
     )
 }
 
 @Composable
 private fun PressureWidget(
+    selectedPreset: MutableState<ParticleLifeParameters.RuntimeParameters.Preset>,
     runtimeParameters: State<ParticleLifeParameters.RuntimeParameters>,
     runtimeParametersChanged: (ParticleLifeParameters.RuntimeParameters.() -> Unit) -> Unit
 ) {
@@ -472,12 +544,14 @@ private fun PressureWidget(
         range = ParticleLifeParameters.RuntimeParameters.PRESSURE_STRENGTH_MIN.toFloat()..ParticleLifeParameters.RuntimeParameters.PRESSURE_STRENGTH_MAX.toFloat(),
         onValueChange = {
             runtimeParametersChanged { pressureStrength = it.toDouble() }
+            selectedPreset.value = ParticleLifeParameters.RuntimeParameters.Preset.Custom
         }
     )
 }
 
 @Composable
 private fun TimeStepWidget(
+    selectedPreset: MutableState<ParticleLifeParameters.RuntimeParameters.Preset>,
     runtimeParameters: State<ParticleLifeParameters.RuntimeParameters>,
     runtimeParametersChanged: (ParticleLifeParameters.RuntimeParameters.() -> Unit) -> Unit
 ) {
@@ -489,6 +563,7 @@ private fun TimeStepWidget(
         range = ParticleLifeParameters.RuntimeParameters.TIME_STEP_MIN.toFloat()..ParticleLifeParameters.RuntimeParameters.TIME_STEP_MAX.toFloat(),
         onValueChange = {
             runtimeParametersChanged { timeScale = it.toDouble() }
+            selectedPreset.value = ParticleLifeParameters.RuntimeParameters.Preset.Custom
         }
     )
 }

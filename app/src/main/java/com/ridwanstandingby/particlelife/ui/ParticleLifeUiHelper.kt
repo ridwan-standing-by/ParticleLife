@@ -6,6 +6,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.unit.dp
 import com.ridwanstandingby.particlelife.R
+import com.ridwanstandingby.particlelife.domain.ParticleLifeParameters
 
 val fabDiameter = 56.dp
 
@@ -26,3 +27,13 @@ fun ControlPanelTab.toTabNameString() =
     }
 
 fun Float.decimal(digits: Int) = "%.${digits}f".format(this)
+
+@StringRes
+fun ParticleLifeParameters.RuntimeParameters.Preset.nameString() =
+    when (this) {
+        ParticleLifeParameters.RuntimeParameters.Preset.BalancedChaos -> R.string.preset_balanced_chaos
+        ParticleLifeParameters.RuntimeParameters.Preset.Behemoths -> R.string.preset_behemoths
+        ParticleLifeParameters.RuntimeParameters.Preset.Custom -> R.string.preset_custom
+        ParticleLifeParameters.RuntimeParameters.Preset.LargeCreatures -> R.string.preset_large_creatures
+        ParticleLifeParameters.RuntimeParameters.Preset.LittleCreatures -> R.string.preset_little_creatures
+    }

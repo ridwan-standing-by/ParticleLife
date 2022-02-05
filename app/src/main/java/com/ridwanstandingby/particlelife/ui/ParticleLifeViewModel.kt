@@ -22,6 +22,7 @@ class ParticleLifeViewModel(
 
     val controlPanelExpanded = mutableStateOf(false)
     val selectedTabIndex = mutableStateOf(0)
+    val selectedPreset = mutableStateOf(ParticleLifeParameters.RuntimeParameters.Preset.default())
     val editForceStrengthsPanelExpanded = mutableStateOf(false)
     val editForceStrengthsSelectedSpeciesIndex = mutableStateOf(0)
     val editForceDistancesPanelExpanded = mutableStateOf(false)
@@ -31,7 +32,8 @@ class ParticleLifeViewModel(
     val parameters = mutableStateOf(
         ParticleLifeParameters.buildDefault(
             Resources.getSystem().displayMetrics.widthPixels.toDouble(),
-            Resources.getSystem().displayMetrics.heightPixels.toDouble()
+            Resources.getSystem().displayMetrics.heightPixels.toDouble(),
+            ParticleLifeParameters.GenerationParameters()
         ), neverEqualPolicy()
     )
 
