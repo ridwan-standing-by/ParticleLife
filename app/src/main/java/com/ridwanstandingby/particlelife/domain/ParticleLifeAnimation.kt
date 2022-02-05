@@ -4,14 +4,12 @@ package com.ridwanstandingby.particlelife.domain
 
 import android.graphics.Paint
 import com.ridwanstandingby.verve.animation.Animation
-import com.ridwanstandingby.verve.math.FloatVector2
 import com.ridwanstandingby.verve.math.sq
 import com.ridwanstandingby.verve.math.toroidalDiff
 import com.ridwanstandingby.verve.sensor.press.Press
 import com.ridwanstandingby.verve.sensor.swipe.Swipe
 import java.util.concurrent.locks.ReentrantLock
 import kotlin.math.abs
-import kotlin.math.pow
 import kotlin.math.sqrt
 
 class ParticleLifeAnimation(
@@ -82,17 +80,20 @@ class ParticleLifeAnimation(
         b: Particle
     ) {
         val xDiff = toroidalDiff(a.x, b.x, xMax)
-        if (abs(xDiff) > newtonMax) return
+        val rMax = forceDistanceUpperBounds[a.speciesIndex][b.speciesIndex] * forceDistanceScale
+        if (abs(xDiff) > rMax) return
         val yDiff = toroidalDiff(a.y, b.y, yMax)
 
         val distance2 = xDiff.sq() + yDiff.sq()
-        if (distance2 < newtonMax2 && a !== b) {
+        if (distance2 < rMax.sq() && a !== b) {
             val distance = sqrt(distance2)
+            val rMin = forceDistanceLowerBounds[a.speciesIndex][b.speciesIndex] * forceDistanceScale
             val force = when {
-                distance > newtonMax -> 0.0
-                distance > newtonMin -> -interactionMatrix[a.speciesIndex][b.speciesIndex] * (1.0 - abs(distance - newtonMid) / newtonSemiInterval) * forceScale
-                distance > fermiRange -> 0.0
-                else -> fermiForceScale * (1.0 - distance/fermiRange)
+                distance > rMax -> 0.0
+                distance > rMin -> -forceStrengths[a.speciesIndex][b.speciesIndex] *
+                        (2.0 - abs(distance * 2.0 - rMax - rMin) / (rMax - rMin)) * forceStrengthScale
+                distance > pressureDistance -> 0.0
+                else -> pressureStrength * (1.0 - distance / pressureDistance)
             }
             a.xv += force * xDiff / distance
             a.yv += force * yDiff / distance

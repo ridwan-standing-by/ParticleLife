@@ -75,12 +75,17 @@ class ParticleLifeViewModel(
     fun generateNewParticles() {
         val newParameters = with(parameters.value) {
             val species = generation.generateRandomSpecies()
-            val interactionMatrix = generation.generateRandomInteractionMatrix()
+            val forceStrengths = generation.generateRandomForceStrengthMatrix()
+            val (forceDistanceLowerBounds, forceDistanceUpperBounds) = generation.generateRandomForceDistanceMatrices()
             val initialParticles =
                 generation.generateRandomParticles(runtime.xMax, runtime.yMax, species)
             ParticleLifeParameters(
                 generation = generation.copy(),
-                runtime = runtime.copy(interactionMatrix = interactionMatrix),
+                runtime = runtime.copy(
+                    forceStrengths = forceStrengths,
+                    forceDistanceLowerBounds = forceDistanceLowerBounds,
+                    forceDistanceUpperBounds = forceDistanceUpperBounds
+                ),
                 species = species,
                 initialParticles = initialParticles
             )

@@ -2,7 +2,7 @@ package com.ridwanstandingby.particlelife.domain
 
 import android.graphics.Color
 import com.ridwanstandingby.verve.animation.AnimationParameters
-import com.ridwanstandingby.verve.math.sq
+import kotlin.math.sqrt
 import kotlin.random.Random
 
 class ParticleLifeParameters(
@@ -15,8 +15,10 @@ class ParticleLifeParameters(
     data class GenerationParameters(
         var nParticles: Int = N_PARTICLES_DEFAULT,
         var nSpecies: Int = N_SPECIES_DEFAULT,
-        var maxAttraction: Double = FORCE_VALUE_RANGE_UPPER_DEFAULT,
-        var maxRepulsion: Double = FORCE_VALUE_RANGE_LOWER_DEFAULT
+        var maxAttraction: Double = FORCE_STRENGTH_RANGE_UPPER_DEFAULT,
+        var maxRepulsion: Double = FORCE_STRENGTH_RANGE_LOWER_DEFAULT,
+        var forceDistanceLowerBoundMin: Double = FORCE_DISTANCE_RANGE_LOWER_DEFAULT,
+        var forceDistanceUpperBoundMax: Double = FORCE_DISTANCE_RANGE_UPPER_DEFAULT
     ) {
         fun generateRandomSpecies(): List<Species> =
             listOf(
@@ -38,22 +40,37 @@ class ParticleLifeParameters(
                 }
             )
 
-        private fun generateRandomInteractionValue() =
-            try {
-                Random.nextDouble(maxRepulsion, maxAttraction)
-            } catch (e: Exception) {
-                maxRepulsion
+        fun generateRandomForceStrengthMatrix() =
+            Array(nSpecies) {
+                Array(nSpecies) {
+                    try {
+                        Random.nextDouble(maxRepulsion, maxAttraction)
+                    } catch (e: Exception) {
+                        maxRepulsion
+                    }
+                }
             }
 
-        private fun generateRandomInteractionVector() =
-            Array(nSpecies) {
-                generateRandomInteractionValue()
+        fun generateRandomForceDistanceMatrices(): Pair<Array<Array<Double>>, Array<Array<Double>>> {
+            val lowerMatrix = Array(nSpecies) { Array(nSpecies) { 0.0 } }
+            val upperMatrix = Array(nSpecies) { Array(nSpecies) { 0.0 } }
+
+            (0 until nSpecies).forEach { i ->
+                (0 until nSpecies).forEach { j ->
+                    val midPoint = (forceDistanceLowerBoundMin + forceDistanceUpperBoundMax) / 2.0
+                    val semiInterval =
+                        (forceDistanceUpperBoundMax - forceDistanceLowerBoundMin) / 2.0
+                    lowerMatrix[i][j] =
+                        midPoint - semiInterval * (sqrt(1 - Random.nextDouble())
+                            .takeIf { !it.isNaN() } ?: 1.0)
+                    upperMatrix[i][j] =
+                        midPoint + semiInterval * (sqrt(Random.nextDouble())
+                            .takeIf { !it.isNaN() } ?: 1.0)
+                }
             }
 
-        fun generateRandomInteractionMatrix() =
-            Array(nSpecies) {
-                generateRandomInteractionVector()
-            }
+            return Pair(lowerMatrix, upperMatrix)
+        }
 
         fun generateRandomParticles(
             xMax: Double,
@@ -80,22 +97,28 @@ class ParticleLifeParameters(
             const val N_SPECIES_MIN = 1
             const val N_SPECIES_MAX = 10
 
-            const val FORCE_VALUE_RANGE_LOWER_DEFAULT = -1.0
-            const val FORCE_VALUE_RANGE_UPPER_DEFAULT = 1.0
-            const val FORCE_VALUE_RANGE_MIN = -2.0
-            const val FORCE_VALUE_RANGE_MAX = 2.0
+            const val FORCE_STRENGTH_RANGE_LOWER_DEFAULT = -1.0
+            const val FORCE_STRENGTH_RANGE_UPPER_DEFAULT = 1.0
+            const val FORCE_STRENGTH_RANGE_MIN = -2.0
+            const val FORCE_STRENGTH_RANGE_MAX = 2.0
+
+            const val FORCE_DISTANCE_RANGE_LOWER_DEFAULT = 20.0
+            const val FORCE_DISTANCE_RANGE_UPPER_DEFAULT = 120.0
+            const val FORCE_DISTANCE_RANGE_MIN = 16.0
+            const val FORCE_DISTANCE_RANGE_MAX = 200.0
         }
     }
 
     class RuntimeParameters(
         var xMax: Double,
         var yMax: Double,
-        val interactionMatrix: Array<Array<Double>>,
-        var fermiForceScale: Double = PRESSURE_DEFAULT,
-        var fermiRange: Double = PRESSURE_RANGE_DEFAULT,
-        newtonMax: Double = FORCE_RANGE_DEFAULT,
-        newtonMin: Double = FORCE_HORIZON_DEFAULT,
-        var forceScale: Double = FORCE_STRENGTH_DEFAULT,
+        val forceStrengths: Array<Array<Double>>,
+        val forceDistanceLowerBounds: Array<Array<Double>>,
+        val forceDistanceUpperBounds: Array<Array<Double>>,
+        var pressureStrength: Double = PRESSURE_STRENGTH_DEFAULT,
+        var pressureDistance: Double = PRESSURE_DISTANCE_DEFAULT,
+        var forceStrengthScale: Double = FORCE_STRENGTH_SCALE_DEFAULT,
+        var forceDistanceScale: Double = FORCE_DISTANCE_SCALE_DEFAULT,
         var friction: Double = FRICTION_DEFAULT,
         var timeScale: Double = TIME_STEP_DEFAULT,
         var handOfGodEnabled: Boolean = HAND_OF_GOD_ENABLED_DEFAULT,
@@ -108,92 +131,67 @@ class ParticleLifeParameters(
         var beckonRadius: Double = BECKON_RADIUS_DEFAULT
     ) {
 
-        var newtonMax = newtonMax
-            set(value) {
-                field = value
-                recompute()
-            }
-        var newtonMin = newtonMin
-            set(value) {
-                field = value
-                recompute()
-            }
-
-        var newtonMax2: Double = 0.0
-            private set
-        var newtonMid: Double = 0.0
-            private set
-        var newtonSemiInterval: Double = 0.0
-            private set
-
-        init {
-            recompute()
-        }
-
-        fun copy(interactionMatrix: Array<Array<Double>> = this.interactionMatrix) =
-            RuntimeParameters(
-                xMax = xMax,
-                yMax = yMax,
-                interactionMatrix = interactionMatrix,
-                fermiForceScale = fermiForceScale,
-                fermiRange = fermiRange,
-                newtonMax = newtonMax,
-                newtonMin = newtonMin,
-                forceScale = forceScale,
-                friction = friction,
-                timeScale = timeScale,
-                handOfGodEnabled = handOfGodEnabled,
-                herdEnabled = herdEnabled,
-                herdStrength = herdStrength,
-                herdRadius = herdRadius,
-                beckonEnabled = beckonEnabled,
-                beckonStrength = beckonStrength,
-                beckonRadius = beckonRadius
-            )
-
-        private fun recompute() {
-            newtonMax2 = newtonMax.sq()
-            newtonMid = (newtonMax + newtonMin) / 2
-            newtonSemiInterval = newtonMax - newtonMid
-        }
+        fun copy(
+            forceStrengths: Array<Array<Double>> = this.forceStrengths,
+            forceDistanceLowerBounds: Array<Array<Double>> = this.forceDistanceLowerBounds,
+            forceDistanceUpperBounds: Array<Array<Double>> = this.forceDistanceUpperBounds
+        ) = RuntimeParameters(
+            xMax = xMax,
+            yMax = yMax,
+            forceStrengths = forceStrengths,
+            forceDistanceLowerBounds = forceDistanceLowerBounds,
+            forceDistanceUpperBounds = forceDistanceUpperBounds,
+            pressureStrength = pressureStrength,
+            pressureDistance = pressureDistance,
+            forceStrengthScale = forceStrengthScale,
+            forceDistanceScale = forceDistanceScale,
+            friction = friction,
+            timeScale = timeScale,
+            handOfGodEnabled = handOfGodEnabled,
+            herdEnabled = herdEnabled,
+            herdStrength = herdStrength,
+            herdRadius = herdRadius,
+            beckonEnabled = beckonEnabled,
+            beckonStrength = beckonStrength,
+            beckonRadius = beckonRadius
+        )
 
         fun randomise() {
             friction = Random.nextDouble(FRICTION_MIN, FRICTION_MAX)
-            newtonMax = Random.nextDouble(FORCE_RANGE_MIN, FORCE_RANGE_MAX)
-            forceScale = Random.nextDouble(FORCE_STRENGTH_MIN, FORCE_STRENGTH_MAX)
-            fermiForceScale = Random.nextDouble(PRESSURE_MIN, PRESSURE_MAX)
+            forceStrengthScale =
+                Random.nextDouble(FORCE_STRENGTH_SCALE_MIN, FORCE_STRENGTH_SCALE_MAX)
+            forceDistanceScale =
+                Random.nextDouble(FORCE_DISTANCE_SCALE_MIN, FORCE_DISTANCE_SCALE_MAX)
+            pressureStrength = Random.nextDouble(PRESSURE_STRENGTH_MIN, PRESSURE_STRENGTH_MAX)
         }
 
         fun reset() {
-            fermiForceScale = PRESSURE_DEFAULT
-            fermiRange = PRESSURE_RANGE_DEFAULT
-            newtonMax = FORCE_RANGE_DEFAULT
-            newtonMin = FORCE_HORIZON_DEFAULT
-            forceScale = FORCE_STRENGTH_DEFAULT
+            pressureStrength = PRESSURE_STRENGTH_DEFAULT
+            pressureDistance = PRESSURE_DISTANCE_DEFAULT
+            forceStrengthScale = FORCE_STRENGTH_SCALE_DEFAULT
+            forceDistanceScale = FORCE_DISTANCE_SCALE_DEFAULT
             friction = FRICTION_DEFAULT
             timeScale = TIME_STEP_DEFAULT
         }
 
         companion object {
-            const val FRICTION_DEFAULT = 0.02
-            const val FRICTION_MIN = 0.0
-            const val FRICTION_MAX = 0.2
+            const val FRICTION_DEFAULT = 0.015
+            const val FRICTION_MIN = 0.00
+            const val FRICTION_MAX = 0.05
 
-            const val FORCE_STRENGTH_DEFAULT = 1.0
-            const val FORCE_STRENGTH_MIN = 0.01
-            const val FORCE_STRENGTH_MAX = 10.0
+            const val FORCE_STRENGTH_SCALE_DEFAULT = 0.5
+            const val FORCE_STRENGTH_SCALE_MIN = 0.0
+            const val FORCE_STRENGTH_SCALE_MAX = 3.0
 
-            const val FORCE_RANGE_DEFAULT = 80.0
-            const val FORCE_RANGE_MIN = 20.0
-            const val FORCE_RANGE_MAX = 200.0
+            const val FORCE_DISTANCE_SCALE_DEFAULT = 1.0
+            const val FORCE_DISTANCE_SCALE_MIN = 0.0
+            const val FORCE_DISTANCE_SCALE_MAX = 3.0
 
-            const val FORCE_HORIZON_DEFAULT = 16.0
+            const val PRESSURE_STRENGTH_DEFAULT = 200.0
+            const val PRESSURE_STRENGTH_MIN = 0.0
+            const val PRESSURE_STRENGTH_MAX = 400.0
 
-            const val PRESSURE_DEFAULT = 100.0
-            const val PRESSURE_MIN = 0.0
-            const val PRESSURE_MAX = 400.0
-
-            const val PRESSURE_RANGE_DEFAULT = 16.0
+            const val PRESSURE_DISTANCE_DEFAULT = 16.0
 
             const val TIME_STEP_DEFAULT = 1.0
             const val TIME_STEP_MIN = 0.1
@@ -230,11 +228,18 @@ class ParticleLifeParameters(
         fun buildDefault(xMax: Double, yMax: Double): ParticleLifeParameters {
             val generationParameters = GenerationParameters()
             val species = generationParameters.generateRandomSpecies()
-            val interactionMatrix = generationParameters.generateRandomInteractionMatrix()
+            val forceStrengths = generationParameters.generateRandomForceStrengthMatrix()
+            val (forceDistanceLowerBounds, forceDistanceUpperBounds) = generationParameters.generateRandomForceDistanceMatrices()
             val initialParticles = generationParameters.generateRandomParticles(xMax, yMax, species)
             return ParticleLifeParameters(
                 generation = generationParameters,
-                runtime = RuntimeParameters(xMax, yMax, interactionMatrix),
+                runtime = RuntimeParameters(
+                    xMax = xMax,
+                    yMax = yMax,
+                    forceStrengths = forceStrengths,
+                    forceDistanceLowerBounds = forceDistanceLowerBounds,
+                    forceDistanceUpperBounds = forceDistanceUpperBounds
+                ),
                 species = species,
                 initialParticles = initialParticles
             )

@@ -392,7 +392,7 @@ private fun FrictionWidget(
     TextSliderPair(
         text = stringResource(R.string.friction_label),
         description = stringResource(R.string.friction_description),
-        valueToString = { it.decimal(2) },
+        valueToString = { """${(it * 100f).decimal(1)}%""" },
         value = runtimeParameters.value.friction.toFloat(),
         range = ParticleLifeParameters.RuntimeParameters.FRICTION_MIN.toFloat()..ParticleLifeParameters.RuntimeParameters.FRICTION_MAX.toFloat(),
         onValueChange = {
@@ -410,10 +410,10 @@ private fun ForceStrengthWidget(
         text = stringResource(R.string.force_strength_label),
         description = stringResource(R.string.force_strength_description),
         valueToString = { it.decimal(2) },
-        value = runtimeParameters.value.forceScale.toFloat(),
-        range = ParticleLifeParameters.RuntimeParameters.FORCE_STRENGTH_MIN.toFloat()..ParticleLifeParameters.RuntimeParameters.FORCE_STRENGTH_MAX.toFloat(),
+        value = runtimeParameters.value.forceStrengthScale.toFloat(),
+        range = ParticleLifeParameters.RuntimeParameters.FORCE_STRENGTH_SCALE_MIN.toFloat()..ParticleLifeParameters.RuntimeParameters.FORCE_STRENGTH_SCALE_MAX.toFloat(),
         onValueChange = {
-            runtimeParametersChanged { forceScale = it.toDouble() }
+            runtimeParametersChanged { forceStrengthScale = it.toDouble() }
         }
     )
 }
@@ -426,11 +426,11 @@ private fun ForceRangeWidget(
     TextSliderPair(
         text = stringResource(R.string.force_range_label),
         description = stringResource(R.string.force_range_description),
-        valueToString = { it.toInt().toString() },
-        value = runtimeParameters.value.newtonMax.toFloat(),
-        range = ParticleLifeParameters.RuntimeParameters.FORCE_RANGE_MIN.toFloat()..ParticleLifeParameters.RuntimeParameters.FORCE_RANGE_MAX.toFloat(),
+        valueToString = { it.decimal(2) },
+        value = runtimeParameters.value.forceDistanceScale.toFloat(),
+        range = ParticleLifeParameters.RuntimeParameters.FORCE_DISTANCE_SCALE_MIN.toFloat()..ParticleLifeParameters.RuntimeParameters.FORCE_DISTANCE_SCALE_MAX.toFloat(),
         onValueChange = {
-            runtimeParametersChanged { newtonMax = it.toDouble() }
+            runtimeParametersChanged { forceDistanceScale = it.toDouble() }
         }
     )
 }
@@ -444,10 +444,10 @@ private fun PressureWidget(
         text = stringResource(R.string.pressure_label),
         description = stringResource(R.string.pressure_description),
         valueToString = { it.toInt().toString() },
-        value = runtimeParameters.value.fermiForceScale.toFloat(),
-        range = ParticleLifeParameters.RuntimeParameters.PRESSURE_MIN.toFloat()..ParticleLifeParameters.RuntimeParameters.PRESSURE_MAX.toFloat(),
+        value = runtimeParameters.value.pressureStrength.toFloat(),
+        range = ParticleLifeParameters.RuntimeParameters.PRESSURE_STRENGTH_MIN.toFloat()..ParticleLifeParameters.RuntimeParameters.PRESSURE_STRENGTH_MAX.toFloat(),
         onValueChange = {
-            runtimeParametersChanged { fermiForceScale = it.toDouble() }
+            runtimeParametersChanged { pressureStrength = it.toDouble() }
         }
     )
 }
@@ -833,7 +833,7 @@ private fun ForceValueRangeWidget(
             generationParameters.value.maxRepulsion.toFloat(),
             generationParameters.value.maxAttraction.toFloat()
         ),
-        range = ParticleLifeParameters.GenerationParameters.FORCE_VALUE_RANGE_MIN.toFloat()..ParticleLifeParameters.GenerationParameters.FORCE_VALUE_RANGE_MAX.toFloat(),
+        range = ParticleLifeParameters.GenerationParameters.FORCE_STRENGTH_RANGE_MIN.toFloat()..ParticleLifeParameters.GenerationParameters.FORCE_STRENGTH_RANGE_MAX.toFloat(),
         onValueChange = {
             generationParametersChanged {
                 maxRepulsion = it.first.toDouble()
@@ -971,7 +971,7 @@ fun EditSpeciesForceValueSlider(
             .padding(vertical = 2.dp, horizontal = 8.dp)
     ) {
         val value =
-            runtimeParameters.value.interactionMatrix[selectedSpeciesIndex.value][thisSpeciesIndex].toFloat()
+            runtimeParameters.value.forceStrengths[selectedSpeciesIndex.value][thisSpeciesIndex].toFloat()
         val isSelected = thisSpeciesIndex == selectedSpeciesIndex.value
         Box(
             modifier = Modifier
@@ -1023,10 +1023,10 @@ fun EditSpeciesForceValueSlider(
             value = value,
             onValueChange = {
                 runtimeParametersChanged {
-                    interactionMatrix[selectedSpeciesIndex.value][thisSpeciesIndex] = it.toDouble()
+                    forceStrengths[selectedSpeciesIndex.value][thisSpeciesIndex] = it.toDouble()
                 }
             },
-            valueRange = ParticleLifeParameters.GenerationParameters.FORCE_VALUE_RANGE_MIN.toFloat()..ParticleLifeParameters.GenerationParameters.FORCE_VALUE_RANGE_MAX.toFloat(),
+            valueRange = ParticleLifeParameters.GenerationParameters.FORCE_STRENGTH_RANGE_MIN.toFloat()..ParticleLifeParameters.GenerationParameters.FORCE_STRENGTH_RANGE_MAX.toFloat(),
             steps = 0,
             modifier = Modifier
                 .weight(0.425f)
