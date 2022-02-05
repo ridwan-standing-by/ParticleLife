@@ -4,18 +4,17 @@ import android.view.MotionEvent
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.background
+import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.Casino
 import androidx.compose.material.icons.rounded.ChevronRight
 import androidx.compose.material.icons.rounded.Tune
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.State
-import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Alignment.Companion.Center
 import androidx.compose.ui.Alignment.Companion.CenterHorizontally
@@ -24,6 +23,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInteropFilter
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
@@ -37,6 +37,8 @@ import com.ridwanstandingby.particlelife.domain.Species
 import com.ridwanstandingby.particlelife.ui.theme.ParticleLifeTheme
 import com.ridwanstandingby.verve.animation.AnimationView
 import com.ridwanstandingby.verve.math.FloatVector2
+import kotlin.math.log2
+import kotlin.math.pow
 import kotlin.math.roundToInt
 
 @Composable
@@ -51,8 +53,11 @@ fun ParticleLifeActivityUi(
         onViewSizeChanged = vm::onViewSizeChanged,
         controlPanelExpanded = vm.controlPanelExpanded,
         selectedTabIndex = vm.selectedTabIndex,
-        editForceValuePanelExpanded = vm.editForceValuePanelExpanded,
-        editForceValueSelectedSpeciesIndex = vm.editForceValueSelectedSpeciesIndex,
+        selectedPreset = vm.selectedPreset,
+        editForceStrengthsPanelExpanded = vm.editForceStrengthsPanelExpanded,
+        editForceStrengthsSelectedSpeciesIndex = vm.editForceStrengthsSelectedSpeciesIndex,
+        editForceDistancesPanelExpanded = vm.editForceDistancesPanelExpanded,
+        editForceDistancesSelectedSpeciesIndex = vm.editForceDistancesSelectedSpeciesIndex,
         editHandOfGodPanelExpanded = vm.editHandOfGodPanelExpanded,
         runtimeParameters = derivedStateOf { vm.parameters.value.runtime.copy() },
         generationParameters = derivedStateOf { vm.parameters.value.generation.copy() },
@@ -71,8 +76,11 @@ fun ParticleLifeUi(
     onViewSizeChanged: (FloatVector2, Int) -> Unit,
     controlPanelExpanded: MutableState<Boolean>,
     selectedTabIndex: MutableState<Int>,
-    editForceValuePanelExpanded: MutableState<Boolean>,
-    editForceValueSelectedSpeciesIndex: MutableState<Int>,
+    selectedPreset: MutableState<ParticleLifeParameters.RuntimeParameters.Preset>,
+    editForceStrengthsPanelExpanded: MutableState<Boolean>,
+    editForceStrengthsSelectedSpeciesIndex: MutableState<Int>,
+    editForceDistancesPanelExpanded: MutableState<Boolean>,
+    editForceDistancesSelectedSpeciesIndex: MutableState<Int>,
     editHandOfGodPanelExpanded: MutableState<Boolean>,
     runtimeParameters: State<ParticleLifeParameters.RuntimeParameters>,
     generationParameters: State<ParticleLifeParameters.GenerationParameters>,
@@ -105,8 +113,11 @@ fun ParticleLifeUi(
                 ControlPanelUi(
                     controlPanelExpanded,
                     selectedTabIndex,
-                    editForceValuePanelExpanded,
-                    editForceValueSelectedSpeciesIndex,
+                    selectedPreset,
+                    editForceStrengthsPanelExpanded,
+                    editForceStrengthsSelectedSpeciesIndex,
+                    editForceDistancesPanelExpanded,
+                    editForceDistancesSelectedSpeciesIndex,
                     editHandOfGodPanelExpanded,
                     runtimeParameters,
                     generationParameters,
@@ -125,8 +136,11 @@ fun ParticleLifeUi(
 fun ControlPanelUi(
     controlPanelExpanded: MutableState<Boolean>,
     selectedTabIndex: MutableState<Int>,
-    editForceValuePanelExpanded: MutableState<Boolean>,
-    editForceValueSelectedSpeciesIndex: MutableState<Int>,
+    selectedPreset: MutableState<ParticleLifeParameters.RuntimeParameters.Preset>,
+    editForceStrengthsPanelExpanded: MutableState<Boolean>,
+    editForceStrengthsSelectedSpeciesIndex: MutableState<Int>,
+    editForceDistancesPanelExpanded: MutableState<Boolean>,
+    editForceDistancesSelectedSpeciesIndex: MutableState<Int>,
     editHandOfGodPanelExpanded: MutableState<Boolean>,
     runtimeParameters: State<ParticleLifeParameters.RuntimeParameters>,
     generationParameters: State<ParticleLifeParameters.GenerationParameters>,
@@ -150,9 +164,11 @@ fun ControlPanelUi(
             Card(modifier = foregroundCardModifier) {
                 ControlPanelCardContent(
                     controlPanelExpanded,
-                    editForceValuePanelExpanded,
+                    editForceStrengthsPanelExpanded,
+                    editForceDistancesPanelExpanded,
                     editHandOfGodPanelExpanded,
                     selectedTabIndex,
+                    selectedPreset,
                     runtimeParameters,
                     generationParameters,
                     runtimeParametersChanged,
@@ -161,13 +177,23 @@ fun ControlPanelUi(
                 )
             }
         }
-        AnimatedVisibility(visible = editForceValuePanelExpanded.value) {
+        AnimatedVisibility(visible = editForceStrengthsPanelExpanded.value) {
             Card(modifier = foregroundCardModifier) {
-                EditForceValuePanelCardContent(
+                EditForceStrengthsPanelCardContent(
                     runtimeParameters,
                     runtimeParametersChanged,
                     species,
-                    editForceValueSelectedSpeciesIndex
+                    editForceStrengthsSelectedSpeciesIndex
+                )
+            }
+        }
+        AnimatedVisibility(visible = editForceDistancesPanelExpanded.value) {
+            Card(modifier = foregroundCardModifier) {
+                EditForceDistancesPanelCardContent(
+                    runtimeParameters,
+                    runtimeParametersChanged,
+                    species,
+                    editForceDistancesSelectedSpeciesIndex
                 )
             }
         }
@@ -181,10 +207,11 @@ fun ControlPanelUi(
         }
         FloatingActionButton(onClick = {
             when {
-                editForceValuePanelExpanded.value || editHandOfGodPanelExpanded.value -> {
-                    editForceValuePanelExpanded.value = false
+                editForceStrengthsPanelExpanded.value || editForceDistancesPanelExpanded.value || editHandOfGodPanelExpanded.value -> {
+                    editForceStrengthsPanelExpanded.value = false
+                    editForceDistancesPanelExpanded.value = false
                     editHandOfGodPanelExpanded.value = false
-                    controlPanelExpanded.value = false
+                    controlPanelExpanded.value = true
                 }
                 else -> {
                     controlPanelExpanded.value = !controlPanelExpanded.value
@@ -199,9 +226,11 @@ fun ControlPanelUi(
 @Composable
 fun ControlPanelCardContent(
     controlPanelExpanded: MutableState<Boolean>,
-    editForceValuePanelExpanded: MutableState<Boolean>,
+    editForceStrengthsPanelExpanded: MutableState<Boolean>,
+    editForceDistancesPanelExpanded: MutableState<Boolean>,
     editHandOfGodPanelExpanded: MutableState<Boolean>,
     selectedTabIndex: MutableState<Int>,
+    selectedPreset: MutableState<ParticleLifeParameters.RuntimeParameters.Preset>,
     runtimeParameters: State<ParticleLifeParameters.RuntimeParameters>,
     generationParameters: State<ParticleLifeParameters.GenerationParameters>,
     runtimeParametersChanged: (ParticleLifeParameters.RuntimeParameters.() -> Unit) -> Unit,
@@ -214,12 +243,14 @@ fun ControlPanelCardContent(
             ControlPanelTab.PHYSICS -> PhysicsContent(
                 controlPanelExpanded,
                 editHandOfGodPanelExpanded,
+                selectedPreset,
                 runtimeParameters,
                 runtimeParametersChanged
             )
             ControlPanelTab.PARTICLES -> ParticlesContent(
                 controlPanelExpanded,
-                editForceValuePanelExpanded,
+                editForceStrengthsPanelExpanded,
+                editForceDistancesPanelExpanded,
                 generationParameters,
                 generationParametersChanged,
                 generateNewParticlesClicked
@@ -275,6 +306,7 @@ fun ControlPanelTab(
 fun PhysicsContent(
     controlPanelExpanded: MutableState<Boolean>,
     editHandOfGodPanelExpanded: MutableState<Boolean>,
+    selectedPreset: MutableState<ParticleLifeParameters.RuntimeParameters.Preset>,
     runtimeParameters: State<ParticleLifeParameters.RuntimeParameters>,
     runtimeParametersChanged: (ParticleLifeParameters.RuntimeParameters.() -> Unit) -> Unit
 ) {
@@ -291,12 +323,12 @@ fun PhysicsContent(
                 .fillMaxWidth()
         )
         if (isPortrait()) {
-            RandomiseAndResetButtons(runtimeParametersChanged)
-            FrictionWidget(runtimeParameters, runtimeParametersChanged)
-            ForceStrengthWidget(runtimeParameters, runtimeParametersChanged)
-            ForceRangeWidget(runtimeParameters, runtimeParametersChanged)
-            PressureWidget(runtimeParameters, runtimeParametersChanged)
-            TimeStepWidget(runtimeParameters, runtimeParametersChanged)
+            PresetSelectionAndRandomiseButton(selectedPreset, runtimeParametersChanged)
+            FrictionWidget(selectedPreset, runtimeParameters, runtimeParametersChanged)
+            ForceStrengthWidget(selectedPreset, runtimeParameters, runtimeParametersChanged)
+            ForceRangeWidget(selectedPreset, runtimeParameters, runtimeParametersChanged)
+            PressureWidget(selectedPreset, runtimeParameters, runtimeParametersChanged)
+            TimeStepWidget(selectedPreset, runtimeParameters, runtimeParametersChanged)
             HandOfGodEnabledSwitchWidget(
                 controlPanelExpanded,
                 editHandOfGodPanelExpanded,
@@ -310,10 +342,10 @@ fun PhysicsContent(
                         .weight(0.5f)
                         .padding(end = 12.dp)
                 ) {
-                    RandomiseAndResetButtons(runtimeParametersChanged)
-                    FrictionWidget(runtimeParameters, runtimeParametersChanged)
-                    ForceStrengthWidget(runtimeParameters, runtimeParametersChanged)
-                    ForceRangeWidget(runtimeParameters, runtimeParametersChanged)
+                    PresetSelectionAndRandomiseButton(selectedPreset, runtimeParametersChanged)
+                    FrictionWidget(selectedPreset, runtimeParameters, runtimeParametersChanged)
+                    ForceStrengthWidget(selectedPreset, runtimeParameters, runtimeParametersChanged)
+                    ForceRangeWidget(selectedPreset, runtimeParameters, runtimeParametersChanged)
                 }
                 Divider(
                     Modifier
@@ -325,8 +357,8 @@ fun PhysicsContent(
                         .weight(0.5f)
                         .padding(start = 12.dp)
                 ) {
-                    PressureWidget(runtimeParameters, runtimeParametersChanged)
-                    TimeStepWidget(runtimeParameters, runtimeParametersChanged)
+                    PressureWidget(selectedPreset, runtimeParameters, runtimeParametersChanged)
+                    TimeStepWidget(selectedPreset, runtimeParameters, runtimeParametersChanged)
                     HandOfGodEnabledSwitchWidget(
                         controlPanelExpanded,
                         editHandOfGodPanelExpanded,
@@ -340,124 +372,190 @@ fun PhysicsContent(
 }
 
 @Composable
-private fun RandomiseAndResetButtons(runtimeParametersChanged: (ParticleLifeParameters.RuntimeParameters.() -> Unit) -> Unit) {
-    Row(Modifier.fillMaxWidth()) {
-        Box(
-            Modifier
-                .weight(0.5f, fill = true)
-        ) {
-            RandomiseButton(runtimeParametersChanged)
-        }
-        Box(
-            Modifier
-                .weight(0.5f, fill = true)
-        ) {
-            ResetButton(runtimeParametersChanged)
-        }
-    }
-}
-
-
-@Composable
-private fun BoxScope.RandomiseButton(runtimeParametersChanged: (ParticleLifeParameters.RuntimeParameters.() -> Unit) -> Unit) {
-    Button(
-        onClick = { runtimeParametersChanged { randomise() } },
-        modifier = Modifier
-            .padding(vertical = 4.dp)
-            .fillMaxWidth(0.95f)
-            .align(Center)
+private fun PresetSelectionAndRandomiseButton(
+    selectedPreset: MutableState<ParticleLifeParameters.RuntimeParameters.Preset>,
+    runtimeParametersChanged: (ParticleLifeParameters.RuntimeParameters.() -> Unit) -> Unit
+) {
+    Row(
+        Modifier
+            .fillMaxWidth()
+            .height(IntrinsicSize.Min)
     ) {
-        Text(stringResource(R.string.randomise_label))
+        Box(
+            Modifier
+                .weight(0.80f, fill = true)
+        ) {
+            PresetSelectionWidget(selectedPreset, runtimeParametersChanged)
+        }
+        Box(
+            Modifier
+                .weight(0.20f, fill = true)
+                .fillMaxHeight()
+        ) {
+            RandomiseButton(selectedPreset, runtimeParametersChanged)
+        }
     }
 }
 
+@OptIn(ExperimentalMaterialApi::class)
 @Composable
-private fun BoxScope.ResetButton(runtimeParametersChanged: (ParticleLifeParameters.RuntimeParameters.() -> Unit) -> Unit) {
-    Button(
-        onClick = { runtimeParametersChanged { reset() } },
+private fun BoxScope.PresetSelectionWidget(
+    selectedPreset: MutableState<ParticleLifeParameters.RuntimeParameters.Preset>,
+    runtimeParametersChanged: (ParticleLifeParameters.RuntimeParameters.() -> Unit) -> Unit
+) {
+
+    val presets = ParticleLifeParameters.RuntimeParameters.Preset.ALL
+    var expanded by remember { mutableStateOf(false) }
+
+    val focusManager = LocalFocusManager.current
+    ExposedDropdownMenuBox(
+        expanded = expanded,
+        onExpandedChange = {
+            expanded = !expanded
+            focusManager.clearFocus()
+        },
         modifier = Modifier
             .padding(vertical = 4.dp)
             .fillMaxWidth(0.9f)
             .align(Center)
     ) {
-        Text(stringResource(R.string.reset_label))
+        TextField(
+            readOnly = true,
+            value = stringResource(selectedPreset.value.nameString()),
+            onValueChange = { },
+            enabled = true,
+            label = { Text(stringResource(R.string.preset_label)) },
+            trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
+            colors = ExposedDropdownMenuDefaults.textFieldColors(),
+            modifier = Modifier.focusable(enabled = false)
+        )
+        ExposedDropdownMenu(
+            expanded = expanded,
+            onDismissRequest = {
+                expanded = false
+                focusManager.clearFocus()
+            }
+        ) {
+
+            presets.forEach { preset ->
+                DropdownMenuItem(
+                    onClick = {
+                        selectedPreset.value = preset
+                        runtimeParametersChanged { preset.applyPreset(this) }
+                        expanded = false
+                        focusManager.clearFocus()
+                    }
+                ) {
+                    Text(stringResource(preset.nameString()))
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun BoxScope.RandomiseButton(
+    selectedPreset: MutableState<ParticleLifeParameters.RuntimeParameters.Preset>,
+    runtimeParametersChanged: (ParticleLifeParameters.RuntimeParameters.() -> Unit) -> Unit
+) {
+    Button(
+        onClick = {
+            runtimeParametersChanged { randomise() }
+            selectedPreset.value = ParticleLifeParameters.RuntimeParameters.Preset.Custom
+        },
+        modifier = Modifier
+            .padding(vertical = 4.dp)
+            .fillMaxWidth(0.95f)
+            .fillMaxHeight()
+            .align(Center)
+    ) {
+        Icon(imageVector = Icons.Rounded.Casino, stringResource(R.string.randomise_label))
     }
 }
 
 @Composable
 private fun FrictionWidget(
+    selectedPreset: MutableState<ParticleLifeParameters.RuntimeParameters.Preset>,
     runtimeParameters: State<ParticleLifeParameters.RuntimeParameters>,
     runtimeParametersChanged: (ParticleLifeParameters.RuntimeParameters.() -> Unit) -> Unit
 ) {
-    TextSliderPair(
+    LogarithmicTextSliderPair(
         text = stringResource(R.string.friction_label),
         description = stringResource(R.string.friction_description),
-        valueToString = { it.decimal(2) },
+        valueToString = { """${(it * 100f).decimal(1)}%""" },
         value = runtimeParameters.value.friction.toFloat(),
         range = ParticleLifeParameters.RuntimeParameters.FRICTION_MIN.toFloat()..ParticleLifeParameters.RuntimeParameters.FRICTION_MAX.toFloat(),
         onValueChange = {
             runtimeParametersChanged { friction = it.toDouble() }
+            selectedPreset.value = ParticleLifeParameters.RuntimeParameters.Preset.Custom
         }
     )
 }
 
 @Composable
 private fun ForceStrengthWidget(
+    selectedPreset: MutableState<ParticleLifeParameters.RuntimeParameters.Preset>,
     runtimeParameters: State<ParticleLifeParameters.RuntimeParameters>,
     runtimeParametersChanged: (ParticleLifeParameters.RuntimeParameters.() -> Unit) -> Unit
 ) {
-    TextSliderPair(
+    LogarithmicTextSliderPair(
         text = stringResource(R.string.force_strength_label),
         description = stringResource(R.string.force_strength_description),
-        valueToString = { it.toInt().toString() },
-        value = runtimeParameters.value.forceScale.toFloat(),
-        range = ParticleLifeParameters.RuntimeParameters.FORCE_STRENGTH_MIN.toFloat()..ParticleLifeParameters.RuntimeParameters.FORCE_STRENGTH_MAX.toFloat(),
+        valueToString = { it.decimal(2) },
+        value = runtimeParameters.value.forceStrengthScale.toFloat(),
+        range = ParticleLifeParameters.RuntimeParameters.FORCE_STRENGTH_SCALE_MIN.toFloat()..ParticleLifeParameters.RuntimeParameters.FORCE_STRENGTH_SCALE_MAX.toFloat(),
         onValueChange = {
-            runtimeParametersChanged { forceScale = it.toDouble() }
+            runtimeParametersChanged { forceStrengthScale = it.toDouble() }
+            selectedPreset.value = ParticleLifeParameters.RuntimeParameters.Preset.Custom
         }
     )
 }
 
 @Composable
 private fun ForceRangeWidget(
+    selectedPreset: MutableState<ParticleLifeParameters.RuntimeParameters.Preset>,
     runtimeParameters: State<ParticleLifeParameters.RuntimeParameters>,
     runtimeParametersChanged: (ParticleLifeParameters.RuntimeParameters.() -> Unit) -> Unit
 ) {
-    TextSliderPair(
+    LogarithmicTextSliderPair(
         text = stringResource(R.string.force_range_label),
         description = stringResource(R.string.force_range_description),
-        valueToString = { it.toInt().toString() },
-        value = runtimeParameters.value.newtonMax.toFloat(),
-        range = ParticleLifeParameters.RuntimeParameters.FORCE_RANGE_MIN.toFloat()..ParticleLifeParameters.RuntimeParameters.FORCE_RANGE_MAX.toFloat(),
+        valueToString = { it.decimal(2) },
+        value = runtimeParameters.value.forceDistanceScale.toFloat(),
+        range = ParticleLifeParameters.RuntimeParameters.FORCE_DISTANCE_SCALE_MIN.toFloat()..ParticleLifeParameters.RuntimeParameters.FORCE_DISTANCE_SCALE_MAX.toFloat(),
         onValueChange = {
-            runtimeParametersChanged { newtonMax = it.toDouble() }
+            runtimeParametersChanged { forceDistanceScale = it.toDouble() }
+            selectedPreset.value = ParticleLifeParameters.RuntimeParameters.Preset.Custom
         }
     )
 }
 
 @Composable
 private fun PressureWidget(
+    selectedPreset: MutableState<ParticleLifeParameters.RuntimeParameters.Preset>,
     runtimeParameters: State<ParticleLifeParameters.RuntimeParameters>,
     runtimeParametersChanged: (ParticleLifeParameters.RuntimeParameters.() -> Unit) -> Unit
 ) {
-    TextSliderPair(
+    LogarithmicTextSliderPair(
         text = stringResource(R.string.pressure_label),
         description = stringResource(R.string.pressure_description),
-        valueToString = { it.toInt().toString() },
-        value = runtimeParameters.value.fermiForceScale.toFloat(),
-        range = ParticleLifeParameters.RuntimeParameters.PRESSURE_MIN.toFloat()..ParticleLifeParameters.RuntimeParameters.PRESSURE_MAX.toFloat(),
+        valueToString = { it.roundToInt().toString() },
+        value = runtimeParameters.value.pressureStrength.toFloat(),
+        range = ParticleLifeParameters.RuntimeParameters.PRESSURE_STRENGTH_MIN.toFloat()..ParticleLifeParameters.RuntimeParameters.PRESSURE_STRENGTH_MAX.toFloat(),
         onValueChange = {
-            runtimeParametersChanged { fermiForceScale = it.toDouble() }
+            runtimeParametersChanged { pressureStrength = it.toDouble() }
+            selectedPreset.value = ParticleLifeParameters.RuntimeParameters.Preset.Custom
         }
     )
 }
 
 @Composable
 private fun TimeStepWidget(
+    selectedPreset: MutableState<ParticleLifeParameters.RuntimeParameters.Preset>,
     runtimeParameters: State<ParticleLifeParameters.RuntimeParameters>,
     runtimeParametersChanged: (ParticleLifeParameters.RuntimeParameters.() -> Unit) -> Unit
 ) {
-    TextSliderPair(
+    LogarithmicTextSliderPair(
         text = stringResource(R.string.time_step_label),
         description = stringResource(R.string.time_step_description),
         valueToString = { it.decimal(2) },
@@ -465,6 +563,7 @@ private fun TimeStepWidget(
         range = ParticleLifeParameters.RuntimeParameters.TIME_STEP_MIN.toFloat()..ParticleLifeParameters.RuntimeParameters.TIME_STEP_MAX.toFloat(),
         onValueChange = {
             runtimeParametersChanged { timeScale = it.toDouble() }
+            selectedPreset.value = ParticleLifeParameters.RuntimeParameters.Preset.Custom
         }
     )
 }
@@ -667,7 +766,7 @@ private fun SwipeToHerdRangeSliderWidget(
     TextSliderPair(
         text = stringResource(R.string.swipe_to_herd_range_label),
         description = stringResource(R.string.swipe_to_herd_range_description),
-        valueToString = { it.toInt().toString() },
+        valueToString = { it.roundToInt().toString() },
         value = runtimeParameters.value.herdRadius.toFloat(),
         range = ParticleLifeParameters.RuntimeParameters.HERD_RADIUS_MIN.toFloat()..ParticleLifeParameters.RuntimeParameters.HERD_RADIUS_MAX.toFloat(),
         onValueChange = { runtimeParametersChanged { herdRadius = it.toDouble() } }
@@ -710,7 +809,7 @@ private fun PressToBeckonRangeSliderWidget(
     TextSliderPair(
         text = stringResource(R.string.press_to_beckon_range_label),
         description = stringResource(R.string.press_to_beckon_range_description),
-        valueToString = { it.toInt().toString() },
+        valueToString = { it.roundToInt().toString() },
         value = runtimeParameters.value.beckonRadius.toFloat(),
         range = ParticleLifeParameters.RuntimeParameters.BECKON_RADIUS_MIN.toFloat()..ParticleLifeParameters.RuntimeParameters.BECKON_RADIUS_MAX.toFloat(),
         onValueChange = { runtimeParametersChanged { beckonRadius = it.toDouble() } }
@@ -720,7 +819,8 @@ private fun PressToBeckonRangeSliderWidget(
 @Composable
 fun ParticlesContent(
     controlPanelExpanded: MutableState<Boolean>,
-    editForceValuePanelExpanded: MutableState<Boolean>,
+    editForceStrengthsPanelExpanded: MutableState<Boolean>,
+    editForceDistancesPanelExpanded: MutableState<Boolean>,
     generationParameters: State<ParticleLifeParameters.GenerationParameters>,
     generationParametersChanged: (ParticleLifeParameters.GenerationParameters.() -> Unit) -> Unit,
     generateNewParticlesClicked: () -> Unit
@@ -742,8 +842,10 @@ fun ParticlesContent(
             GenerateNewParticlesButton(generateNewParticlesClicked)
             NumberOfParticlesWidget(generationParameters, generationParametersChanged)
             NumberOfSpeciesWidget(generationParameters, generationParametersChanged)
-            ForceValueRangeWidget(generationParameters, generationParametersChanged)
-            EditForceValuesButton(controlPanelExpanded, editForceValuePanelExpanded)
+            ForceStrengthsRangeWidget(generationParameters, generationParametersChanged)
+            EditForceStrengthsButton(controlPanelExpanded, editForceStrengthsPanelExpanded)
+            ForceDistancesRangeWidget(generationParameters, generationParametersChanged)
+            EditForceDistancesButton(controlPanelExpanded, editForceDistancesPanelExpanded)
         } else {
             Row(Modifier.fillMaxWidth()) {
                 Column(
@@ -765,8 +867,10 @@ fun ParticlesContent(
                         .weight(0.5f)
                         .padding(start = 12.dp)
                 ) {
-                    ForceValueRangeWidget(generationParameters, generationParametersChanged)
-                    EditForceValuesButton(controlPanelExpanded, editForceValuePanelExpanded)
+                    ForceStrengthsRangeWidget(generationParameters, generationParametersChanged)
+                    EditForceStrengthsButton(controlPanelExpanded, editForceStrengthsPanelExpanded)
+                    ForceDistancesRangeWidget(generationParameters, generationParametersChanged)
+                    EditForceDistancesButton(controlPanelExpanded, editForceDistancesPanelExpanded)
                 }
             }
         }
@@ -821,19 +925,19 @@ private fun NumberOfSpeciesWidget(
 }
 
 @Composable
-private fun ForceValueRangeWidget(
+private fun ForceStrengthsRangeWidget(
     generationParameters: State<ParticleLifeParameters.GenerationParameters>,
     generationParametersChanged: (ParticleLifeParameters.GenerationParameters.() -> Unit) -> Unit
 ) {
     TextRangePair(
-        text = stringResource(R.string.force_value_range_label),
-        description = stringResource(R.string.force_value_range_description),
+        text = stringResource(R.string.force_strengths_range_label),
+        description = stringResource(R.string.force_strengths_range_description),
         valueToString = { it.decimal(1) },
         values = Pair(
             generationParameters.value.maxRepulsion.toFloat(),
             generationParameters.value.maxAttraction.toFloat()
         ),
-        range = ParticleLifeParameters.GenerationParameters.FORCE_VALUE_RANGE_MIN.toFloat()..ParticleLifeParameters.GenerationParameters.FORCE_VALUE_RANGE_MAX.toFloat(),
+        range = ParticleLifeParameters.GenerationParameters.FORCE_STRENGTH_RANGE_MIN.toFloat()..ParticleLifeParameters.GenerationParameters.FORCE_STRENGTH_RANGE_MAX.toFloat(),
         onValueChange = {
             generationParametersChanged {
                 maxRepulsion = it.first.toDouble()
@@ -844,30 +948,30 @@ private fun ForceValueRangeWidget(
 }
 
 @Composable
-private fun ColumnScope.EditForceValuesButton(
+private fun ColumnScope.EditForceStrengthsButton(
     controlPanelExpanded: MutableState<Boolean>,
-    editForceValuePanelExpanded: MutableState<Boolean>
+    editForceStrengthsPanelExpanded: MutableState<Boolean>
 ) {
     Button(
         onClick = {
             controlPanelExpanded.value = false
-            editForceValuePanelExpanded.value = true
+            editForceStrengthsPanelExpanded.value = true
         },
         modifier = Modifier
             .padding(top = 16.dp, bottom = 8.dp)
             .fillMaxWidth(0.95f)
             .align(CenterHorizontally)
     ) {
-        Text(stringResource(R.string.edit_force_values_label))
+        Text(stringResource(R.string.edit_force_strengths_label))
     }
 }
 
 @Composable
-private fun EditForceValuePanelCardContent(
+private fun EditForceStrengthsPanelCardContent(
     runtimeParameters: State<ParticleLifeParameters.RuntimeParameters>,
     runtimeParametersChanged: (ParticleLifeParameters.RuntimeParameters.() -> Unit) -> Unit,
     species: State<List<Species>>,
-    editForceValueSelectedSpeciesIndex: MutableState<Int>
+    editForceStrengthsSelectedSpeciesIndex: MutableState<Int>
 ) {
     Column {
         Card(
@@ -878,7 +982,7 @@ private fun EditForceValuePanelCardContent(
                 .fillMaxWidth()
         ) {
             Text(
-                text = stringResource(id = R.string.edit_force_values_label),
+                text = stringResource(id = R.string.edit_force_strengths_label),
                 style = MaterialTheme.typography.h5,
                 fontSize = 15.sp,
                 textAlign = TextAlign.Center,
@@ -893,7 +997,7 @@ private fun EditForceValuePanelCardContent(
                 .verticalScroll(rememberScrollState())
         ) {
             Text(
-                text = stringResource(R.string.edit_force_values_description),
+                text = stringResource(R.string.edit_force_strengths_description),
                 textAlign = TextAlign.Center,
                 modifier = Modifier
                     .padding(4.dp)
@@ -901,9 +1005,9 @@ private fun EditForceValuePanelCardContent(
             )
             if (isPortrait()) {
                 species.value.forEachIndexed { index, _ ->
-                    EditSpeciesForceValueSlider(
+                    EditSpeciesForceStrengthSlider(
                         thisSpeciesIndex = index,
-                        selectedSpeciesIndex = editForceValueSelectedSpeciesIndex,
+                        selectedSpeciesIndex = editForceStrengthsSelectedSpeciesIndex,
                         allSpecies = species.value,
                         runtimeParameters = runtimeParameters,
                         runtimeParametersChanged = runtimeParametersChanged
@@ -919,9 +1023,9 @@ private fun EditForceValuePanelCardContent(
                         species.value.chunked(ParticleLifeParameters.GenerationParameters.N_SPECIES_MAX / 2)
                             .getOrNull(0)
                             ?.forEachIndexed { index, _ ->
-                                EditSpeciesForceValueSlider(
+                                EditSpeciesForceStrengthSlider(
                                     thisSpeciesIndex = index,
-                                    selectedSpeciesIndex = editForceValueSelectedSpeciesIndex,
+                                    selectedSpeciesIndex = editForceStrengthsSelectedSpeciesIndex,
                                     allSpecies = species.value,
                                     runtimeParameters = runtimeParameters,
                                     runtimeParametersChanged = runtimeParametersChanged
@@ -941,9 +1045,9 @@ private fun EditForceValuePanelCardContent(
                         species.value.chunked(ParticleLifeParameters.GenerationParameters.N_SPECIES_MAX / 2)
                             .getOrNull(1)
                             ?.forEachIndexed { index, _ ->
-                                EditSpeciesForceValueSlider(
+                                EditSpeciesForceStrengthSlider(
                                     thisSpeciesIndex = index + ParticleLifeParameters.GenerationParameters.N_SPECIES_MAX / 2,
-                                    selectedSpeciesIndex = editForceValueSelectedSpeciesIndex,
+                                    selectedSpeciesIndex = editForceStrengthsSelectedSpeciesIndex,
                                     allSpecies = species.value,
                                     runtimeParameters = runtimeParameters,
                                     runtimeParametersChanged = runtimeParametersChanged
@@ -958,7 +1062,7 @@ private fun EditForceValuePanelCardContent(
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
-fun EditSpeciesForceValueSlider(
+private fun EditSpeciesForceStrengthSlider(
     thisSpeciesIndex: Int,
     selectedSpeciesIndex: MutableState<Int>,
     allSpecies: List<Species>,
@@ -971,7 +1075,7 @@ fun EditSpeciesForceValueSlider(
             .padding(vertical = 2.dp, horizontal = 8.dp)
     ) {
         val value =
-            runtimeParameters.value.interactionMatrix[selectedSpeciesIndex.value][thisSpeciesIndex].toFloat()
+            runtimeParameters.value.forceStrengths[selectedSpeciesIndex.value][thisSpeciesIndex].toFloat()
         val isSelected = thisSpeciesIndex == selectedSpeciesIndex.value
         Box(
             modifier = Modifier
@@ -992,7 +1096,7 @@ fun EditSpeciesForceValueSlider(
             ) {
                 Icon(
                     imageVector = Icons.Rounded.ChevronRight,
-                    contentDescription = stringResource(R.string.edit_force_value_select_species_content_description)
+                    contentDescription = stringResource(R.string.select_species_icon_content_description)
                 )
             }
         }
@@ -1023,16 +1127,272 @@ fun EditSpeciesForceValueSlider(
             value = value,
             onValueChange = {
                 runtimeParametersChanged {
-                    interactionMatrix[selectedSpeciesIndex.value][thisSpeciesIndex] = it.toDouble()
+                    forceStrengths[selectedSpeciesIndex.value][thisSpeciesIndex] = it.toDouble()
                 }
             },
-            valueRange = ParticleLifeParameters.GenerationParameters.FORCE_VALUE_RANGE_MIN.toFloat()..ParticleLifeParameters.GenerationParameters.FORCE_VALUE_RANGE_MAX.toFloat(),
+            valueRange = ParticleLifeParameters.GenerationParameters.FORCE_STRENGTH_RANGE_MIN.toFloat()..ParticleLifeParameters.GenerationParameters.FORCE_STRENGTH_RANGE_MAX.toFloat(),
             steps = 0,
             modifier = Modifier
                 .weight(0.425f)
                 .align(Alignment.CenterVertically)
         )
     }
+}
+
+@Composable
+private fun ForceDistancesRangeWidget(
+    generationParameters: State<ParticleLifeParameters.GenerationParameters>,
+    generationParametersChanged: (ParticleLifeParameters.GenerationParameters.() -> Unit) -> Unit
+) {
+    TextRangePair(
+        text = stringResource(R.string.force_distances_range_label),
+        description = stringResource(R.string.force_distances_range_description),
+        valueToString = { it.roundToInt().toString() },
+        values = Pair(
+            generationParameters.value.forceDistanceLowerBoundMin.toFloat(),
+            generationParameters.value.forceDistanceUpperBoundMax.toFloat()
+        ),
+        range = ParticleLifeParameters.GenerationParameters.FORCE_DISTANCE_RANGE_MIN.toFloat()..ParticleLifeParameters.GenerationParameters.FORCE_DISTANCE_RANGE_MAX.toFloat(),
+        onValueChange = {
+            generationParametersChanged {
+                forceDistanceLowerBoundMin = it.first.toDouble()
+                forceDistanceUpperBoundMax = it.second.toDouble()
+            }
+        }
+    )
+}
+
+@Composable
+private fun ColumnScope.EditForceDistancesButton(
+    controlPanelExpanded: MutableState<Boolean>,
+    editForceDistancesPanelExpanded: MutableState<Boolean>
+) {
+    Button(
+        onClick = {
+            controlPanelExpanded.value = false
+            editForceDistancesPanelExpanded.value = true
+        },
+        modifier = Modifier
+            .padding(top = 16.dp, bottom = 8.dp)
+            .fillMaxWidth(0.95f)
+            .align(CenterHorizontally)
+    ) {
+        Text(stringResource(R.string.edit_force_distances_label))
+    }
+}
+
+@Composable
+private fun EditForceDistancesPanelCardContent(
+    runtimeParameters: State<ParticleLifeParameters.RuntimeParameters>,
+    runtimeParametersChanged: (ParticleLifeParameters.RuntimeParameters.() -> Unit) -> Unit,
+    species: State<List<Species>>,
+    editForceDistancesSelectedSpeciesIndex: MutableState<Int>
+) {
+    Column {
+        Card(
+            backgroundColor = MaterialTheme.colors.secondary,
+            contentColor = MaterialTheme.colors.onSecondary,
+            modifier = Modifier
+                .height(fabDiameter)
+                .fillMaxWidth()
+        ) {
+            Text(
+                text = stringResource(id = R.string.edit_force_distances_label),
+                style = MaterialTheme.typography.h5,
+                fontSize = 15.sp,
+                textAlign = TextAlign.Center,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 16.dp)
+            )
+        }
+        Column(
+            Modifier
+                .padding(horizontal = 16.dp, vertical = 4.dp)
+                .verticalScroll(rememberScrollState())
+        ) {
+            Text(
+                text = stringResource(R.string.edit_force_distances_description),
+                textAlign = TextAlign.Center,
+                modifier = Modifier
+                    .padding(4.dp)
+                    .fillMaxWidth()
+            )
+            if (isPortrait()) {
+                species.value.forEachIndexed { index, _ ->
+                    EditSpeciesForceDistanceSlider(
+                        thisSpeciesIndex = index,
+                        selectedSpeciesIndex = editForceDistancesSelectedSpeciesIndex,
+                        allSpecies = species.value,
+                        runtimeParameters = runtimeParameters,
+                        runtimeParametersChanged = runtimeParametersChanged
+                    )
+                }
+            } else {
+                Row(Modifier.fillMaxWidth()) {
+                    Column(
+                        Modifier
+                            .weight(0.5f)
+                            .padding(end = 12.dp)
+                    ) {
+                        species.value.chunked(ParticleLifeParameters.GenerationParameters.N_SPECIES_MAX / 2)
+                            .getOrNull(0)
+                            ?.forEachIndexed { index, _ ->
+                                EditSpeciesForceDistanceSlider(
+                                    thisSpeciesIndex = index,
+                                    selectedSpeciesIndex = editForceDistancesSelectedSpeciesIndex,
+                                    allSpecies = species.value,
+                                    runtimeParameters = runtimeParameters,
+                                    runtimeParametersChanged = runtimeParametersChanged
+                                )
+                            }
+                    }
+                    Divider(
+                        Modifier
+                            .fillMaxHeight()
+                            .width(1.dp)
+                    )
+                    Column(
+                        Modifier
+                            .weight(0.5f)
+                            .padding(start = 12.dp)
+                    ) {
+                        species.value.chunked(ParticleLifeParameters.GenerationParameters.N_SPECIES_MAX / 2)
+                            .getOrNull(1)
+                            ?.forEachIndexed { index, _ ->
+                                EditSpeciesForceDistanceSlider(
+                                    thisSpeciesIndex = index + ParticleLifeParameters.GenerationParameters.N_SPECIES_MAX / 2,
+                                    selectedSpeciesIndex = editForceDistancesSelectedSpeciesIndex,
+                                    allSpecies = species.value,
+                                    runtimeParameters = runtimeParameters,
+                                    runtimeParametersChanged = runtimeParametersChanged
+                                )
+                            }
+                    }
+                }
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterialApi::class)
+@Composable
+private fun EditSpeciesForceDistanceSlider(
+    thisSpeciesIndex: Int,
+    selectedSpeciesIndex: MutableState<Int>,
+    allSpecies: List<Species>,
+    runtimeParameters: State<ParticleLifeParameters.RuntimeParameters>,
+    runtimeParametersChanged: (ParticleLifeParameters.RuntimeParameters.() -> Unit) -> Unit
+) {
+    Row(
+        Modifier
+            .fillMaxWidth()
+            .padding(vertical = 2.dp, horizontal = 8.dp)
+    ) {
+        val lowerValue =
+            runtimeParameters.value.forceDistanceLowerBounds[selectedSpeciesIndex.value][thisSpeciesIndex].toFloat()
+        val upperValue =
+            runtimeParameters.value.forceDistanceUpperBounds[selectedSpeciesIndex.value][thisSpeciesIndex].toFloat()
+        val isSelected = thisSpeciesIndex == selectedSpeciesIndex.value
+        Box(
+            modifier = Modifier
+                .weight(0.2125f)
+                .padding(vertical = 2.dp)
+                .align(Alignment.CenterVertically)
+        ) {
+            IconButton(
+                onClick = { selectedSpeciesIndex.value = thisSpeciesIndex },
+                modifier = Modifier
+                    .run {
+                        if (isSelected) background(
+                            color = MaterialTheme.colors.secondary,
+                            shape = RoundedCornerShape(50)
+                        ) else Modifier
+                    }
+                    .align(Center)
+            ) {
+                Icon(
+                    imageVector = Icons.Rounded.ChevronRight,
+                    contentDescription = stringResource(R.string.select_species_icon_content_description)
+                )
+            }
+        }
+        Box(
+            modifier = Modifier
+                .weight(0.2125f)
+                .padding(vertical = 2.dp)
+                .align(Alignment.CenterVertically)
+        ) {
+            IconButton(
+                onClick = { selectedSpeciesIndex.value = thisSpeciesIndex },
+                modifier = Modifier
+                    .align(Center)
+                    .fillMaxHeight()
+                    .background(
+                        color = Color(allSpecies[thisSpeciesIndex].color),
+                        shape = RoundedCornerShape(50)
+                    )
+            ) {
+            }
+        }
+
+        Text(
+            text = lowerValue.roundToInt().toString(),
+            textAlign = TextAlign.End,
+            modifier = Modifier
+                .weight(0.1f)
+                .align(Alignment.CenterVertically)
+        )
+        Box(
+            modifier = Modifier
+                .weight(0.375f)
+                .padding(horizontal = 8.dp)
+                .align(Alignment.CenterVertically)
+        ) {
+            RangeSlider(
+                values = lowerValue..upperValue,
+                onValueChange = {
+                    runtimeParametersChanged {
+                        forceDistanceLowerBounds[selectedSpeciesIndex.value][thisSpeciesIndex] =
+                            it.start.toDouble()
+                        forceDistanceUpperBounds[selectedSpeciesIndex.value][thisSpeciesIndex] =
+                            it.endInclusive.toDouble()
+                    }
+                },
+                valueRange = ParticleLifeParameters.GenerationParameters.FORCE_DISTANCE_RANGE_MIN.toFloat()..ParticleLifeParameters.GenerationParameters.FORCE_DISTANCE_RANGE_MAX.toFloat(),
+                steps = 0
+            )
+        }
+        Text(
+            text = upperValue.roundToInt().toString(),
+            textAlign = TextAlign.Start,
+            modifier = Modifier
+                .weight(0.1f)
+                .align(Alignment.CenterVertically)
+        )
+    }
+}
+
+@Composable
+fun LogarithmicTextSliderPair(
+    text: String,
+    description: String,
+    valueToString: (Float) -> String,
+    value: Float,
+    range: ClosedFloatingPointRange<Float>,
+    steps: Int = 0,
+    onValueChange: (Float) -> Unit
+) {
+
+    TextSliderPair(
+        text = text,
+        description = description,
+        valueToString = { valueToString(2f.pow(it)) },
+        value = log2(value),
+        range = log2(range.start)..log2(range.endInclusive),
+        steps = steps,
+        onValueChange = { onValueChange(2f.pow(it)) }
+    )
 }
 
 @Composable
@@ -1057,6 +1417,7 @@ fun TextSliderPair(
                     .weight(0.425f)
                     .align(Alignment.CenterVertically)
             )
+
             Text(
                 text = valueToString(value), textAlign = TextAlign.End, modifier = Modifier
                     .weight(0.15f)

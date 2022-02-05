@@ -22,14 +22,18 @@ class ParticleLifeViewModel(
 
     val controlPanelExpanded = mutableStateOf(false)
     val selectedTabIndex = mutableStateOf(0)
-    val editForceValuePanelExpanded = mutableStateOf(false)
-    val editForceValueSelectedSpeciesIndex = mutableStateOf(0)
+    val selectedPreset = mutableStateOf(ParticleLifeParameters.RuntimeParameters.Preset.default())
+    val editForceStrengthsPanelExpanded = mutableStateOf(false)
+    val editForceStrengthsSelectedSpeciesIndex = mutableStateOf(0)
+    val editForceDistancesPanelExpanded = mutableStateOf(false)
+    val editForceDistancesSelectedSpeciesIndex = mutableStateOf(0)
     val editHandOfGodPanelExpanded = mutableStateOf(false)
 
     val parameters = mutableStateOf(
         ParticleLifeParameters.buildDefault(
             Resources.getSystem().displayMetrics.widthPixels.toDouble(),
-            Resources.getSystem().displayMetrics.heightPixels.toDouble()
+            Resources.getSystem().displayMetrics.heightPixels.toDouble(),
+            ParticleLifeParameters.GenerationParameters()
         ), neverEqualPolicy()
     )
 
@@ -75,18 +79,24 @@ class ParticleLifeViewModel(
     fun generateNewParticles() {
         val newParameters = with(parameters.value) {
             val species = generation.generateRandomSpecies()
-            val interactionMatrix = generation.generateRandomInteractionMatrix()
+            val forceStrengths = generation.generateRandomForceStrengthMatrix()
+            val (forceDistanceLowerBounds, forceDistanceUpperBounds) = generation.generateRandomForceDistanceMatrices()
             val initialParticles =
                 generation.generateRandomParticles(runtime.xMax, runtime.yMax, species)
             ParticleLifeParameters(
                 generation = generation.copy(),
-                runtime = runtime.copy(interactionMatrix = interactionMatrix),
+                runtime = runtime.copy(
+                    forceStrengths = forceStrengths,
+                    forceDistanceLowerBounds = forceDistanceLowerBounds,
+                    forceDistanceUpperBounds = forceDistanceUpperBounds
+                ),
                 species = species,
                 initialParticles = initialParticles
             )
         }
         animation.restart(newParameters)
-        editForceValueSelectedSpeciesIndex.value = 0
+        editForceStrengthsSelectedSpeciesIndex.value = 0
+        editForceDistancesSelectedSpeciesIndex.value = 0
         parameters.value = newParameters
     }
 
