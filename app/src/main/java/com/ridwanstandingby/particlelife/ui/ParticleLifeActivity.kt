@@ -21,4 +21,18 @@ class ParticleLifeActivity : AnimationActivity() {
     }
 
     override fun getAnimationRunner(): AnimationRunner = vm.animationRunner
+
+    override fun onBackPressed() =
+        when {
+            vm.editHandOfGodPanelExpanded.value ||
+                    vm.editForceStrengthsPanelExpanded.value ||
+                    vm.editForceDistancesPanelExpanded.value -> {
+                vm.editHandOfGodPanelExpanded.value = false
+                vm.editForceStrengthsPanelExpanded.value = false
+                vm.editForceDistancesPanelExpanded.value = false
+                vm.controlPanelExpanded.value = true
+            }
+            vm.controlPanelExpanded.value -> vm.controlPanelExpanded.value = false
+            else -> super.onBackPressed()
+        }
 }
