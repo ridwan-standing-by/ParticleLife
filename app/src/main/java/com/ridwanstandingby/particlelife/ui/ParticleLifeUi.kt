@@ -37,6 +37,8 @@ import com.ridwanstandingby.particlelife.domain.Species
 import com.ridwanstandingby.particlelife.ui.theme.ParticleLifeTheme
 import com.ridwanstandingby.verve.animation.AnimationView
 import com.ridwanstandingby.verve.math.FloatVector2
+import kotlin.math.log2
+import kotlin.math.pow
 import kotlin.math.roundToInt
 
 @Composable
@@ -389,7 +391,7 @@ private fun FrictionWidget(
     runtimeParameters: State<ParticleLifeParameters.RuntimeParameters>,
     runtimeParametersChanged: (ParticleLifeParameters.RuntimeParameters.() -> Unit) -> Unit
 ) {
-    TextSliderPair(
+    LogarithmicTextSliderPair(
         text = stringResource(R.string.friction_label),
         description = stringResource(R.string.friction_description),
         valueToString = { """${(it * 100f).decimal(1)}%""" },
@@ -406,7 +408,7 @@ private fun ForceStrengthWidget(
     runtimeParameters: State<ParticleLifeParameters.RuntimeParameters>,
     runtimeParametersChanged: (ParticleLifeParameters.RuntimeParameters.() -> Unit) -> Unit
 ) {
-    TextSliderPair(
+    LogarithmicTextSliderPair(
         text = stringResource(R.string.force_strength_label),
         description = stringResource(R.string.force_strength_description),
         valueToString = { it.decimal(2) },
@@ -423,7 +425,7 @@ private fun ForceRangeWidget(
     runtimeParameters: State<ParticleLifeParameters.RuntimeParameters>,
     runtimeParametersChanged: (ParticleLifeParameters.RuntimeParameters.() -> Unit) -> Unit
 ) {
-    TextSliderPair(
+    LogarithmicTextSliderPair(
         text = stringResource(R.string.force_range_label),
         description = stringResource(R.string.force_range_description),
         valueToString = { it.decimal(2) },
@@ -440,10 +442,10 @@ private fun PressureWidget(
     runtimeParameters: State<ParticleLifeParameters.RuntimeParameters>,
     runtimeParametersChanged: (ParticleLifeParameters.RuntimeParameters.() -> Unit) -> Unit
 ) {
-    TextSliderPair(
+    LogarithmicTextSliderPair(
         text = stringResource(R.string.pressure_label),
         description = stringResource(R.string.pressure_description),
-        valueToString = { it.toInt().toString() },
+        valueToString = { it.roundToInt().toString() },
         value = runtimeParameters.value.pressureStrength.toFloat(),
         range = ParticleLifeParameters.RuntimeParameters.PRESSURE_STRENGTH_MIN.toFloat()..ParticleLifeParameters.RuntimeParameters.PRESSURE_STRENGTH_MAX.toFloat(),
         onValueChange = {
@@ -457,7 +459,7 @@ private fun TimeStepWidget(
     runtimeParameters: State<ParticleLifeParameters.RuntimeParameters>,
     runtimeParametersChanged: (ParticleLifeParameters.RuntimeParameters.() -> Unit) -> Unit
 ) {
-    TextSliderPair(
+    LogarithmicTextSliderPair(
         text = stringResource(R.string.time_step_label),
         description = stringResource(R.string.time_step_description),
         valueToString = { it.decimal(2) },
@@ -1033,6 +1035,28 @@ fun EditSpeciesForceValueSlider(
                 .align(Alignment.CenterVertically)
         )
     }
+}
+
+@Composable
+fun LogarithmicTextSliderPair(
+    text: String,
+    description: String,
+    valueToString: (Float) -> String,
+    value: Float,
+    range: ClosedFloatingPointRange<Float>,
+    steps: Int = 0,
+    onValueChange: (Float) -> Unit
+) {
+
+    TextSliderPair(
+        text = text,
+        description = description,
+        valueToString = { valueToString(2f.pow(it)) },
+        value = log2(value),
+        range = log2(range.start)..log2(range.endInclusive),
+        steps = steps,
+        onValueChange = { onValueChange(2f.pow(it)) }
+    )
 }
 
 @Composable

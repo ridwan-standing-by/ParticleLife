@@ -175,27 +175,29 @@ class ParticleLifeParameters(
         }
 
         companion object {
-            const val FRICTION_DEFAULT = 0.015
-            const val FRICTION_MIN = 0.00
-            const val FRICTION_MAX = 0.05
+            const val FRICTION_DEFAULT = 0.02
+            const val FRICTION_MIN = 0.001
+            const val FRICTION_MAX = 0.4
 
-            const val FORCE_STRENGTH_SCALE_DEFAULT = 0.5
-            const val FORCE_STRENGTH_SCALE_MIN = 0.0
-            const val FORCE_STRENGTH_SCALE_MAX = 3.0
+            const val FORCE_STRENGTH_SCALE_DEFAULT = 1.0
+            const val FORCE_STRENGTH_SCALE_MIN = 0.25
+            const val FORCE_STRENGTH_SCALE_MAX = 4.0
+
+            const val FORCE_STRENGTH_SCALE_WEIGHT = 0.5
 
             const val FORCE_DISTANCE_SCALE_DEFAULT = 1.0
-            const val FORCE_DISTANCE_SCALE_MIN = 0.0
-            const val FORCE_DISTANCE_SCALE_MAX = 3.0
+            const val FORCE_DISTANCE_SCALE_MIN = 0.25
+            const val FORCE_DISTANCE_SCALE_MAX = 4.0
 
             const val PRESSURE_STRENGTH_DEFAULT = 200.0
-            const val PRESSURE_STRENGTH_MIN = 0.0
-            const val PRESSURE_STRENGTH_MAX = 400.0
+            const val PRESSURE_STRENGTH_MIN = 25.0
+            const val PRESSURE_STRENGTH_MAX = 1600.0
 
             const val PRESSURE_DISTANCE_DEFAULT = 16.0
 
             const val TIME_STEP_DEFAULT = 1.0
-            const val TIME_STEP_MIN = 0.1
-            const val TIME_STEP_MAX = 3.0
+            const val TIME_STEP_MIN = 0.25
+            const val TIME_STEP_MAX = 4.0
 
             const val HAND_OF_GOD_ENABLED_DEFAULT = false
 
