@@ -14,11 +14,14 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Devices
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.ridwanstandingby.particlelife.R
 import com.ridwanstandingby.particlelife.domain.ParticleLifeParameters
 import com.ridwanstandingby.particlelife.domain.Species
+import com.ridwanstandingby.particlelife.ui.theme.ParticleLifeTheme
 import com.ridwanstandingby.particlelife.ui.theme.icons.Icons
 import com.ridwanstandingby.particlelife.ui.theme.icons.rounded.ChevronRight
 import kotlin.math.roundToInt
@@ -482,4 +485,62 @@ private fun SpeciesIcon(color: Color, modifier: Modifier.() -> Modifier) {
             .background(color, RoundedCornerShape(percent = 25))
             .modifier()
     )
+}
+
+@Preview(showBackground = true, widthDp = 300, heightDp = 600, device = Devices.PIXEL)
+@Preview(showBackground = true, widthDp = 600, heightDp = 300, device = Devices.AUTOMOTIVE_1024p)
+@Composable
+fun EditForceStrengthsPanelUiPreview() {
+    val runtimeParameters = remember {
+        mutableStateOf(
+            ParticleLifeParameters.buildDefault(
+                100.0, 100.0, ParticleLifeParameters.GenerationParameters()
+            ).runtime
+        )
+    }
+    ParticleLifeTheme {
+        Scaffold {
+            EditForceStrengthsPanelCardContent(
+                runtimeParameters = runtimeParameters,
+                runtimeParametersChanged = {
+                    runtimeParameters.value = runtimeParameters.value.copy().apply(it)
+                },
+                species = remember {
+                    mutableStateOf(
+                        ParticleLifeParameters.GenerationParameters().generateRandomSpecies()
+                    )
+                },
+                editForceStrengthsSelectedSpeciesIndex = remember { mutableStateOf(0) }
+            )
+        }
+    }
+}
+
+@Preview(showBackground = true, widthDp = 300, heightDp = 600, device = Devices.PIXEL)
+@Preview(showBackground = true, widthDp = 600, heightDp = 300, device = Devices.AUTOMOTIVE_1024p)
+@Composable
+fun EditForceDistancesPanelUiPreview() {
+    val runtimeParameters = remember {
+        mutableStateOf(
+            ParticleLifeParameters.buildDefault(
+                100.0, 100.0, ParticleLifeParameters.GenerationParameters()
+            ).runtime
+        )
+    }
+    ParticleLifeTheme {
+        Scaffold {
+            EditForceDistancesPanelCardContent(
+                runtimeParameters = runtimeParameters,
+                runtimeParametersChanged = {
+                    runtimeParameters.value = runtimeParameters.value.copy().apply(it)
+                },
+                species = remember {
+                    mutableStateOf(
+                        ParticleLifeParameters.GenerationParameters().generateRandomSpecies()
+                    )
+                },
+                editForceDistancesSelectedSpeciesIndex = remember { mutableStateOf(0) }
+            )
+        }
+    }
 }

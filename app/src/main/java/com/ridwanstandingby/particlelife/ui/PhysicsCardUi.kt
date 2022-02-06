@@ -11,9 +11,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Devices
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.ridwanstandingby.particlelife.R
 import com.ridwanstandingby.particlelife.domain.ParticleLifeParameters
+import com.ridwanstandingby.particlelife.ui.theme.ParticleLifeTheme
 import com.ridwanstandingby.particlelife.ui.theme.icons.Icons
 import com.ridwanstandingby.particlelife.ui.theme.icons.rounded.Casino
 import com.ridwanstandingby.particlelife.ui.theme.icons.rounded.Tune
@@ -331,5 +334,31 @@ private fun HandOfGodEnabledSwitchWidget(
             text = stringResource(R.string.enable_hand_of_god_description),
             fontSize = MaterialTheme.typography.caption.fontSize
         )
+    }
+}
+
+@Preview(showBackground = true, widthDp = 300, heightDp = 600, device = Devices.PIXEL)
+@Preview(showBackground = true, widthDp = 600, heightDp = 300, device = Devices.AUTOMOTIVE_1024p)
+@Composable
+fun PhysicsCardUiPreview() {
+    val runtimeParameters = remember {
+        mutableStateOf(
+            ParticleLifeParameters.buildDefault(
+                100.0, 100.0, ParticleLifeParameters.GenerationParameters()
+            ).runtime
+        )
+    }
+    ParticleLifeTheme {
+        Scaffold {
+            PhysicsContent(
+                controlPanelExpanded = remember { mutableStateOf(true) },
+                editHandOfGodPanelExpanded = remember { mutableStateOf(false) },
+                selectedPreset = remember { mutableStateOf(ParticleLifeParameters.RuntimeParameters.Preset.default()) },
+                runtimeParameters = runtimeParameters,
+                runtimeParametersChanged = {
+                    runtimeParameters.value = runtimeParameters.value.copy().apply(it)
+                }
+            )
+        }
     }
 }

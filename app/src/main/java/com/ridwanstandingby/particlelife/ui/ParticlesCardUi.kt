@@ -5,17 +5,19 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Button
 import androidx.compose.material.Divider
+import androidx.compose.material.Scaffold
 import androidx.compose.material.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.State
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Devices
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.ridwanstandingby.particlelife.R
 import com.ridwanstandingby.particlelife.domain.ParticleLifeParameters
+import com.ridwanstandingby.particlelife.ui.theme.ParticleLifeTheme
 import kotlin.math.roundToInt
 
 @Composable
@@ -207,5 +209,28 @@ private fun ColumnScope.EditForceDistancesButton(
             .align(Alignment.CenterHorizontally)
     ) {
         Text(stringResource(R.string.edit_force_distances_label))
+    }
+}
+
+@Preview(showBackground = true, widthDp = 300, heightDp = 600, device = Devices.PIXEL)
+@Preview(showBackground = true, widthDp = 600, heightDp = 300, device = Devices.AUTOMOTIVE_1024p)
+@Composable
+fun ParticlesCardUiPreview() {
+    val generationParameters = remember {
+        mutableStateOf(ParticleLifeParameters.GenerationParameters())
+    }
+    ParticleLifeTheme {
+        Scaffold {
+            ParticlesContent(
+                controlPanelExpanded = remember { mutableStateOf(true) },
+                editForceStrengthsPanelExpanded = remember { mutableStateOf(false) },
+                editForceDistancesPanelExpanded = remember { mutableStateOf(false) },
+                generationParameters = generationParameters,
+                generationParametersChanged = {
+                    generationParameters.value = generationParameters.value.copy().apply(it)
+                },
+                generateNewParticlesClicked = {}
+            )
+        }
     }
 }

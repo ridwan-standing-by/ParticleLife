@@ -288,4 +288,3 @@ private fun ControlPanelTab(
             )
         })
 }
-
