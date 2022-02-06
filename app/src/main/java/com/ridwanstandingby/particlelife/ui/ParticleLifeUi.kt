@@ -7,13 +7,14 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.*
 import androidx.compose.runtime.*
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Alignment.Companion.Center
 import androidx.compose.ui.Alignment.Companion.CenterHorizontally
+import androidx.compose.ui.Alignment.Companion.CenterVertically
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -585,14 +586,14 @@ private fun HandOfGodEnabledSwitchWidget(
                 text = stringResource(R.string.enable_hand_of_god_label),
                 modifier = Modifier
                     .weight(0.425f)
-                    .align(Alignment.CenterVertically)
+                    .align(CenterVertically)
             )
             Switch(
                 checked = runtimeParameters.value.handOfGodEnabled,
                 onCheckedChange = { runtimeParametersChanged { handOfGodEnabled = it } },
                 modifier = Modifier
                     .weight(0.275f)
-                    .align(Alignment.CenterVertically)
+                    .align(CenterVertically)
             )
             Button(
                 onClick = {
@@ -602,7 +603,7 @@ private fun HandOfGodEnabledSwitchWidget(
                 enabled = runtimeParameters.value.handOfGodEnabled,
                 modifier = Modifier
                     .weight(0.3f)
-                    .align(Alignment.CenterVertically)
+                    .align(CenterVertically)
             ) {
                 Icon(
                     imageVector = Icons.Rounded.Tune,
@@ -1004,6 +1005,22 @@ private fun EditForceStrengthsPanelCardContent(
                     .fillMaxWidth()
             )
             if (isPortrait()) {
+                Divider(
+                    Modifier
+                        .fillMaxWidth()
+                        .width(1.dp)
+                        .padding(vertical = 4.dp)
+                )
+                SelectSpeciesWidget(
+                    selectedSpeciesIndex = editForceStrengthsSelectedSpeciesIndex,
+                    allSpecies = species.value
+                )
+                Divider(
+                    Modifier
+                        .fillMaxWidth()
+                        .width(1.dp)
+                        .padding(vertical = 4.dp)
+                )
                 species.value.forEachIndexed { index, _ ->
                     EditSpeciesForceStrengthSlider(
                         thisSpeciesIndex = index,
@@ -1081,7 +1098,7 @@ private fun EditSpeciesForceStrengthSlider(
             modifier = Modifier
                 .weight(0.2125f)
                 .padding(vertical = 2.dp)
-                .align(Alignment.CenterVertically)
+                .align(CenterVertically)
         ) {
             IconButton(
                 onClick = { selectedSpeciesIndex.value = thisSpeciesIndex },
@@ -1089,7 +1106,7 @@ private fun EditSpeciesForceStrengthSlider(
                     .run {
                         if (isSelected) background(
                             color = MaterialTheme.colors.secondary,
-                            shape = RoundedCornerShape(50)
+                            shape = CircleShape
                         ) else Modifier
                     }
                     .align(Center)
@@ -1104,24 +1121,18 @@ private fun EditSpeciesForceStrengthSlider(
             modifier = Modifier
                 .weight(0.2125f)
                 .padding(vertical = 2.dp)
-                .align(Alignment.CenterVertically)
+                .align(CenterVertically)
         ) {
             IconButton(
-                onClick = { selectedSpeciesIndex.value = thisSpeciesIndex },
-                modifier = Modifier
-                    .align(Center)
-                    .fillMaxHeight()
-                    .background(
-                        color = Color(allSpecies[thisSpeciesIndex].color),
-                        shape = RoundedCornerShape(50)
-                    )
+                onClick = { selectedSpeciesIndex.value = thisSpeciesIndex }
             ) {
+                SpeciesIcon(color = Color(allSpecies[thisSpeciesIndex].color)) { align(Center) }
             }
         }
         Text(
             text = value.decimal(2), textAlign = TextAlign.End, modifier = Modifier
                 .weight(0.15f)
-                .align(Alignment.CenterVertically)
+                .align(CenterVertically)
         )
         Slider(
             value = value,
@@ -1134,7 +1145,7 @@ private fun EditSpeciesForceStrengthSlider(
             steps = 0,
             modifier = Modifier
                 .weight(0.425f)
-                .align(Alignment.CenterVertically)
+                .align(CenterVertically)
         )
     }
 }
@@ -1219,6 +1230,22 @@ private fun EditForceDistancesPanelCardContent(
                     .fillMaxWidth()
             )
             if (isPortrait()) {
+                Divider(
+                    Modifier
+                        .fillMaxWidth()
+                        .width(1.dp)
+                        .padding(vertical = 4.dp)
+                )
+                SelectSpeciesWidget(
+                    selectedSpeciesIndex = editForceDistancesSelectedSpeciesIndex,
+                    allSpecies = species.value
+                )
+                Divider(
+                    Modifier
+                        .fillMaxWidth()
+                        .width(1.dp)
+                        .padding(vertical = 4.dp)
+                )
                 species.value.forEachIndexed { index, _ ->
                     EditSpeciesForceDistanceSlider(
                         thisSpeciesIndex = index,
@@ -1298,7 +1325,7 @@ private fun EditSpeciesForceDistanceSlider(
             modifier = Modifier
                 .weight(0.2125f)
                 .padding(vertical = 2.dp)
-                .align(Alignment.CenterVertically)
+                .align(CenterVertically)
         ) {
             IconButton(
                 onClick = { selectedSpeciesIndex.value = thisSpeciesIndex },
@@ -1306,7 +1333,7 @@ private fun EditSpeciesForceDistanceSlider(
                     .run {
                         if (isSelected) background(
                             color = MaterialTheme.colors.secondary,
-                            shape = RoundedCornerShape(50)
+                            shape = CircleShape
                         ) else Modifier
                     }
                     .align(Center)
@@ -1321,18 +1348,12 @@ private fun EditSpeciesForceDistanceSlider(
             modifier = Modifier
                 .weight(0.2125f)
                 .padding(vertical = 2.dp)
-                .align(Alignment.CenterVertically)
+                .align(CenterVertically)
         ) {
             IconButton(
-                onClick = { selectedSpeciesIndex.value = thisSpeciesIndex },
-                modifier = Modifier
-                    .align(Center)
-                    .fillMaxHeight()
-                    .background(
-                        color = Color(allSpecies[thisSpeciesIndex].color),
-                        shape = RoundedCornerShape(50)
-                    )
+                onClick = { selectedSpeciesIndex.value = thisSpeciesIndex }
             ) {
+                SpeciesIcon(color = Color(allSpecies[thisSpeciesIndex].color)) { align(Center) }
             }
         }
 
@@ -1341,13 +1362,13 @@ private fun EditSpeciesForceDistanceSlider(
             textAlign = TextAlign.End,
             modifier = Modifier
                 .weight(0.1f)
-                .align(Alignment.CenterVertically)
+                .align(CenterVertically)
         )
         Box(
             modifier = Modifier
                 .weight(0.375f)
                 .padding(horizontal = 8.dp)
-                .align(Alignment.CenterVertically)
+                .align(CenterVertically)
         ) {
             RangeSlider(
                 values = lowerValue..upperValue,
@@ -1368,9 +1389,84 @@ private fun EditSpeciesForceDistanceSlider(
             textAlign = TextAlign.Start,
             modifier = Modifier
                 .weight(0.1f)
-                .align(Alignment.CenterVertically)
+                .align(CenterVertically)
         )
     }
+}
+
+@OptIn(ExperimentalMaterialApi::class)
+@Composable
+fun ColumnScope.SelectSpeciesWidget(
+    selectedSpeciesIndex: MutableState<Int>,
+    allSpecies: List<Species>
+) {
+    var expanded by remember { mutableStateOf(false) }
+
+    val focusManager = LocalFocusManager.current
+
+    Row(modifier = Modifier.align(CenterHorizontally)) {
+
+        Text(
+            stringResource(R.string.edit_values_for_label),
+            modifier = Modifier
+                .padding(top = 4.dp, bottom = 4.dp, end = 16.dp)
+                .align(CenterVertically)
+        )
+
+        ExposedDropdownMenuBox(
+            expanded = expanded,
+            onExpandedChange = {
+                expanded = !expanded
+                focusManager.clearFocus()
+            },
+            modifier = Modifier
+                .padding(vertical = 4.dp)
+                .align(CenterVertically)
+        ) {
+            Row {
+                SpeciesIcon(color = Color(allSpecies[selectedSpeciesIndex.value].color)) {
+                    align(CenterVertically)
+                }
+                ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) { expanded != expanded }
+            }
+            ExposedDropdownMenu(
+                expanded = expanded,
+                onDismissRequest = {
+                    expanded = false
+                    focusManager.clearFocus()
+                }
+            ) {
+                allSpecies.indices.forEach { speciesIdx ->
+                    DropdownMenuItem(
+                        onClick = {
+                            selectedSpeciesIndex.value = speciesIdx
+                            expanded = false
+                            focusManager.clearFocus()
+                        },
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Column(modifier = Modifier.fillMaxWidth()) {
+                            SpeciesIcon(color = Color(allSpecies[speciesIdx].color)) {
+                                align(CenterHorizontally)
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun SpeciesIcon(color: Color, modifier: Modifier.() -> Modifier) {
+    Box(
+        modifier = Modifier
+            .padding(vertical = 2.dp)
+            .height(48.dp)
+            .width(48.dp)
+            .background(color, RoundedCornerShape(percent = 25))
+            .modifier()
+    )
 }
 
 @Composable
@@ -1415,13 +1511,13 @@ fun TextSliderPair(
                 text = text,
                 modifier = Modifier
                     .weight(0.425f)
-                    .align(Alignment.CenterVertically)
+                    .align(CenterVertically)
             )
 
             Text(
                 text = valueToString(value), textAlign = TextAlign.End, modifier = Modifier
                     .weight(0.15f)
-                    .align(Alignment.CenterVertically)
+                    .align(CenterVertically)
             )
             Slider(
                 value = value,
@@ -1430,7 +1526,7 @@ fun TextSliderPair(
                 steps = steps,
                 modifier = Modifier
                     .weight(0.425f)
-                    .align(Alignment.CenterVertically)
+                    .align(CenterVertically)
             )
         }
         Text(text = description, fontSize = MaterialTheme.typography.caption.fontSize)
@@ -1458,18 +1554,18 @@ fun TextRangePair(
                 text = text,
                 modifier = Modifier
                     .weight(0.4f)
-                    .align(Alignment.CenterVertically)
+                    .align(CenterVertically)
             )
             Text(
                 text = valueToString(values.first), textAlign = TextAlign.End, modifier = Modifier
                     .weight(0.1f)
-                    .align(Alignment.CenterVertically)
+                    .align(CenterVertically)
             )
             Box(
                 modifier = Modifier
                     .weight(0.4f)
                     .padding(horizontal = 8.dp)
-                    .align(Alignment.CenterVertically)
+                    .align(CenterVertically)
             ) {
                 RangeSlider(
                     values = values.first..values.second,
@@ -1483,7 +1579,7 @@ fun TextRangePair(
                 textAlign = TextAlign.Start,
                 modifier = Modifier
                     .weight(0.1f)
-                    .align(Alignment.CenterVertically)
+                    .align(CenterVertically)
             )
         }
         Text(text = description, fontSize = MaterialTheme.typography.caption.fontSize)
@@ -1507,14 +1603,14 @@ fun TextSwitchPair(
                 text = text,
                 modifier = Modifier
                     .weight(0.725f)
-                    .align(Alignment.CenterVertically)
+                    .align(CenterVertically)
             )
             Switch(
                 checked = checked,
                 onCheckedChange = { onToggle(it) },
                 modifier = Modifier
                     .weight(0.275f)
-                    .align(Alignment.CenterVertically)
+                    .align(CenterVertically)
             )
         }
         Text(text = description, fontSize = MaterialTheme.typography.caption.fontSize)

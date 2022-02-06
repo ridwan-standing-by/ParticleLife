@@ -228,7 +228,6 @@ class ParticleLifeParameters(
                         friction *= 6.0
                         forceStrengthScale *= 2.0
                         forceDistanceScale *= 3.0
-                        pressureStrength *= 2.0
                     }
                 }
             }

@@ -5,7 +5,6 @@
     <string name="about_title">About</string>
     <string name="physics_info">Change global simulation parameters</string>
     <string name="randomise_label">Randomise</string>
-    <string name="reset_label">Reset</string>
     <string name="preset_label">Physics preset</string>
     <string name="preset_balanced_chaos">Balanced chaos</string>
     <string name="preset_little_creatures">Little creatures</string>
@@ -49,6 +48,7 @@
     <string name="force_strengths_range_description">Maximum and minimum values for the distribution of the strengths of forces between species. Positive values indicate attraction and negative values indicate repulsion.</string>
     <string name="force_distances_range_label">Force distance range</string>
     <string name="force_distances_range_description">Maximum and minimum values for the distribution of the distances of the forces between species.</string>
+    <string name="edit_values_for_label">Editing values for:</string>
     <string name="edit_force_strengths_label">Edit Force Strengths</string>
     <string name="edit_force_strengths_description">Tap a colour to view and edit the force strength from that species\' point of view. Positive values indicate attraction and negative values indicate repulsion.</string>
     <string name="edit_force_distances_label">Edit Force Distances</string>
