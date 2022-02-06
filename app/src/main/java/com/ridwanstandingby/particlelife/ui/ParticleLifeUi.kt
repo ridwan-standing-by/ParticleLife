@@ -10,10 +10,6 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.*
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.Casino
-import androidx.compose.material.icons.rounded.ChevronRight
-import androidx.compose.material.icons.rounded.Tune
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Alignment.Companion.Center
@@ -35,6 +31,10 @@ import com.ridwanstandingby.particlelife.R
 import com.ridwanstandingby.particlelife.domain.ParticleLifeParameters
 import com.ridwanstandingby.particlelife.domain.Species
 import com.ridwanstandingby.particlelife.ui.theme.ParticleLifeTheme
+import com.ridwanstandingby.particlelife.ui.theme.icons.Icons
+import com.ridwanstandingby.particlelife.ui.theme.icons.rounded.Casino
+import com.ridwanstandingby.particlelife.ui.theme.icons.rounded.ChevronRight
+import com.ridwanstandingby.particlelife.ui.theme.icons.rounded.Tune
 import com.ridwanstandingby.verve.animation.AnimationView
 import com.ridwanstandingby.verve.math.FloatVector2
 import kotlin.math.log2

@@ -57,7 +57,6 @@ dependencies {
     implementation "androidx.compose.runtime:runtime:$composeVersion"
     implementation "androidx.compose.compiler:compiler:$composeCompilerVersion"
     implementation "androidx.compose.runtime:runtime-livedata:$composeVersion"
-    implementation "androidx.compose.material:material-icons-extended:$composeVersion"
 
     // Koin
     implementation("io.insert-koin:koin-core:$koinVersion") {
