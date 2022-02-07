@@ -203,6 +203,7 @@ class ParticleLifeParameters(
                 override fun applyPreset(runtimeParameters: RuntimeParameters) {
                     with(runtimeParameters) {
                         reset()
+                        friction = 0.02
                         forceStrengthScale *= 2.0
                         forceDistanceScale *= 0.5
                     }
@@ -213,7 +214,7 @@ class ParticleLifeParameters(
                 override fun applyPreset(runtimeParameters: RuntimeParameters) {
                     with(runtimeParameters) {
                         reset()
-                        friction *= 2.0
+                        friction = 0.02
                         forceStrengthScale *= 0.5
                         forceDistanceScale *= 2.0
                     }
@@ -224,7 +225,7 @@ class ParticleLifeParameters(
                 override fun applyPreset(runtimeParameters: RuntimeParameters) {
                     with(runtimeParameters) {
                         reset()
-                        friction *= 6.0
+                        friction = 0.06
                         forceStrengthScale *= 2.0
                         forceDistanceScale *= 3.0
                     }
@@ -244,7 +245,7 @@ class ParticleLifeParameters(
         }
 
         companion object {
-            const val FRICTION_DEFAULT = 0.01
+            const val FRICTION_DEFAULT = 0.015
             const val FRICTION_MIN = 0.001
             const val FRICTION_MAX = 0.4
 
@@ -252,7 +253,7 @@ class ParticleLifeParameters(
             const val FORCE_STRENGTH_SCALE_MIN = 0.25
             const val FORCE_STRENGTH_SCALE_MAX = 4.0
 
-            const val FORCE_STRENGTH_SCALE_WEIGHT = 0.5
+            const val FORCE_STRENGTH_SCALE_WEIGHT = 0.75
 
             const val FORCE_DISTANCE_SCALE_DEFAULT = 1.0
             const val FORCE_DISTANCE_SCALE_MIN = 0.25
