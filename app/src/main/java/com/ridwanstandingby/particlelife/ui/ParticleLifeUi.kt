@@ -12,6 +12,7 @@ import androidx.compose.runtime.derivedStateOf
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.pointer.motionEventSpy
 import androidx.compose.ui.input.pointer.pointerInteropFilter
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalView
@@ -85,7 +86,15 @@ fun ParticleLifeUi(
                     val rotation = LocalView.current.display.rotation
                     AndroidView(modifier = Modifier
                         .size(width = maxWidth, height = maxHeight)
-                        .pointerInteropFilter { onTouchEvent(it) },
+                        .pointerInteropFilter { onTouchEvent(it) }
+                        .motionEventSpy {
+                            if (it.action == MotionEvent.ACTION_DOWN) {
+                                editForceStrengthsPanelExpanded.value = false
+                                editForceDistancesPanelExpanded.value = false
+                                editHandOfGodPanelExpanded.value = false
+                                controlPanelExpanded.value = false
+                            }
+                        },
                         factory = {
                             onViewSizeChanged(
                                 FloatVector2(maxWidth.toPx(), maxHeight.toPx()), rotation
