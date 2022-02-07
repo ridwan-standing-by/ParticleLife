@@ -42,6 +42,12 @@ fun PhysicsContent(
                 .padding(4.dp)
                 .fillMaxWidth()
         )
+        Divider(
+            Modifier
+                .fillMaxWidth()
+                .width(1.dp)
+                .padding(top = 4.dp)
+        )
         if (isPortrait()) {
             PresetSelectionAndRandomiseButton(selectedPreset, runtimeParametersChanged)
             FrictionWidget(selectedPreset, runtimeParameters, runtimeParametersChanged)
@@ -100,6 +106,7 @@ private fun PresetSelectionAndRandomiseButton(
         Modifier
             .fillMaxWidth()
             .height(IntrinsicSize.Min)
+            .padding(top = 4.dp)
     ) {
         Box(
             Modifier

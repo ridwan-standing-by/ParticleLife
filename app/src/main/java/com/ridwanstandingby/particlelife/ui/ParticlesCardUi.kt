@@ -41,7 +41,12 @@ fun ParticlesContent(
                 .padding(4.dp)
                 .fillMaxWidth()
         )
-
+        Divider(
+            Modifier
+                .fillMaxWidth()
+                .width(1.dp)
+                .padding(top = 4.dp)
+        )
         if (isPortrait()) {
             GenerateNewParticlesButton(generateNewParticlesClicked)
             NumberOfParticlesWidget(generationParameters, generationParametersChanged)
