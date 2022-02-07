@@ -63,23 +63,23 @@ fun EditForceStrengthsPanelCardContent(
                     .padding(4.dp)
                     .fillMaxWidth()
             )
+            Divider(
+                Modifier
+                    .fillMaxWidth()
+                    .width(1.dp)
+                    .padding(vertical = 4.dp)
+            )
+            SelectSpeciesWidget(
+                selectedSpeciesIndex = editForceStrengthsSelectedSpeciesIndex,
+                allSpecies = species.value
+            )
+            Divider(
+                Modifier
+                    .fillMaxWidth()
+                    .width(1.dp)
+                    .padding(vertical = 4.dp)
+            )
             if (isPortrait()) {
-                Divider(
-                    Modifier
-                        .fillMaxWidth()
-                        .width(1.dp)
-                        .padding(vertical = 4.dp)
-                )
-                SelectSpeciesWidget(
-                    selectedSpeciesIndex = editForceStrengthsSelectedSpeciesIndex,
-                    allSpecies = species.value
-                )
-                Divider(
-                    Modifier
-                        .fillMaxWidth()
-                        .width(1.dp)
-                        .padding(vertical = 4.dp)
-                )
                 species.value.forEachIndexed { index, _ ->
                     EditForceStrengthSlider(
                         thisSpeciesIndex = index,
@@ -173,23 +173,23 @@ fun EditForceDistancesPanelCardContent(
                     .padding(4.dp)
                     .fillMaxWidth()
             )
+            Divider(
+                Modifier
+                    .fillMaxWidth()
+                    .width(1.dp)
+                    .padding(vertical = 4.dp)
+            )
+            SelectSpeciesWidget(
+                selectedSpeciesIndex = editForceDistancesSelectedSpeciesIndex,
+                allSpecies = species.value
+            )
+            Divider(
+                Modifier
+                    .fillMaxWidth()
+                    .width(1.dp)
+                    .padding(vertical = 4.dp)
+            )
             if (isPortrait()) {
-                Divider(
-                    Modifier
-                        .fillMaxWidth()
-                        .width(1.dp)
-                        .padding(vertical = 4.dp)
-                )
-                SelectSpeciesWidget(
-                    selectedSpeciesIndex = editForceDistancesSelectedSpeciesIndex,
-                    allSpecies = species.value
-                )
-                Divider(
-                    Modifier
-                        .fillMaxWidth()
-                        .width(1.dp)
-                        .padding(vertical = 4.dp)
-                )
                 species.value.forEachIndexed { index, _ ->
                     EditForceDistanceSlider(
                         thisSpeciesIndex = index,
