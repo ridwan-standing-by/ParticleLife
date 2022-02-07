@@ -216,7 +216,6 @@ class ParticleLifeParameters(
                         friction *= 2.0
                         forceStrengthScale *= 0.5
                         forceDistanceScale *= 2.0
-                        pressureStrength *= 2.0
                     }
                 }
             }
@@ -261,7 +260,7 @@ class ParticleLifeParameters(
 
             const val PRESSURE_STRENGTH_DEFAULT = 200.0
             const val PRESSURE_STRENGTH_MIN = 25.0
-            const val PRESSURE_STRENGTH_MAX = 1600.0
+            const val PRESSURE_STRENGTH_MAX = 800.0
 
             const val PRESSURE_DISTANCE_DEFAULT = 16.0
 
