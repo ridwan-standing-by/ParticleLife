@@ -12,7 +12,7 @@ class ParticleLifeParameters(
     var runtime: RuntimeParameters,
     var species: List<Species>,
     var initialParticles: List<Particle>
-) : AnimationParameters() {
+) : AnimationParameters(maxTimeStep = MAX_TIME_STEP) {
 
     data class GenerationParameters(
         var nParticles: Int = N_PARTICLES_DEFAULT,
@@ -203,7 +203,7 @@ class ParticleLifeParameters(
                 override fun applyPreset(runtimeParameters: RuntimeParameters) {
                     with(runtimeParameters) {
                         reset()
-                        forceStrengthScale *= 2.0
+                        forceStrengthScale *= 3.0
                         forceDistanceScale *= 0.5
                         pressureStrength *= 2.0
                     }
@@ -289,7 +289,6 @@ class ParticleLifeParameters(
             const val BECKON_RADIUS_DEFAULT = 400.0
             const val BECKON_RADIUS_MIN = 50.0
             const val BECKON_RADIUS_MAX = 800.0
-
         }
     }
 
@@ -316,5 +315,7 @@ class ParticleLifeParameters(
                 initialParticles = initialParticles
             )
         }
+
+        private const val MAX_TIME_STEP = 1.0 / 60.0
     }
 }
