@@ -91,7 +91,7 @@ class ParticleLifeAnimation(
             val force = when {
                 distance > rMax -> 0.0
                 distance > rMin -> -forceStrengths[a.speciesIndex][b.speciesIndex] *
-                        (2.0 - abs(distance * 2.0 - rMax - rMin) / (rMax - rMin)) * forceStrengthScale * ParticleLifeParameters.RuntimeParameters.FORCE_STRENGTH_SCALE_WEIGHT
+                        (2.0 - abs(distance * 2.0 - rMax - rMin) / (rMax - rMin)) * forceStrengthScale
                 distance > pressureDistance -> 0.0
                 else -> pressureStrength * (1.0 - distance / pressureDistance)
             }

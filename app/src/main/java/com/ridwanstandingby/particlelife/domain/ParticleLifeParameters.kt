@@ -104,10 +104,10 @@ class ParticleLifeParameters(
             const val FORCE_STRENGTH_RANGE_MIN = -2.0
             const val FORCE_STRENGTH_RANGE_MAX = 2.0
 
-            const val FORCE_DISTANCE_RANGE_LOWER_DEFAULT = 64.0
-            const val FORCE_DISTANCE_RANGE_UPPER_DEFAULT = 128.0
-            const val FORCE_DISTANCE_RANGE_MIN = 16.0
-            const val FORCE_DISTANCE_RANGE_MAX = 200.0
+            const val FORCE_DISTANCE_RANGE_LOWER_DEFAULT = 50.0
+            const val FORCE_DISTANCE_RANGE_UPPER_DEFAULT = 100.0
+            const val FORCE_DISTANCE_RANGE_MIN = 20.0
+            const val FORCE_DISTANCE_RANGE_MAX = 150.0
         }
     }
 
@@ -203,9 +203,9 @@ class ParticleLifeParameters(
                 override fun applyPreset(runtimeParameters: RuntimeParameters) {
                     with(runtimeParameters) {
                         reset()
-                        friction = 0.02
                         forceStrengthScale *= 2.0
                         forceDistanceScale *= 0.5
+                        pressureStrength *= 2.0
                     }
                 }
             }
@@ -214,7 +214,6 @@ class ParticleLifeParameters(
                 override fun applyPreset(runtimeParameters: RuntimeParameters) {
                     with(runtimeParameters) {
                         reset()
-                        friction = 0.02
                         forceStrengthScale *= 0.5
                         forceDistanceScale *= 2.0
                     }
@@ -245,7 +244,7 @@ class ParticleLifeParameters(
         }
 
         companion object {
-            const val FRICTION_DEFAULT = 0.015
+            const val FRICTION_DEFAULT = 0.02
             const val FRICTION_MIN = 0.001
             const val FRICTION_MAX = 0.4
 
@@ -253,15 +252,13 @@ class ParticleLifeParameters(
             const val FORCE_STRENGTH_SCALE_MIN = 0.25
             const val FORCE_STRENGTH_SCALE_MAX = 4.0
 
-            const val FORCE_STRENGTH_SCALE_WEIGHT = 0.75
-
             const val FORCE_DISTANCE_SCALE_DEFAULT = 1.0
             const val FORCE_DISTANCE_SCALE_MIN = 0.25
             const val FORCE_DISTANCE_SCALE_MAX = 4.0
 
-            const val PRESSURE_STRENGTH_DEFAULT = 200.0
-            const val PRESSURE_STRENGTH_MIN = 25.0
-            const val PRESSURE_STRENGTH_MAX = 800.0
+            const val PRESSURE_STRENGTH_DEFAULT = 100.0
+            const val PRESSURE_STRENGTH_MIN = 10.0
+            const val PRESSURE_STRENGTH_MAX = 1000.0
 
             const val PRESSURE_DISTANCE_DEFAULT = 16.0
 
