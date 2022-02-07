@@ -91,9 +91,9 @@ class ParticleLifeParameters(
         }
 
         companion object {
-            const val N_PARTICLES_DEFAULT = 600
+            const val N_PARTICLES_DEFAULT = 500
             const val N_PARTICLES_MIN = 50
-            const val N_PARTICLES_MAX = 1200
+            const val N_PARTICLES_MAX = 1000
 
             const val N_SPECIES_DEFAULT = 6
             const val N_SPECIES_MIN = 1
@@ -228,7 +228,6 @@ class ParticleLifeParameters(
                         friction *= 6.0
                         forceStrengthScale *= 2.0
                         forceDistanceScale *= 3.0
-                        pressureStrength *= 2.0
                     }
                 }
             }
