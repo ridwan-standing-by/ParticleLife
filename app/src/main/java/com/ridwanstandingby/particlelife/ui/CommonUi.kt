@@ -70,7 +70,7 @@ fun TextSliderPair(
                     .align(Alignment.CenterVertically)
             )
         }
-        Text(text = description, fontSize = MaterialTheme.typography.caption.fontSize)
+        Text(text = description, style = MaterialTheme.typography.caption)
     }
 }
 
@@ -123,7 +123,7 @@ fun TextRangePair(
                     .align(Alignment.CenterVertically)
             )
         }
-        Text(text = description, fontSize = MaterialTheme.typography.caption.fontSize)
+        Text(text = description, style = MaterialTheme.typography.caption)
     }
 }
 
@@ -154,6 +154,6 @@ fun TextSwitchPair(
                     .align(Alignment.CenterVertically)
             )
         }
-        Text(text = description, fontSize = MaterialTheme.typography.caption.fontSize)
+        Text(text = description, style = MaterialTheme.typography.caption)
     }
 }

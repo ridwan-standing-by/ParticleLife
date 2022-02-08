@@ -14,7 +14,6 @@ import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.ColorMatrix
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontStyle.Companion.Italic
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Devices
 import androidx.compose.ui.tooling.preview.Preview
@@ -82,9 +81,8 @@ private fun DiagramWithCaption() {
     )
     Text(
         stringResource(R.string.about_particle_diagram_content_description),
-        fontStyle = Italic,
+        style = MaterialTheme.typography.caption,
         textAlign = TextAlign.Center,
-        fontSize = MaterialTheme.typography.caption.fontSize,
         modifier = Modifier.padding(all = 4.dp)
     )
 }

@@ -17,7 +17,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Devices
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import com.ridwanstandingby.particlelife.R
 import com.ridwanstandingby.particlelife.domain.ParticleLifeParameters
 import com.ridwanstandingby.particlelife.domain.Species
@@ -44,7 +43,6 @@ fun EditForceStrengthsPanelCardContent(
             Text(
                 text = stringResource(id = R.string.edit_force_strengths_label),
                 style = MaterialTheme.typography.h5,
-                fontSize = 15.sp,
                 textAlign = TextAlign.Center,
                 modifier = Modifier
                     .fillMaxWidth()
@@ -154,7 +152,6 @@ fun EditForceDistancesPanelCardContent(
             Text(
                 text = stringResource(id = R.string.edit_force_distances_label),
                 style = MaterialTheme.typography.h5,
-                fontSize = 15.sp,
                 textAlign = TextAlign.Center,
                 modifier = Modifier
                     .fillMaxWidth()

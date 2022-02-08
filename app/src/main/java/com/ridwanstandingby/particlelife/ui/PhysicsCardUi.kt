@@ -339,7 +339,7 @@ private fun HandOfGodEnabledSwitchWidget(
         }
         Text(
             text = stringResource(R.string.enable_hand_of_god_description),
-            fontSize = MaterialTheme.typography.caption.fontSize
+            style = MaterialTheme.typography.caption
         )
     }
 }
