@@ -12,7 +12,7 @@ class ParticleLifeParameters(
     var runtime: RuntimeParameters,
     var species: List<Species>,
     var initialParticles: List<Particle>
-) : AnimationParameters() {
+) : AnimationParameters(maxTimeStep = MAX_TIME_STEP) {
 
     data class GenerationParameters(
         var nParticles: Int = N_PARTICLES_DEFAULT,
@@ -91,9 +91,9 @@ class ParticleLifeParameters(
         }
 
         companion object {
-            const val N_PARTICLES_DEFAULT = 600
+            const val N_PARTICLES_DEFAULT = 500
             const val N_PARTICLES_MIN = 50
-            const val N_PARTICLES_MAX = 1200
+            const val N_PARTICLES_MAX = 1000
 
             const val N_SPECIES_DEFAULT = 6
             const val N_SPECIES_MIN = 1
@@ -104,10 +104,10 @@ class ParticleLifeParameters(
             const val FORCE_STRENGTH_RANGE_MIN = -2.0
             const val FORCE_STRENGTH_RANGE_MAX = 2.0
 
-            const val FORCE_DISTANCE_RANGE_LOWER_DEFAULT = 64.0
-            const val FORCE_DISTANCE_RANGE_UPPER_DEFAULT = 128.0
-            const val FORCE_DISTANCE_RANGE_MIN = 16.0
-            const val FORCE_DISTANCE_RANGE_MAX = 200.0
+            const val FORCE_DISTANCE_RANGE_LOWER_DEFAULT = 50.0
+            const val FORCE_DISTANCE_RANGE_UPPER_DEFAULT = 100.0
+            const val FORCE_DISTANCE_RANGE_MIN = 20.0
+            const val FORCE_DISTANCE_RANGE_MAX = 150.0
         }
     }
 
@@ -203,8 +203,9 @@ class ParticleLifeParameters(
                 override fun applyPreset(runtimeParameters: RuntimeParameters) {
                     with(runtimeParameters) {
                         reset()
-                        forceStrengthScale *= 2.0
+                        forceStrengthScale *= 3.0
                         forceDistanceScale *= 0.5
+                        pressureStrength *= 2.0
                     }
                 }
             }
@@ -213,10 +214,8 @@ class ParticleLifeParameters(
                 override fun applyPreset(runtimeParameters: RuntimeParameters) {
                     with(runtimeParameters) {
                         reset()
-                        friction *= 2.0
                         forceStrengthScale *= 0.5
                         forceDistanceScale *= 2.0
-                        pressureStrength *= 2.0
                     }
                 }
             }
@@ -225,10 +224,9 @@ class ParticleLifeParameters(
                 override fun applyPreset(runtimeParameters: RuntimeParameters) {
                     with(runtimeParameters) {
                         reset()
-                        friction *= 6.0
+                        friction = 0.06
                         forceStrengthScale *= 2.0
                         forceDistanceScale *= 3.0
-                        pressureStrength *= 2.0
                     }
                 }
             }
@@ -246,7 +244,7 @@ class ParticleLifeParameters(
         }
 
         companion object {
-            const val FRICTION_DEFAULT = 0.01
+            const val FRICTION_DEFAULT = 0.02
             const val FRICTION_MIN = 0.001
             const val FRICTION_MAX = 0.4
 
@@ -254,15 +252,13 @@ class ParticleLifeParameters(
             const val FORCE_STRENGTH_SCALE_MIN = 0.25
             const val FORCE_STRENGTH_SCALE_MAX = 4.0
 
-            const val FORCE_STRENGTH_SCALE_WEIGHT = 0.5
-
             const val FORCE_DISTANCE_SCALE_DEFAULT = 1.0
             const val FORCE_DISTANCE_SCALE_MIN = 0.25
             const val FORCE_DISTANCE_SCALE_MAX = 4.0
 
-            const val PRESSURE_STRENGTH_DEFAULT = 200.0
-            const val PRESSURE_STRENGTH_MIN = 25.0
-            const val PRESSURE_STRENGTH_MAX = 1600.0
+            const val PRESSURE_STRENGTH_DEFAULT = 100.0
+            const val PRESSURE_STRENGTH_MIN = 10.0
+            const val PRESSURE_STRENGTH_MAX = 1000.0
 
             const val PRESSURE_DISTANCE_DEFAULT = 16.0
 
@@ -293,7 +289,6 @@ class ParticleLifeParameters(
             const val BECKON_RADIUS_DEFAULT = 400.0
             const val BECKON_RADIUS_MIN = 50.0
             const val BECKON_RADIUS_MAX = 800.0
-
         }
     }
 
@@ -320,5 +315,7 @@ class ParticleLifeParameters(
                 initialParticles = initialParticles
             )
         }
+
+        private const val MAX_TIME_STEP = 1.0 / 60.0
     }
 }
