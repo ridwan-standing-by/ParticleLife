@@ -222,7 +222,7 @@ private fun ColumnScope.EditForceDistancesButton(
 @Composable
 fun ParticlesCardUiPreview() {
     val generationParameters = remember {
-        mutableStateOf(ParticleLifeParameters.GenerationParameters())
+        mutableStateOf(ParticleLifeParameters.GenerationParameters(), neverEqualPolicy())
     }
     ParticleLifeTheme {
         Scaffold {

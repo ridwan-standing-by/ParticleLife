@@ -1,6 +1,7 @@
 <resources>
     <string name="app_name">Particle Life</string>
     <string name="physics_title">Physics</string>
+    <string name="wallpaper_title">Wallpaper</string>
     <string name="particles_title">Particles</string>
     <string name="about_title">About</string>
     <string name="physics_info">Change global simulation parameters</string>
@@ -54,6 +55,9 @@
     <string name="edit_force_distances_label">Edit Force Distances</string>
     <string name="edit_force_distances_description">Tap a colour to view and edit the distance at which the force acts from that species\' point of view. In each case there is a minimum and maximum distance.</string>
     <string name="select_species_icon_content_description">Select species</string>
+    <string name="wallpaper_info">Customize and set a live wallpaper</string>
+    <string name="set_wallpaper_button_label">Set Wallpaper</string>
+    <string name="physics_settings_label">Physics settings</string>
     <string name="about_particle_simulation">A particle simulation, designed to illustrate life-like behaviour emerging from particles obeying a set of simple rules.</string>
     <string name="about_particle_force_explanation">Each particle exerts a force on other nearby particles, depending on their species (represented by the different colours). This can either be a repulsion or an attraction, and is not necessarily symmetric. For example, red can be attracted to green, but green could be repulsed by red, which would result in red \"chasing\" green.</string>
     <string name="about_particle_extras">To avoid particles speeding up forever, a global friction is applied that slows particles down. Additionally, all particles repel each other if they get too close for comfort, like a kind of degeneracy pressure</string>

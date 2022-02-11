@@ -352,7 +352,7 @@ fun PhysicsCardUiPreview() {
         mutableStateOf(
             ParticleLifeParameters.buildDefault(
                 100.0, 100.0, ParticleLifeParameters.GenerationParameters()
-            ).runtime
+            ).runtime, neverEqualPolicy()
         )
     }
     ParticleLifeTheme {

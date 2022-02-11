@@ -52,7 +52,10 @@ fun ParticleLifeActivityUi(
         species = derivedStateOf { vm.parameters.value.species },
         runtimeParametersChanged = vm::changeRuntimeParameters,
         generationParametersChanged = vm::changeGenerationParameters,
-        generateNewParticlesClicked = vm::generateNewParticles
+        generateNewParticlesClicked = vm::generateNewParticles,
+        setWallpaperClicked = vm::setWallpaper,
+        wallpaperParameters = derivedStateOf { vm.wallpaperParameters.value.copy() },
+        wallpaperParametersChanged = vm::changeWallpaperParameters
     )
 }
 
@@ -75,7 +78,10 @@ fun ParticleLifeUi(
     species: State<List<Species>>,
     runtimeParametersChanged: (ParticleLifeParameters.RuntimeParameters.() -> Unit) -> Unit,
     generationParametersChanged: (ParticleLifeParameters.GenerationParameters.() -> Unit) -> Unit,
-    generateNewParticlesClicked: () -> Unit
+    generateNewParticlesClicked: () -> Unit,
+    setWallpaperClicked: () -> Unit,
+    wallpaperParameters: State<ParticleLifeParameters>,
+    wallpaperParametersChanged: (ParticleLifeParameters.() -> Unit) -> Unit
 ) {
     ParticleLifeTheme {
         Scaffold {
@@ -120,7 +126,10 @@ fun ParticleLifeUi(
                     species,
                     runtimeParametersChanged,
                     generationParametersChanged,
-                    generateNewParticlesClicked
+                    generateNewParticlesClicked,
+                    setWallpaperClicked,
+                    wallpaperParameters,
+                    wallpaperParametersChanged
                 )
             }
         }
@@ -143,7 +152,10 @@ fun ControlPanelUi(
     species: State<List<Species>>,
     runtimeParametersChanged: (ParticleLifeParameters.RuntimeParameters.() -> Unit) -> Unit,
     generationParametersChanged: (ParticleLifeParameters.GenerationParameters.() -> Unit) -> Unit,
-    generateNewParticlesClicked: () -> Unit
+    generateNewParticlesClicked: () -> Unit,
+    setWallpaperClicked: () -> Unit,
+    wallpaperParameters: State<ParticleLifeParameters>,
+    wallpaperParametersChanged: (ParticleLifeParameters.() -> Unit) -> Unit
 ) {
     val foregroundCardModifier = if (isPortrait()) {
         Modifier
@@ -169,7 +181,10 @@ fun ControlPanelUi(
                     generationParameters,
                     runtimeParametersChanged,
                     generationParametersChanged,
-                    generateNewParticlesClicked
+                    generateNewParticlesClicked,
+                    setWallpaperClicked,
+                    wallpaperParameters,
+                    wallpaperParametersChanged
                 )
             }
         }
@@ -231,7 +246,10 @@ fun ControlPanelCardContent(
     generationParameters: State<ParticleLifeParameters.GenerationParameters>,
     runtimeParametersChanged: (ParticleLifeParameters.RuntimeParameters.() -> Unit) -> Unit,
     generationParametersChanged: (ParticleLifeParameters.GenerationParameters.() -> Unit) -> Unit,
-    generateNewParticlesClicked: () -> Unit
+    generateNewParticlesClicked: () -> Unit,
+    setWallpaperClicked: () -> Unit,
+    wallpaperParameters: State<ParticleLifeParameters>,
+    wallpaperParametersChanged: (ParticleLifeParameters.() -> Unit) -> Unit
 ) {
     Column {
         ControlPanelTabs(selectedTabIndex)
@@ -251,6 +269,11 @@ fun ControlPanelCardContent(
                 generationParametersChanged,
                 generateNewParticlesClicked
             )
+            ControlPanelTab.WALLPAPER -> WallpaperContent(
+                setWallpaperClicked,
+                wallpaperParameters,
+                wallpaperParametersChanged
+            )
             ControlPanelTab.ABOUT -> AboutContent()
         }
     }
@@ -263,12 +286,12 @@ private fun ControlPanelTabs(selectedTabIndex: MutableState<Int>) {
         contentColor = MaterialTheme.colors.secondary,
         modifier = Modifier.height(fabDiameter)
     ) {
-        TabRow(
+        ScrollableTabRow(
             selectedTabIndex = selectedTabIndex.value,
             backgroundColor = MaterialTheme.colors.secondary,
             modifier = Modifier
                 .height(fabDiameter)
-                .padding(start = fabDiameter)
+                .padding(start = fabDiameter / 2)
         ) {
             ControlPanelTab.values().forEach {
                 ControlPanelTab(it, selectedTabIndex)

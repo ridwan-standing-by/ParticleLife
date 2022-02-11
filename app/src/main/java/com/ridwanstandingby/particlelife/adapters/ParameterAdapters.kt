@@ -117,8 +117,7 @@ fun JSONObject.extractParameters(xMax: Double, yMax: Double): ParticleLifeParame
     val generation = extractGenerationParameters()
     val runtime = extractRuntimeParameters(xMax, yMax, generation)
     val species = extractSpecies(generation)
-    val initialParticles = generation.generateRandomParticles(xMax, yMax, species)
-    return ParticleLifeParameters(generation, runtime, species, initialParticles)
+    return ParticleLifeParameters(generation, runtime, species)
 }
 
 private fun JSONObject.extractGenerationParameters(): ParticleLifeParameters.GenerationParameters {
@@ -302,13 +301,13 @@ private inline fun <reified T : Any> JSONObject.getOrDefault(key: String, defaul
 
 private inline fun <reified T : Any> JSONObject.getOrNull(key: String): T? =
     try {
-        when (T::class.java) {
-            Int::class.java -> getInt(key) as T
-            Double::class.java -> getDouble(key) as T
-            Boolean::class.java -> getBoolean(key) as T
-            JSONArray::class.java -> getJSONArray(key) as T
-            JSONObject::class.java -> getJSONObject(key) as T
-            else -> throw IllegalArgumentException("Invalid type parameter ${T::class.java}")
+        when (T::class) {
+            Int::class -> getInt(key) as T
+            Double::class -> getDouble(key) as T
+            Boolean::class -> getBoolean(key) as T
+            JSONArray::class -> getJSONArray(key) as T
+            JSONObject::class -> getJSONObject(key) as T
+            else -> throw IllegalArgumentException("Invalid type parameter ${T::class}")
         }
     } catch (e: JSONException) {
         null

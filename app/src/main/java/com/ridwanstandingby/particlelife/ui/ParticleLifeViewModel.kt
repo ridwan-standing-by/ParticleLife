@@ -6,6 +6,7 @@ import android.view.Surface
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.neverEqualPolicy
 import androidx.lifecycle.ViewModel
+import com.ridwanstandingby.particlelife.data.PreferencesManager
 import com.ridwanstandingby.particlelife.domain.ParticleLifeAnimation
 import com.ridwanstandingby.particlelife.domain.ParticleLifeInput
 import com.ridwanstandingby.particlelife.domain.ParticleLifeParameters
@@ -17,6 +18,7 @@ import com.ridwanstandingby.verve.sensor.swipe.SwipeDetector
 
 class ParticleLifeViewModel(
     val animationRunner: AnimationRunner,
+    private val prefs: PreferencesManager,
     easterBitmap: Bitmap
 ) : ViewModel() {
 
@@ -40,6 +42,14 @@ class ParticleLifeViewModel(
     private fun updateParameters(block: ParticleLifeParameters.() -> Unit) {
         parameters.value = parameters.value.apply(block)
     }
+
+    val wallpaperParameters = mutableStateOf(
+        prefs.wallpaperParameters ?: ParticleLifeParameters.buildDefault(
+            0.0,
+            0.0,
+            ParticleLifeParameters.GenerationParameters()
+        ), neverEqualPolicy()
+    )
 
     private val renderer = ParticleLifeRenderer(easterBitmap = easterBitmap)
 
@@ -81,8 +91,6 @@ class ParticleLifeViewModel(
             val species = generation.generateSpecies()
             val forceStrengths = generation.generateRandomForceStrengthMatrix()
             val (forceDistanceLowerBounds, forceDistanceUpperBounds) = generation.generateRandomForceDistanceMatrices()
-            val initialParticles =
-                generation.generateRandomParticles(runtime.xMax, runtime.yMax, species)
             ParticleLifeParameters(
                 generation = generation.copy(),
                 runtime = runtime.copy(
@@ -90,14 +98,23 @@ class ParticleLifeViewModel(
                     forceDistanceLowerBounds = forceDistanceLowerBounds,
                     forceDistanceUpperBounds = forceDistanceUpperBounds
                 ),
-                species = species,
-                initialParticles = initialParticles
+                species = species
             )
         }
         animation.restart(newParameters)
         editForceStrengthsSelectedSpeciesIndex.value = 0
         editForceDistancesSelectedSpeciesIndex.value = 0
         parameters.value = newParameters
+    }
+
+    fun setWallpaper() {
+
+    }
+
+    fun changeWallpaperParameters(block: ParticleLifeParameters.() -> Unit) {
+        wallpaperParameters.value = wallpaperParameters.value.apply(block).also {
+            prefs.wallpaperParameters = it
+        }
     }
 
     override fun onCleared() {

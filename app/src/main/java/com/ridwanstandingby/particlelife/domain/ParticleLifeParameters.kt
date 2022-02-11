@@ -10,8 +10,7 @@ import kotlin.random.Random
 class ParticleLifeParameters(
     var generation: GenerationParameters,
     var runtime: RuntimeParameters,
-    var species: List<Species>,
-    var initialParticles: List<Particle>
+    var species: List<Species>
 ) : AnimationParameters(maxTimeStep = MAX_TIME_STEP) {
 
     data class GenerationParameters(
@@ -312,21 +311,22 @@ class ParticleLifeParameters(
         }
     }
 
+    fun generateRandomParticles(): List<Particle> =
+        generation.generateRandomParticles(runtime.xMax, runtime.yMax, species)
+
+    fun copy() = ParticleLifeParameters(generation.copy(), runtime.copy(), species.toMutableList())
+
     companion object {
         fun buildDefault(
             xMax: Double,
             yMax: Double,
             generationParameters: GenerationParameters
-        ): ParticleLifeParameters {
-            val species = generationParameters.generateSpecies()
-            val initialParticles = generationParameters.generateRandomParticles(xMax, yMax, species)
-            return ParticleLifeParameters(
+        ): ParticleLifeParameters =
+            ParticleLifeParameters(
                 generation = generationParameters,
                 runtime = RuntimeParameters.buildDefault(xMax, yMax, generationParameters),
-                species = species,
-                initialParticles = initialParticles
+                species = generationParameters.generateSpecies()
             )
-        }
 
         private const val MAX_TIME_STEP = 1.0 / 60.0
     }

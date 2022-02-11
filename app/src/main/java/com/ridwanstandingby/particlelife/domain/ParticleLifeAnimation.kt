@@ -21,7 +21,7 @@ class ParticleLifeAnimation(
     renderer,
     input
 ) {
-    private var particles = parameters.initialParticles
+    private var particles = parameters.generateRandomParticles()
 
     init {
         renderer.getParticles = { particles }
@@ -34,11 +34,10 @@ class ParticleLifeAnimation(
         particles = emptyList()
         renderer.getParticles = null
         renderer.getSpecies = null
-        parameters.initialParticles = newParameters.initialParticles
         parameters.runtime = newParameters.runtime
         parameters.generation = newParameters.generation
         parameters.species = newParameters.species
-        particles = newParameters.initialParticles
+        particles = newParameters.generateRandomParticles()
         renderer.getParticles = { particles }
         renderer.getSpecies = { parameters.species }
         updateLock.unlock()
