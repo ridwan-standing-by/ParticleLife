@@ -22,7 +22,7 @@ class ParticleLifeParameters(
         var forceDistanceLowerBoundMin: Double = FORCE_DISTANCE_RANGE_LOWER_DEFAULT,
         var forceDistanceUpperBoundMax: Double = FORCE_DISTANCE_RANGE_UPPER_DEFAULT
     ) {
-        fun generateRandomSpecies(): List<Species> =
+        fun generateSpecies(): List<Species> =
             listOf(
                 Species(Color.RED),
                 Species(Color.YELLOW),
@@ -122,13 +122,13 @@ class ParticleLifeParameters(
         var forceStrengthScale: Double = FORCE_STRENGTH_SCALE_DEFAULT,
         var forceDistanceScale: Double = FORCE_DISTANCE_SCALE_DEFAULT,
         var friction: Double = FRICTION_DEFAULT,
-        var timeScale: Double = TIME_STEP_DEFAULT,
+        var timeScale: Double = TIME_SCALE_DEFAULT,
         var handOfGodEnabled: Boolean = HAND_OF_GOD_ENABLED_DEFAULT,
         var herdEnabled: Boolean = HERD_ENABLED_DEFAULT,
         var herdStrength: Double = HERD_STRENGTH_DEFAULT,
         var herdRadius: Double = HERD_RADIUS_DEFAULT,
         var beckonEnabled: Boolean = BECKON_ENABLED_DEFAULT,
-        var beckonPressThresholdTimeDefault: Double = BECKON_PRESS_THRESHOLD_TIME_DEFAULT,
+        var beckonPressThresholdTime: Double = BECKON_PRESS_THRESHOLD_TIME_DEFAULT,
         var beckonStrength: Double = BECKON_STRENGTH_DEFAULT,
         var beckonRadius: Double = BECKON_RADIUS_DEFAULT
     ) {
@@ -184,7 +184,7 @@ class ParticleLifeParameters(
             forceStrengthScale = FORCE_STRENGTH_SCALE_DEFAULT
             forceDistanceScale = FORCE_DISTANCE_SCALE_DEFAULT
             friction = FRICTION_DEFAULT
-            timeScale = TIME_STEP_DEFAULT
+            timeScale = TIME_SCALE_DEFAULT
         }
 
         sealed class Preset {
@@ -244,6 +244,22 @@ class ParticleLifeParameters(
         }
 
         companion object {
+            fun buildDefault(
+                xMax: Double,
+                yMax: Double,
+                generationParameters: GenerationParameters
+            ): RuntimeParameters {
+                val forceStrengths = generationParameters.generateRandomForceStrengthMatrix()
+                val (forceDistanceLowerBounds, forceDistanceUpperBounds) = generationParameters.generateRandomForceDistanceMatrices()
+                return RuntimeParameters(
+                    xMax = xMax,
+                    yMax = yMax,
+                    forceStrengths = forceStrengths,
+                    forceDistanceLowerBounds = forceDistanceLowerBounds,
+                    forceDistanceUpperBounds = forceDistanceUpperBounds
+                )
+            }
+
             const val FRICTION_DEFAULT = 0.02
             const val FRICTION_MIN = 0.001
             const val FRICTION_MAX = 0.4
@@ -261,10 +277,12 @@ class ParticleLifeParameters(
             const val PRESSURE_STRENGTH_MAX = 1000.0
 
             const val PRESSURE_DISTANCE_DEFAULT = 16.0
+            const val PRESSURE_DISTANCE_MIN = 8.0
+            const val PRESSURE_DISTANCE_MAX = 32.0
 
-            const val TIME_STEP_DEFAULT = 1.0
-            const val TIME_STEP_MIN = 0.25
-            const val TIME_STEP_MAX = 4.0
+            const val TIME_SCALE_DEFAULT = 1.0
+            const val TIME_SCALE_MIN = 0.25
+            const val TIME_SCALE_MAX = 4.0
 
             const val HAND_OF_GOD_ENABLED_DEFAULT = false
 
@@ -281,6 +299,8 @@ class ParticleLifeParameters(
             const val BECKON_ENABLED_DEFAULT = true
 
             const val BECKON_PRESS_THRESHOLD_TIME_DEFAULT = 0.05
+            const val BECKON_PRESS_THRESHOLD_TIME_MIN = 0.01
+            const val BECKON_PRESS_THRESHOLD_TIME_MAX = 0.5
 
             const val BECKON_STRENGTH_DEFAULT = 2.0
             const val BECKON_STRENGTH_MIN = 0.1
@@ -298,19 +318,11 @@ class ParticleLifeParameters(
             yMax: Double,
             generationParameters: GenerationParameters
         ): ParticleLifeParameters {
-            val species = generationParameters.generateRandomSpecies()
-            val forceStrengths = generationParameters.generateRandomForceStrengthMatrix()
-            val (forceDistanceLowerBounds, forceDistanceUpperBounds) = generationParameters.generateRandomForceDistanceMatrices()
+            val species = generationParameters.generateSpecies()
             val initialParticles = generationParameters.generateRandomParticles(xMax, yMax, species)
             return ParticleLifeParameters(
                 generation = generationParameters,
-                runtime = RuntimeParameters(
-                    xMax = xMax,
-                    yMax = yMax,
-                    forceStrengths = forceStrengths,
-                    forceDistanceLowerBounds = forceDistanceLowerBounds,
-                    forceDistanceUpperBounds = forceDistanceUpperBounds
-                ),
+                runtime = RuntimeParameters.buildDefault(xMax, yMax, generationParameters),
                 species = species,
                 initialParticles = initialParticles
             )

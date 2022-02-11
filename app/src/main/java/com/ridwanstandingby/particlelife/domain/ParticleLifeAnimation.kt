@@ -119,7 +119,7 @@ class ParticleLifeAnimation(
     }
 
     private inline fun ParticleLifeParameters.RuntimeParameters.applyPressForce(press: Press) {
-        if (press.runningTime < beckonPressThresholdTimeDefault) return
+        if (press.runningTime < beckonPressThresholdTime) return
         val pressX = renderer.inverseTransformX(press.screenPosition.x, press.screenPosition.y)
         val pressY = renderer.inverseTransformY(press.screenPosition.x, press.screenPosition.y)
         particles.forEach { particle ->

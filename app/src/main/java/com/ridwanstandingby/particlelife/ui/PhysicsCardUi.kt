@@ -287,7 +287,7 @@ private fun TimeStepWidget(
         description = stringResource(R.string.time_step_description),
         valueToString = { it.decimal(2) },
         value = runtimeParameters.value.timeScale.toFloat(),
-        range = ParticleLifeParameters.RuntimeParameters.TIME_STEP_MIN.toFloat()..ParticleLifeParameters.RuntimeParameters.TIME_STEP_MAX.toFloat(),
+        range = ParticleLifeParameters.RuntimeParameters.TIME_SCALE_MIN.toFloat()..ParticleLifeParameters.RuntimeParameters.TIME_SCALE_MAX.toFloat(),
         onValueChange = {
             runtimeParametersChanged { timeScale = it.toDouble() }
             selectedPreset.value = ParticleLifeParameters.RuntimeParameters.Preset.Custom
