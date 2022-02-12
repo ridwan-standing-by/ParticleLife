@@ -56,10 +56,10 @@ class ParticleLifeAnimation(
 
             if (handOfGodEnabled) {
                 if (herdEnabled) {
-                    input.getSwipes()?.forEach { applySwipeForce(it) }
+                    input.swipeDetector?.getSwipes()?.forEach { applySwipeForce(it) }
                 }
                 if (beckonEnabled) {
-                    input.getPresses(dt)
+                    input.pressDetector?.updateAndGetPresses(dt)
                         ?.also { resolveEasterEgg(it) }
                         ?.forEach { applyPressForce(it) }
                 }
@@ -161,9 +161,9 @@ class ParticleLifeAnimation(
         }
     }
 
-    private inline fun resolveEasterEgg(presses: MutableList<Press>) {
-        if (presses.size >= 4 && presses.any { it.runningTime > 1.0 }) {
-            presses.forEach { it.runningTime = 0.0 }
+    private inline fun resolveEasterEgg(presses: List<Press>) {
+        if (presses.size >= 4 && presses.any { it.runningTime > 2.0 }) {
+            input.pressDetector?.resetPresses()
             renderer.easterEgg = !renderer.easterEgg
         }
     }
