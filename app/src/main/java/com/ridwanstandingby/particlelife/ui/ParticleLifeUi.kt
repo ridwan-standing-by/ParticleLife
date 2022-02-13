@@ -1,6 +1,7 @@
 package com.ridwanstandingby.particlelife.ui
 
 import android.view.MotionEvent
+import android.view.SurfaceView
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.layout.*
@@ -26,17 +27,17 @@ import com.ridwanstandingby.particlelife.domain.Species
 import com.ridwanstandingby.particlelife.ui.theme.ParticleLifeTheme
 import com.ridwanstandingby.particlelife.ui.theme.icons.Icons
 import com.ridwanstandingby.particlelife.ui.theme.icons.rounded.Tune
-import com.ridwanstandingby.verve.animation.AnimationView
 import com.ridwanstandingby.verve.math.FloatVector2
 
 @Composable
 fun ParticleLifeActivityUi(
-    createAnimationView: () -> AnimationView,
+    createAnimationSurface: () -> SurfaceView,
     onTouchEvent: (MotionEvent?) -> Boolean,
+    setWallpaperClicked: () -> Unit,
     vm: ParticleLifeViewModel
 ) {
     ParticleLifeUi(
-        createAnimationView = createAnimationView,
+        createAnimationSurface = createAnimationSurface,
         onTouchEvent = onTouchEvent,
         onViewSizeChanged = vm::onViewSizeChanged,
         controlPanelExpanded = vm.controlPanelExpanded,
@@ -53,7 +54,7 @@ fun ParticleLifeActivityUi(
         runtimeParametersChanged = vm::changeRuntimeParameters,
         generationParametersChanged = vm::changeGenerationParameters,
         generateNewParticlesClicked = vm::generateNewParticles,
-        setWallpaperClicked = vm::setWallpaper,
+        setWallpaperClicked = setWallpaperClicked,
         wallpaperParameters = derivedStateOf { vm.wallpaperParameters.value.copy() },
         wallpaperParametersChanged = vm::changeWallpaperParameters
     )
@@ -62,7 +63,7 @@ fun ParticleLifeActivityUi(
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun ParticleLifeUi(
-    createAnimationView: () -> AnimationView,
+    createAnimationSurface: () -> SurfaceView,
     onTouchEvent: (MotionEvent?) -> Boolean,
     onViewSizeChanged: (FloatVector2, Int) -> Unit,
     controlPanelExpanded: MutableState<Boolean>,
@@ -105,7 +106,7 @@ fun ParticleLifeUi(
                             onViewSizeChanged(
                                 FloatVector2(maxWidth.toPx(), maxHeight.toPx()), rotation
                             )
-                            createAnimationView()
+                            createAnimationSurface()
                         }, update = {
                             onViewSizeChanged(
                                 FloatVector2(maxWidth.toPx(), maxHeight.toPx()), rotation

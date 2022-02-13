@@ -19,7 +19,7 @@ import com.ridwanstandingby.verve.sensor.swipe.SwipeDetector
 class ParticleLifeViewModel(
     val animationRunner: AnimationRunner,
     private val prefs: PreferencesManager,
-    easterBitmap: Bitmap
+    easterBitmap: Bitmap? = null
 ) : ViewModel() {
 
     val controlPanelExpanded = mutableStateOf(false)
