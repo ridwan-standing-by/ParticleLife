@@ -107,10 +107,6 @@ class ParticleLifeViewModel(
         parameters.value = newParameters
     }
 
-    fun setWallpaper() {
-
-    }
-
     fun changeWallpaperParameters(block: ParticleLifeParameters.() -> Unit) {
         wallpaperParameters.value = wallpaperParameters.value.apply(block).also {
             prefs.wallpaperParameters = it
