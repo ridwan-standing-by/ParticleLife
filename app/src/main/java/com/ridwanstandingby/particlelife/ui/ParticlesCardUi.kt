@@ -100,7 +100,7 @@ private fun ColumnScope.GenerateNewParticlesButton(generateNewParticlesClicked: 
 }
 
 @Composable
-private fun NumberOfParticlesWidget(
+fun NumberOfParticlesWidget(
     generationParameters: State<ParticleLifeParameters.GenerationParameters>,
     generationParametersChanged: (ParticleLifeParameters.GenerationParameters.() -> Unit) -> Unit
 ) {
@@ -117,7 +117,7 @@ private fun NumberOfParticlesWidget(
 }
 
 @Composable
-private fun NumberOfSpeciesWidget(
+fun NumberOfSpeciesWidget(
     generationParameters: State<ParticleLifeParameters.GenerationParameters>,
     generationParametersChanged: (ParticleLifeParameters.GenerationParameters.() -> Unit) -> Unit
 ) {

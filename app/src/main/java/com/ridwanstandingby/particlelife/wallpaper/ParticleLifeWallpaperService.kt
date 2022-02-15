@@ -26,6 +26,9 @@ class ParticleLifeWallpaperService : WallpaperService() {
 
         private lateinit var animation: ParticleLifeAnimation
 
+        private var latestWidth: Double? = null
+        private var latestHeight: Double? = null
+
         override fun onCreate(surfaceHolder: SurfaceHolder?) {
             super.onCreate(surfaceHolder)
 
@@ -47,8 +50,11 @@ class ParticleLifeWallpaperService : WallpaperService() {
                 0.0, 0.0,
                 ParticleLifeParameters.GenerationParameters()
             )).apply {
-                runtime.xMax = Resources.getSystem().displayMetrics.widthPixels.toDouble()
-                runtime.yMax = Resources.getSystem().displayMetrics.heightPixels.toDouble()
+                runtime.xMax =
+                    latestWidth ?: Resources.getSystem().displayMetrics.widthPixels.toDouble()
+                runtime.yMax =
+                    latestHeight ?: Resources.getSystem().displayMetrics.heightPixels.toDouble()
+                if (prefs.wallpaperRandomise) runtime.randomise()
             }
 
         private fun configureHandOfGod() {
@@ -71,14 +77,15 @@ class ParticleLifeWallpaperService : WallpaperService() {
 
         override fun onDesiredSizeChanged(desiredWidth: Int, desiredHeight: Int) {
             super.onDesiredSizeChanged(desiredWidth, desiredHeight)
-            animation.parameters.runtime.xMax = desiredWidth.toDouble()
-            animation.parameters.runtime.yMax = desiredHeight.toDouble()
+            animation.parameters.runtime.xMax = desiredWidth.toDouble().also { latestWidth = it }
+            animation.parameters.runtime.yMax = desiredHeight.toDouble().also { latestHeight = it }
         }
 
         override fun onVisibilityChanged(visible: Boolean) {
             super.onVisibilityChanged(visible)
             if (visible) {
                 animationRunner.resume()
+                animation.parameters.runtime = getParameters().runtime
             } else {
                 animationRunner.pause()
             }

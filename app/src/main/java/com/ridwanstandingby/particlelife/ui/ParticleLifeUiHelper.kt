@@ -18,6 +18,14 @@ enum class ControlPanelTab {
     PHYSICS, PARTICLES, WALLPAPER, ABOUT
 }
 
+enum class HandOfGodPanelMode {
+    OFF, PHYSICS, WALLPAPER
+}
+
+typealias WallpaperPhysicsSetting = ParticleLifeParameters.RuntimeParameters.Preset?
+
+val Randomise: WallpaperPhysicsSetting = null
+
 @StringRes
 fun ControlPanelTab.toTabNameString() =
     when (this) {
@@ -30,11 +38,12 @@ fun ControlPanelTab.toTabNameString() =
 fun Float.decimal(digits: Int) = "%.${digits}f".format(this)
 
 @StringRes
-fun ParticleLifeParameters.RuntimeParameters.Preset.nameString() =
+fun ParticleLifeParameters.RuntimeParameters.Preset?.nameString() =
     when (this) {
         ParticleLifeParameters.RuntimeParameters.Preset.BalancedChaos -> R.string.preset_balanced_chaos
         ParticleLifeParameters.RuntimeParameters.Preset.Behemoths -> R.string.preset_behemoths
         ParticleLifeParameters.RuntimeParameters.Preset.Custom -> R.string.preset_custom
         ParticleLifeParameters.RuntimeParameters.Preset.LargeCreatures -> R.string.preset_large_creatures
         ParticleLifeParameters.RuntimeParameters.Preset.LittleCreatures -> R.string.preset_little_creatures
+        null -> R.string.preset_randomise
     }

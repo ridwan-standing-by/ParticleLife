@@ -186,6 +186,26 @@ class ParticleLifeParameters(
             timeScale = TIME_SCALE_DEFAULT
         }
 
+        fun asPreset(): Preset {
+            Preset.ALL.forEach { preset ->
+                if (preset != Preset.Custom && copy().also { preset.applyPreset(it) }
+                        .physicsParametersEquals(this)) {
+                    return preset
+                }
+            }
+            return Preset.Custom
+        }
+
+        fun physicsParametersEquals(other: RuntimeParameters): Boolean {
+            if (pressureStrength != other.pressureStrength) return false
+            if (forceStrengthScale != other.forceStrengthScale) return false
+            if (forceDistanceScale != other.forceDistanceScale) return false
+            if (friction != other.friction) return false
+            if (timeScale != other.timeScale) return false
+
+            return true
+        }
+
         sealed class Preset {
 
             abstract fun applyPreset(runtimeParameters: RuntimeParameters)

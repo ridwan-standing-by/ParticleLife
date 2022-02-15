@@ -29,7 +29,11 @@ class ParticleLifeViewModel(
     val editForceStrengthsSelectedSpeciesIndex = mutableStateOf(0)
     val editForceDistancesPanelExpanded = mutableStateOf(false)
     val editForceDistancesSelectedSpeciesIndex = mutableStateOf(0)
-    val editHandOfGodPanelExpanded = mutableStateOf(false)
+    val editHandOfGodPanelExpanded = mutableStateOf(HandOfGodPanelMode.OFF)
+    val selectedWallpaperPhysics = mutableStateOf(
+        if (prefs.wallpaperRandomise) Randomise else prefs.wallpaperParameters?.runtime?.asPreset()
+            ?: WallpaperPhysicsSetting.default()
+    )
 
     val parameters = mutableStateOf(
         ParticleLifeParameters.buildDefault(
@@ -107,10 +111,16 @@ class ParticleLifeViewModel(
         parameters.value = newParameters
     }
 
-    fun changeWallpaperParameters(block: ParticleLifeParameters.() -> Unit) {
-        wallpaperParameters.value = wallpaperParameters.value.apply(block).also {
+    fun changeWallpaperParameters(block: ParticleLifeParameters.() -> Unit?) {
+        wallpaperParameters.value = wallpaperParameters.value.also {
+            prefs.wallpaperRandomise = it.block() == null
             prefs.wallpaperParameters = it
         }
+    }
+
+    fun importWallpaperSettings() {
+        selectedWallpaperPhysics.value = ParticleLifeParameters.RuntimeParameters.Preset.Custom
+        // TODO
     }
 
     override fun onCleared() {

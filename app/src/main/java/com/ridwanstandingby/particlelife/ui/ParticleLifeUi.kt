@@ -54,7 +54,9 @@ fun ParticleLifeActivityUi(
         runtimeParametersChanged = vm::changeRuntimeParameters,
         generationParametersChanged = vm::changeGenerationParameters,
         generateNewParticlesClicked = vm::generateNewParticles,
+        selectedWallpaperPhysics = vm.selectedWallpaperPhysics,
         setWallpaperClicked = setWallpaperClicked,
+        importWallpaperSettingsClicked = vm::importWallpaperSettings,
         wallpaperParameters = derivedStateOf { vm.wallpaperParameters.value.copy() },
         wallpaperParametersChanged = vm::changeWallpaperParameters
     )
@@ -73,16 +75,18 @@ fun ParticleLifeUi(
     editForceStrengthsSelectedSpeciesIndex: MutableState<Int>,
     editForceDistancesPanelExpanded: MutableState<Boolean>,
     editForceDistancesSelectedSpeciesIndex: MutableState<Int>,
-    editHandOfGodPanelExpanded: MutableState<Boolean>,
+    editHandOfGodPanelExpanded: MutableState<HandOfGodPanelMode>,
     runtimeParameters: State<ParticleLifeParameters.RuntimeParameters>,
     generationParameters: State<ParticleLifeParameters.GenerationParameters>,
     species: State<List<Species>>,
     runtimeParametersChanged: (ParticleLifeParameters.RuntimeParameters.() -> Unit) -> Unit,
     generationParametersChanged: (ParticleLifeParameters.GenerationParameters.() -> Unit) -> Unit,
     generateNewParticlesClicked: () -> Unit,
+    selectedWallpaperPhysics: MutableState<WallpaperPhysicsSetting>,
     setWallpaperClicked: () -> Unit,
+    importWallpaperSettingsClicked: () -> Unit,
     wallpaperParameters: State<ParticleLifeParameters>,
-    wallpaperParametersChanged: (ParticleLifeParameters.() -> Unit) -> Unit
+    wallpaperParametersChanged: (ParticleLifeParameters.() -> Unit?) -> Unit
 ) {
     ParticleLifeTheme {
         Scaffold {
@@ -98,7 +102,7 @@ fun ParticleLifeUi(
                             if (it.action == MotionEvent.ACTION_DOWN) {
                                 editForceStrengthsPanelExpanded.value = false
                                 editForceDistancesPanelExpanded.value = false
-                                editHandOfGodPanelExpanded.value = false
+                                editHandOfGodPanelExpanded.value = HandOfGodPanelMode.OFF
                                 controlPanelExpanded.value = false
                             }
                         },
@@ -128,7 +132,9 @@ fun ParticleLifeUi(
                     runtimeParametersChanged,
                     generationParametersChanged,
                     generateNewParticlesClicked,
+                    selectedWallpaperPhysics,
                     setWallpaperClicked,
+                    importWallpaperSettingsClicked,
                     wallpaperParameters,
                     wallpaperParametersChanged
                 )
@@ -147,16 +153,18 @@ fun ControlPanelUi(
     editForceStrengthsSelectedSpeciesIndex: MutableState<Int>,
     editForceDistancesPanelExpanded: MutableState<Boolean>,
     editForceDistancesSelectedSpeciesIndex: MutableState<Int>,
-    editHandOfGodPanelExpanded: MutableState<Boolean>,
+    editHandOfGodPanelExpanded: MutableState<HandOfGodPanelMode>,
     runtimeParameters: State<ParticleLifeParameters.RuntimeParameters>,
     generationParameters: State<ParticleLifeParameters.GenerationParameters>,
     species: State<List<Species>>,
     runtimeParametersChanged: (ParticleLifeParameters.RuntimeParameters.() -> Unit) -> Unit,
     generationParametersChanged: (ParticleLifeParameters.GenerationParameters.() -> Unit) -> Unit,
     generateNewParticlesClicked: () -> Unit,
+    selectedWallpaperPhysics: MutableState<WallpaperPhysicsSetting>,
     setWallpaperClicked: () -> Unit,
+    importWallpaperSettingsClicked: () -> Unit,
     wallpaperParameters: State<ParticleLifeParameters>,
-    wallpaperParametersChanged: (ParticleLifeParameters.() -> Unit) -> Unit
+    wallpaperParametersChanged: (ParticleLifeParameters.() -> Unit?) -> Unit
 ) {
     val foregroundCardModifier = if (isPortrait()) {
         Modifier
@@ -183,7 +191,9 @@ fun ControlPanelUi(
                     runtimeParametersChanged,
                     generationParametersChanged,
                     generateNewParticlesClicked,
+                    selectedWallpaperPhysics,
                     setWallpaperClicked,
+                    importWallpaperSettingsClicked,
                     wallpaperParameters,
                     wallpaperParametersChanged
                 )
@@ -209,20 +219,25 @@ fun ControlPanelUi(
                 )
             }
         }
-        AnimatedVisibility(visible = editHandOfGodPanelExpanded.value) {
+        AnimatedVisibility(visible = editHandOfGodPanelExpanded.value != HandOfGodPanelMode.OFF) {
             Card(modifier = foregroundCardModifier) {
-                EditHandOfGodPanelCardContent(
-                    runtimeParameters,
-                    runtimeParametersChanged
-                )
+                if (editHandOfGodPanelExpanded.value == HandOfGodPanelMode.WALLPAPER) {
+                    EditHandOfGodPanelCardContent(
+                        derivedStateOf { wallpaperParameters.value.runtime.copy() }
+                    ) { block -> wallpaperParametersChanged { runtime.block() } }
+                } else {
+                    EditHandOfGodPanelCardContent(
+                        runtimeParameters, runtimeParametersChanged
+                    )
+                }
             }
         }
         FloatingActionButton(onClick = {
             when {
-                editForceStrengthsPanelExpanded.value || editForceDistancesPanelExpanded.value || editHandOfGodPanelExpanded.value -> {
+                editForceStrengthsPanelExpanded.value || editForceDistancesPanelExpanded.value || editHandOfGodPanelExpanded.value != HandOfGodPanelMode.OFF -> {
                     editForceStrengthsPanelExpanded.value = false
                     editForceDistancesPanelExpanded.value = false
-                    editHandOfGodPanelExpanded.value = false
+                    editHandOfGodPanelExpanded.value = HandOfGodPanelMode.OFF
                     controlPanelExpanded.value = true
                 }
                 else -> {
@@ -240,7 +255,7 @@ fun ControlPanelCardContent(
     controlPanelExpanded: MutableState<Boolean>,
     editForceStrengthsPanelExpanded: MutableState<Boolean>,
     editForceDistancesPanelExpanded: MutableState<Boolean>,
-    editHandOfGodPanelExpanded: MutableState<Boolean>,
+    editHandOfGodPanelExpanded: MutableState<HandOfGodPanelMode>,
     selectedTabIndex: MutableState<Int>,
     selectedPreset: MutableState<ParticleLifeParameters.RuntimeParameters.Preset>,
     runtimeParameters: State<ParticleLifeParameters.RuntimeParameters>,
@@ -248,9 +263,11 @@ fun ControlPanelCardContent(
     runtimeParametersChanged: (ParticleLifeParameters.RuntimeParameters.() -> Unit) -> Unit,
     generationParametersChanged: (ParticleLifeParameters.GenerationParameters.() -> Unit) -> Unit,
     generateNewParticlesClicked: () -> Unit,
+    selectedWallpaperPhysics: MutableState<WallpaperPhysicsSetting>,
     setWallpaperClicked: () -> Unit,
+    importWallpaperSettingsClicked: () -> Unit,
     wallpaperParameters: State<ParticleLifeParameters>,
-    wallpaperParametersChanged: (ParticleLifeParameters.() -> Unit) -> Unit
+    wallpaperParametersChanged: (ParticleLifeParameters.() -> Unit?) -> Unit
 ) {
     Column {
         ControlPanelTabs(selectedTabIndex)
@@ -271,7 +288,11 @@ fun ControlPanelCardContent(
                 generateNewParticlesClicked
             )
             ControlPanelTab.WALLPAPER -> WallpaperContent(
+                controlPanelExpanded,
+                editHandOfGodPanelExpanded,
+                selectedWallpaperPhysics,
                 setWallpaperClicked,
+                importWallpaperSettingsClicked,
                 wallpaperParameters,
                 wallpaperParametersChanged
             )

@@ -25,7 +25,7 @@ import kotlin.math.roundToInt
 @Composable
 fun PhysicsContent(
     controlPanelExpanded: MutableState<Boolean>,
-    editHandOfGodPanelExpanded: MutableState<Boolean>,
+    editHandOfGodPanelExpanded: MutableState<HandOfGodPanelMode>,
     selectedPreset: MutableState<ParticleLifeParameters.RuntimeParameters.Preset>,
     runtimeParameters: State<ParticleLifeParameters.RuntimeParameters>,
     runtimeParametersChanged: (ParticleLifeParameters.RuntimeParameters.() -> Unit) -> Unit
@@ -56,6 +56,7 @@ fun PhysicsContent(
             PressureWidget(selectedPreset, runtimeParameters, runtimeParametersChanged)
             TimeStepWidget(selectedPreset, runtimeParameters, runtimeParametersChanged)
             HandOfGodEnabledSwitchWidget(
+                HandOfGodPanelMode.PHYSICS,
                 controlPanelExpanded,
                 editHandOfGodPanelExpanded,
                 runtimeParameters,
@@ -86,6 +87,7 @@ fun PhysicsContent(
                     PressureWidget(selectedPreset, runtimeParameters, runtimeParametersChanged)
                     TimeStepWidget(selectedPreset, runtimeParameters, runtimeParametersChanged)
                     HandOfGodEnabledSwitchWidget(
+                        HandOfGodPanelMode.PHYSICS,
                         controlPanelExpanded,
                         editHandOfGodPanelExpanded,
                         runtimeParameters,
@@ -130,7 +132,6 @@ private fun BoxScope.PresetSelectionWidget(
     selectedPreset: MutableState<ParticleLifeParameters.RuntimeParameters.Preset>,
     runtimeParametersChanged: (ParticleLifeParameters.RuntimeParameters.() -> Unit) -> Unit
 ) {
-
     val presets = ParticleLifeParameters.RuntimeParameters.Preset.ALL
     var expanded by remember { mutableStateOf(false) }
 
@@ -277,8 +278,8 @@ private fun PressureWidget(
 }
 
 @Composable
-private fun TimeStepWidget(
-    selectedPreset: MutableState<ParticleLifeParameters.RuntimeParameters.Preset>,
+fun TimeStepWidget(
+    selectedPreset: MutableState<ParticleLifeParameters.RuntimeParameters.Preset>?,
     runtimeParameters: State<ParticleLifeParameters.RuntimeParameters>,
     runtimeParametersChanged: (ParticleLifeParameters.RuntimeParameters.() -> Unit) -> Unit
 ) {
@@ -290,15 +291,16 @@ private fun TimeStepWidget(
         range = ParticleLifeParameters.RuntimeParameters.TIME_SCALE_MIN.toFloat()..ParticleLifeParameters.RuntimeParameters.TIME_SCALE_MAX.toFloat(),
         onValueChange = {
             runtimeParametersChanged { timeScale = it.toDouble() }
-            selectedPreset.value = ParticleLifeParameters.RuntimeParameters.Preset.Custom
+            selectedPreset?.value = ParticleLifeParameters.RuntimeParameters.Preset.Custom
         }
     )
 }
 
 @Composable
-private fun HandOfGodEnabledSwitchWidget(
+fun HandOfGodEnabledSwitchWidget(
+    mode: HandOfGodPanelMode,
     controlPanelExpanded: MutableState<Boolean>,
-    editHandOfGodPanelExpanded: MutableState<Boolean>,
+    editHandOfGodPanelExpanded: MutableState<HandOfGodPanelMode>,
     runtimeParameters: State<ParticleLifeParameters.RuntimeParameters>,
     runtimeParametersChanged: (ParticleLifeParameters.RuntimeParameters.() -> Unit) -> Unit
 ) {
@@ -324,7 +326,7 @@ private fun HandOfGodEnabledSwitchWidget(
             Button(
                 onClick = {
                     controlPanelExpanded.value = false
-                    editHandOfGodPanelExpanded.value = true
+                    editHandOfGodPanelExpanded.value = mode
                 },
                 enabled = runtimeParameters.value.handOfGodEnabled,
                 modifier = Modifier
@@ -359,7 +361,7 @@ fun PhysicsCardUiPreview() {
         Scaffold {
             PhysicsContent(
                 controlPanelExpanded = remember { mutableStateOf(true) },
-                editHandOfGodPanelExpanded = remember { mutableStateOf(false) },
+                editHandOfGodPanelExpanded = remember { mutableStateOf(HandOfGodPanelMode.OFF) },
                 selectedPreset = remember { mutableStateOf(ParticleLifeParameters.RuntimeParameters.Preset.default()) },
                 runtimeParameters = runtimeParameters,
                 runtimeParametersChanged = {
