@@ -38,11 +38,16 @@ class PreferencesManager(context: Context) {
         set(value) = prefs.edit()
             .putString(WALLPAPER_SHUFFLE_FORCE_VALUES_KEY, value.toPrefsString()).apply()
 
+    var wallpaperParametersChanged: Boolean
+        get() = prefs.getBoolean(WALLPAPER_PARAMETERS_CHANGED_KEY, false)
+        set(value) = prefs.edit().putBoolean(WALLPAPER_PARAMETERS_CHANGED_KEY, value).apply()
+
     companion object {
         private const val PREFS_FILE_NAME = "ParticleLifePreferences"
 
         private const val WALLPAPER_PARAMETERS_KEY = "WallpaperParameters"
         private const val WALLPAPER_RANDOMISE_KEY = "WallpaperRandomise"
         private const val WALLPAPER_SHUFFLE_FORCE_VALUES_KEY = "WallpaperShuffleForceValues"
+        private const val WALLPAPER_PARAMETERS_CHANGED_KEY = "WallpaperParametersChanged"
     }
 }

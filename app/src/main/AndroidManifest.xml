@@ -15,7 +15,7 @@
         android:theme="@style/Theme.ParticleLife">
         <meta-data
             android:name="com.bugsnag.android.API_KEY"
-            android:value="@string/BUGSNAG_API_KEY"/>
+            android:value="${bugsnagApiKey}"/>
         <activity
             android:name=".ui.ParticleLifeActivity"
             android:exported="true">

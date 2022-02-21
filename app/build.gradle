@@ -27,7 +27,10 @@ android {
 
     buildTypes {
         all {
-            resValue("string", "BUGSNAG_API_KEY", "\"$bugsnagApiKey\"")
+            manifestPlaceholders = [
+                    bugsnagApiKey: "$bugsnagApiKey"
+            ]
+            buildConfigField("String", "BUGSNAG_API_KEY", "\"$bugsnagApiKey\"")
         }
         release {
             minifyEnabled true

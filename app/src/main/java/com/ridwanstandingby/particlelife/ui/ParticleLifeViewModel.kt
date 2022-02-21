@@ -121,6 +121,7 @@ class ParticleLifeViewModel(
         wallpaperParameters.value = wallpaperParameters.value.also {
             prefs.wallpaperRandomise = it.block() == null
             prefs.setWallpaperParameters(it)
+            prefs.wallpaperParametersChanged = true
         }
     }
 
@@ -128,6 +129,7 @@ class ParticleLifeViewModel(
         Log.i("ParticleLifeViewModel::importWallpaperSettings")
         selectedWallpaperPhysics.value = ParticleLifeParameters.RuntimeParameters.Preset.Custom
         changeWallpaperShuffleForceValues(ParticleLifeParameters.ShuffleForceValues.Never)
+        prefs.wallpaperParametersChanged = true
         // TODO
     }
 

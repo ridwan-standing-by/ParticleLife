@@ -27,6 +27,10 @@ class ParticleLifeWallpaperService : WallpaperService() {
 
         private lateinit var animation: ParticleLifeAnimation
 
+        private val swipeDetector = SwipeDetector()
+        private val pressDetector = PressDetector()
+        private val motionEventHandlers: MutableSet<(MotionEvent) -> Unit> = mutableSetOf()
+
         private var latestWidth: Double? = null
         private var latestHeight: Double? = null
         private var lastRandomiseUnixMs: Long = 0
@@ -41,7 +45,7 @@ class ParticleLifeWallpaperService : WallpaperService() {
                 ParticleLifeAnimation(
                     getParameters(randomiseMatrices = false),
                     ParticleLifeRenderer(),
-                    ParticleLifeInput()
+                    ParticleLifeInput(swipeDetector, pressDetector)
                 ).also { animation = it }
             )
 
@@ -65,17 +69,18 @@ class ParticleLifeWallpaperService : WallpaperService() {
             if (animation.parameters.runtime.handOfGodEnabled) {
                 setTouchEventsEnabled(true)
                 if (animation.parameters.runtime.herdEnabled) {
-                    SwipeDetector().also {
-                        animation.input.swipeDetector = it
-                        motionEventHandlers.add(it::handleMotionEvent)
-                    }
+                    motionEventHandlers.add(swipeDetector::handleMotionEvent)
+                } else {
+                    motionEventHandlers.remove(swipeDetector::handleMotionEvent)
                 }
                 if (animation.parameters.runtime.beckonEnabled) {
-                    PressDetector().also {
-                        animation.input.pressDetector = it
-                        motionEventHandlers.add(it::handleMotionEvent)
-                    }
+                    motionEventHandlers.add(pressDetector::handleMotionEvent)
+                } else {
+                    motionEventHandlers.remove(pressDetector::handleMotionEvent)
                 }
+            } else {
+                setTouchEventsEnabled(false)
+                motionEventHandlers.clear()
             }
         }
 
@@ -90,10 +95,25 @@ class ParticleLifeWallpaperService : WallpaperService() {
             super.onVisibilityChanged(visible)
             Log.i("ParticleLifeWallpaperService::onVisibilityChanged")
             if (visible) {
+                reloadParametersIfNecessary()
                 randomiseParametersIfNecessary()
                 animationRunner.resume()
             } else {
                 animationRunner.pause()
+            }
+        }
+
+        private fun reloadParametersIfNecessary() {
+            if (prefs.wallpaperParametersChanged) {
+                Log.i("ParticleLifeWallpaperService: Reloading wallpaper parameters")
+                val newParams = getParameters(randomiseMatrices = false)
+                if (newParams.generation != animation.parameters.generation) {
+                    animation.restart(newParams)
+                } else {
+                    animation.parameters.runtime = newParams.runtime
+                }
+                configureHandOfGod()
+                prefs.wallpaperParametersChanged = false
             }
         }
 
@@ -117,7 +137,6 @@ class ParticleLifeWallpaperService : WallpaperService() {
             animationRunner.stop()
         }
 
-        private val motionEventHandlers: MutableList<(MotionEvent) -> Unit> = mutableListOf()
         override fun onTouchEvent(event: MotionEvent?) {
             super.onTouchEvent(event)
             if (event != null) {
