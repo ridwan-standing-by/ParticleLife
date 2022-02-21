@@ -58,7 +58,9 @@ fun ParticleLifeActivityUi(
         setWallpaperClicked = setWallpaperClicked,
         importWallpaperSettingsClicked = vm::importWallpaperSettings,
         wallpaperParameters = derivedStateOf { vm.wallpaperParameters.value.copy() },
-        wallpaperParametersChanged = vm::changeWallpaperParameters
+        wallpaperParametersChanged = vm::changeWallpaperParameters,
+        wallpaperShuffleForceValues = vm.wallpaperShuffleForceValues,
+        changeWallpaperForceValues = vm::changeWallpaperShuffleForceValues
     )
 }
 
@@ -86,7 +88,9 @@ fun ParticleLifeUi(
     setWallpaperClicked: () -> Unit,
     importWallpaperSettingsClicked: () -> Unit,
     wallpaperParameters: State<ParticleLifeParameters>,
-    wallpaperParametersChanged: (Boolean?, ParticleLifeParameters.() -> Unit?) -> Unit
+    wallpaperParametersChanged: (ParticleLifeParameters.() -> Unit?) -> Unit,
+    wallpaperShuffleForceValues: State<ParticleLifeParameters.ShuffleForceValues>,
+    changeWallpaperForceValues: (ParticleLifeParameters.ShuffleForceValues) -> Unit
 ) {
     ParticleLifeTheme {
         Scaffold {
@@ -136,7 +140,9 @@ fun ParticleLifeUi(
                     setWallpaperClicked,
                     importWallpaperSettingsClicked,
                     wallpaperParameters,
-                    wallpaperParametersChanged
+                    wallpaperParametersChanged,
+                    wallpaperShuffleForceValues,
+                    changeWallpaperForceValues
                 )
             }
         }
@@ -164,7 +170,9 @@ fun ControlPanelUi(
     setWallpaperClicked: () -> Unit,
     importWallpaperSettingsClicked: () -> Unit,
     wallpaperParameters: State<ParticleLifeParameters>,
-    wallpaperParametersChanged: (Boolean?, ParticleLifeParameters.() -> Unit?) -> Unit
+    wallpaperParametersChanged: (ParticleLifeParameters.() -> Unit?) -> Unit,
+    wallpaperShuffleForceValues: State<ParticleLifeParameters.ShuffleForceValues>,
+    changeWallpaperForceValues: (ParticleLifeParameters.ShuffleForceValues) -> Unit
 ) {
     val foregroundCardModifier = if (isPortrait()) {
         Modifier
@@ -195,7 +203,9 @@ fun ControlPanelUi(
                     setWallpaperClicked,
                     importWallpaperSettingsClicked,
                     wallpaperParameters,
-                    wallpaperParametersChanged
+                    wallpaperParametersChanged,
+                    wallpaperShuffleForceValues,
+                    changeWallpaperForceValues
                 )
             }
         }
@@ -224,7 +234,7 @@ fun ControlPanelUi(
                 if (editHandOfGodPanelExpanded.value == HandOfGodPanelMode.WALLPAPER) {
                     EditHandOfGodPanelCardContent(
                         derivedStateOf { wallpaperParameters.value.runtime.copy() }
-                    ) { block -> wallpaperParametersChanged(null) { runtime.block() } }
+                    ) { block -> wallpaperParametersChanged { runtime.block() } }
                 } else {
                     EditHandOfGodPanelCardContent(
                         runtimeParameters, runtimeParametersChanged
@@ -267,7 +277,9 @@ fun ControlPanelCardContent(
     setWallpaperClicked: () -> Unit,
     importWallpaperSettingsClicked: () -> Unit,
     wallpaperParameters: State<ParticleLifeParameters>,
-    wallpaperParametersChanged: (Boolean?, ParticleLifeParameters.() -> Unit?) -> Unit
+    wallpaperParametersChanged: (ParticleLifeParameters.() -> Unit?) -> Unit,
+    wallpaperShuffleForceValues: State<ParticleLifeParameters.ShuffleForceValues>,
+    changeWallpaperForceValues: (ParticleLifeParameters.ShuffleForceValues) -> Unit
 ) {
     Column {
         ControlPanelTabs(selectedTabIndex)
@@ -294,7 +306,9 @@ fun ControlPanelCardContent(
                 setWallpaperClicked,
                 importWallpaperSettingsClicked,
                 wallpaperParameters,
-                wallpaperParametersChanged
+                wallpaperParametersChanged,
+                wallpaperShuffleForceValues,
+                changeWallpaperForceValues
             )
             ControlPanelTab.ABOUT -> AboutContent()
         }

@@ -6,6 +6,10 @@ import kotlin.math.log2
 import kotlin.math.pow
 import kotlin.math.sqrt
 import kotlin.random.Random
+import kotlin.time.Duration
+import kotlin.time.Duration.Companion.days
+import kotlin.time.Duration.Companion.hours
+import kotlin.time.Duration.Companion.minutes
 
 class ParticleLifeParameters(
     var generation: GenerationParameters,
@@ -196,7 +200,7 @@ class ParticleLifeParameters(
             return Preset.Custom
         }
 
-        fun physicsParametersEquals(other: RuntimeParameters): Boolean {
+        private fun physicsParametersEquals(other: RuntimeParameters): Boolean {
             if (pressureStrength != other.pressureStrength) return false
             if (forceStrengthScale != other.forceStrengthScale) return false
             if (forceDistanceScale != other.forceDistanceScale) return false
@@ -335,6 +339,23 @@ class ParticleLifeParameters(
         generation.generateRandomParticles(runtime.xMax, runtime.yMax, species)
 
     fun copy() = ParticleLifeParameters(generation.copy(), runtime.copy(), species.toMutableList())
+
+    sealed class ShuffleForceValues {
+        object Always : ShuffleForceValues()
+
+        sealed class Timed(val time: Duration) : ShuffleForceValues() {
+            object Every5Minutes : Timed(5.minutes)
+            object EveryHour : Timed(1.hours)
+            object EveryDay : Timed(1.days)
+        }
+
+        object Never : ShuffleForceValues()
+
+        companion object {
+            val DEFAULT = Timed.EveryHour
+            val ALL = listOf(Always, Timed.Every5Minutes, Timed.EveryHour, Timed.EveryDay, Never)
+        }
+    }
 
     companion object {
         fun buildDefault(

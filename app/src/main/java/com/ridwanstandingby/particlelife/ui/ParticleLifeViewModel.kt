@@ -31,9 +31,10 @@ class ParticleLifeViewModel(
     val editForceDistancesSelectedSpeciesIndex = mutableStateOf(0)
     val editHandOfGodPanelExpanded = mutableStateOf(HandOfGodPanelMode.OFF)
     val selectedWallpaperPhysics = mutableStateOf(
-        if (prefs.wallpaperRandomise) Randomise else prefs.wallpaperParameters?.runtime?.asPreset()
+        if (prefs.wallpaperRandomise) Randomise else prefs.getWallpaperParameters(randomiseMatrices = false)?.runtime?.asPreset()
             ?: WallpaperPhysicsSetting.default()
     )
+    val wallpaperShuffleForceValues = mutableStateOf(prefs.wallpaperShuffleForceValues)
 
     val parameters = mutableStateOf(
         ParticleLifeParameters.buildDefault(
@@ -48,11 +49,12 @@ class ParticleLifeViewModel(
     }
 
     val wallpaperParameters = mutableStateOf(
-        prefs.wallpaperParameters ?: ParticleLifeParameters.buildDefault(
-            0.0,
-            0.0,
-            ParticleLifeParameters.GenerationParameters()
-        ), neverEqualPolicy()
+        prefs.getWallpaperParameters(randomiseMatrices = false)
+            ?: ParticleLifeParameters.buildDefault(
+                0.0,
+                0.0,
+                ParticleLifeParameters.GenerationParameters()
+            ), neverEqualPolicy()
     )
 
     private val renderer = ParticleLifeRenderer(easterBitmap = easterBitmap)
@@ -111,21 +113,22 @@ class ParticleLifeViewModel(
         parameters.value = newParameters
     }
 
-    private var lastKeepMatricesValue: Boolean = false
-    fun changeWallpaperParameters(
-        keepMatrices: Boolean?,
-        block: ParticleLifeParameters.() -> Unit?
-    ) {
-        if (keepMatrices != null) lastKeepMatricesValue = keepMatrices
+    fun changeWallpaperParameters(block: ParticleLifeParameters.() -> Unit?) {
         wallpaperParameters.value = wallpaperParameters.value.also {
             prefs.wallpaperRandomise = it.block() == null
-            prefs.setWallpaperParameters(it, keepMatrices = lastKeepMatricesValue)
+            prefs.setWallpaperParameters(it)
         }
     }
 
     fun importWallpaperSettings() {
         selectedWallpaperPhysics.value = ParticleLifeParameters.RuntimeParameters.Preset.Custom
+        changeWallpaperShuffleForceValues(ParticleLifeParameters.ShuffleForceValues.Never)
         // TODO
+    }
+
+    fun changeWallpaperShuffleForceValues(value: ParticleLifeParameters.ShuffleForceValues) {
+        wallpaperShuffleForceValues.value = value
+        prefs.wallpaperShuffleForceValues = value
     }
 
     override fun onCleared() {

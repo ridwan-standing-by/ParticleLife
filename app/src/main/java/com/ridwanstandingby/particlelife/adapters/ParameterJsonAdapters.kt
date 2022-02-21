@@ -56,10 +56,10 @@ import org.json.JSONArray
 import org.json.JSONException
 import org.json.JSONObject
 
-fun ParticleLifeParameters.toJson(keepMatrices: Boolean): JSONObject =
+fun ParticleLifeParameters.toJson(): JSONObject =
     JSONObject().apply {
         put(GENERATION_KEY, generation.toJson())
-        put(RUNTIME_KEY, runtime.toJson(keepMatrices = keepMatrices))
+        put(RUNTIME_KEY, runtime.toJson())
         put(SPECIES_KEY, species.toJsonArray())
     }
 
@@ -73,13 +73,11 @@ private fun ParticleLifeParameters.GenerationParameters.toJson(): JSONObject =
         put(FORCE_DISTANCE_UPPER_BOUND_MAX_KEY, forceDistanceUpperBoundMax)
     }
 
-private fun ParticleLifeParameters.RuntimeParameters.toJson(keepMatrices: Boolean): JSONObject =
+private fun ParticleLifeParameters.RuntimeParameters.toJson(): JSONObject =
     JSONObject().apply {
-        if (keepMatrices) {
-            put(FORCE_STRENGTHS_KEY, forceStrengths.toJsonArray())
-            put(FORCE_DISTANCE_LOWER_BOUNDS_KEY, forceDistanceLowerBounds.toJsonArray())
-            put(FORCE_DISTANCE_UPPER_BOUNDS_KEY, forceDistanceUpperBounds.toJsonArray())
-        }
+        put(FORCE_STRENGTHS_KEY, forceStrengths.toJsonArray())
+        put(FORCE_DISTANCE_LOWER_BOUNDS_KEY, forceDistanceLowerBounds.toJsonArray())
+        put(FORCE_DISTANCE_UPPER_BOUNDS_KEY, forceDistanceUpperBounds.toJsonArray())
         put(PRESSURE_STRENGTH_KEY, pressureStrength)
         put(PRESSURE_DISTANCE_KEY, pressureDistance)
         put(FORCE_STRENGTH_SCALE_KEY, forceStrengthScale)
@@ -115,9 +113,13 @@ private fun Species.toJson(): JSONObject =
         put(COLOR_KEY, color)
     }
 
-fun JSONObject.extractParameters(xMax: Double, yMax: Double): ParticleLifeParameters {
+fun JSONObject.extractParameters(
+    xMax: Double,
+    yMax: Double,
+    randomMatrices: Boolean
+): ParticleLifeParameters {
     val generation = extractGenerationParameters()
-    val runtime = extractRuntimeParameters(xMax, yMax, generation)
+    val runtime = extractRuntimeParameters(xMax, yMax, generation, randomMatrices = randomMatrices)
     val species = extractSpecies(generation)
     return ParticleLifeParameters(generation, runtime, species)
 }
@@ -159,11 +161,13 @@ private fun JSONObject.extractGenerationParameters(): ParticleLifeParameters.Gen
 private fun JSONObject.extractRuntimeParameters(
     xMax: Double,
     yMax: Double,
-    generation: ParticleLifeParameters.GenerationParameters
+    generation: ParticleLifeParameters.GenerationParameters,
+    randomMatrices: Boolean
 ): ParticleLifeParameters.RuntimeParameters {
 
     val runtime = getOrNull<JSONObject>(RUNTIME_KEY)
         ?: return ParticleLifeParameters.RuntimeParameters.buildDefault(xMax, yMax, generation)
+
 
     val forceDistanceUpperBoundsOrNull = runtime
         .getDoubleMatrixOrNull(
@@ -182,19 +186,20 @@ private fun JSONObject.extractRuntimeParameters(
     } else null
 
     val (forceDistanceLowerBounds, forceDistanceUpperBounds) =
-        if (forceDistanceLowerBoundsOrNull != null && forceDistanceUpperBoundsOrNull != null) {
+        if (forceDistanceLowerBoundsOrNull != null && forceDistanceUpperBoundsOrNull != null && !randomMatrices) {
             Pair(forceDistanceLowerBoundsOrNull, forceDistanceUpperBoundsOrNull)
         } else {
             generation.generateRandomForceDistanceMatrices()
         }
 
-    val forceStrengths = runtime
-        .getDoubleMatrixOrNull(
-            FORCE_STRENGTHS_KEY,
-            expectedLength = generation.nSpecies,
-            min = { _, _ -> generation.maxRepulsion },
-            max = { _, _ -> generation.maxAttraction })
-        ?: generation.generateRandomForceStrengthMatrix()
+    val forceStrengths = (if (randomMatrices) null else Unit)?.run {
+        runtime
+            .getDoubleMatrixOrNull(
+                FORCE_STRENGTHS_KEY,
+                expectedLength = generation.nSpecies,
+                min = { _, _ -> generation.maxRepulsion },
+                max = { _, _ -> generation.maxAttraction })
+    } ?: generation.generateRandomForceStrengthMatrix()
 
     return ParticleLifeParameters.RuntimeParameters(
         xMax = xMax,

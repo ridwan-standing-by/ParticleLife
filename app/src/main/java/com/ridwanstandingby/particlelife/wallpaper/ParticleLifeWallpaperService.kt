@@ -28,6 +28,7 @@ class ParticleLifeWallpaperService : WallpaperService() {
 
         private var latestWidth: Double? = null
         private var latestHeight: Double? = null
+        private var lastRandomiseUnixMs: Long = 0
 
         override fun onCreate(surfaceHolder: SurfaceHolder?) {
             super.onCreate(surfaceHolder)
@@ -36,7 +37,7 @@ class ParticleLifeWallpaperService : WallpaperService() {
 
             animationRunner.start(
                 ParticleLifeAnimation(
-                    getParameters(),
+                    getParameters(randomiseMatrices = false),
                     ParticleLifeRenderer(),
                     ParticleLifeInput()
                 ).also { animation = it }
@@ -45,11 +46,12 @@ class ParticleLifeWallpaperService : WallpaperService() {
             configureHandOfGod()
         }
 
-        private fun getParameters() =
-            (prefs.wallpaperParameters ?: ParticleLifeParameters.buildDefault(
-                0.0, 0.0,
-                ParticleLifeParameters.GenerationParameters()
-            )).apply {
+        private fun getParameters(randomiseMatrices: Boolean) =
+            (prefs.getWallpaperParameters(randomiseMatrices = randomiseMatrices)
+                ?: ParticleLifeParameters.buildDefault(
+                    0.0, 0.0,
+                    ParticleLifeParameters.GenerationParameters()
+                )).apply {
                 runtime.xMax =
                     latestWidth ?: Resources.getSystem().displayMetrics.widthPixels.toDouble()
                 runtime.yMax =
@@ -84,10 +86,25 @@ class ParticleLifeWallpaperService : WallpaperService() {
         override fun onVisibilityChanged(visible: Boolean) {
             super.onVisibilityChanged(visible)
             if (visible) {
+                randomiseParametersIfNecessary()
                 animationRunner.resume()
-                animation.parameters.runtime = getParameters().runtime
             } else {
                 animationRunner.pause()
+            }
+        }
+
+        private fun randomiseParametersIfNecessary() {
+            val now = System.currentTimeMillis()
+            val doRandomise = when (val shuffle = prefs.wallpaperShuffleForceValues) {
+                ParticleLifeParameters.ShuffleForceValues.Always -> true
+                is ParticleLifeParameters.ShuffleForceValues.Timed ->
+                    now > lastRandomiseUnixMs + shuffle.time.inWholeMilliseconds
+                ParticleLifeParameters.ShuffleForceValues.Never -> false
+            }
+
+            if (doRandomise) {
+                animation.parameters.runtime = getParameters(randomiseMatrices = true).runtime
+                lastRandomiseUnixMs = now
             }
         }
 
