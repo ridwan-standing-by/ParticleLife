@@ -9,6 +9,7 @@ import com.ridwanstandingby.particlelife.domain.ParticleLifeAnimation
 import com.ridwanstandingby.particlelife.domain.ParticleLifeInput
 import com.ridwanstandingby.particlelife.domain.ParticleLifeParameters
 import com.ridwanstandingby.particlelife.domain.ParticleLifeRenderer
+import com.ridwanstandingby.particlelife.logging.Log
 import com.ridwanstandingby.verve.animation.AnimationRunner
 import com.ridwanstandingby.verve.sensor.press.PressDetector
 import com.ridwanstandingby.verve.sensor.swipe.SwipeDetector
@@ -32,6 +33,7 @@ class ParticleLifeWallpaperService : WallpaperService() {
 
         override fun onCreate(surfaceHolder: SurfaceHolder?) {
             super.onCreate(surfaceHolder)
+            Log.i("ParticleLifeWallpaperService::onCreate")
 
             surfaceHolder?.let { animationRunner.attachSurfaceHolder(it) }
 
@@ -79,12 +81,14 @@ class ParticleLifeWallpaperService : WallpaperService() {
 
         override fun onDesiredSizeChanged(desiredWidth: Int, desiredHeight: Int) {
             super.onDesiredSizeChanged(desiredWidth, desiredHeight)
+            Log.i("ParticleLifeWallpaperService::onDesiredSizeChanged")
             animation.parameters.runtime.xMax = desiredWidth.toDouble().also { latestWidth = it }
             animation.parameters.runtime.yMax = desiredHeight.toDouble().also { latestHeight = it }
         }
 
         override fun onVisibilityChanged(visible: Boolean) {
             super.onVisibilityChanged(visible)
+            Log.i("ParticleLifeWallpaperService::onVisibilityChanged")
             if (visible) {
                 randomiseParametersIfNecessary()
                 animationRunner.resume()

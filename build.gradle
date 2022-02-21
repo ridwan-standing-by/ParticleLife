@@ -1,11 +1,16 @@
 // Top-level build file where you can add configuration options common to all sub-projects/modules.
 buildscript {
 
-    ext.kotlinVersion = "1.6.10"
-    ext.koinVersion = "3.1.4"
-    ext.composeVersion = "1.1.0-rc01"
-    ext.composeCompilerVersion = "1.1.0-rc02"
-    ext.androidActivityComposeVersion = "1.4.0"
+    ext {
+        kotlinVersion = "1.6.10"
+        koinVersion = "3.1.4"
+        composeVersion = "1.1.0-rc01"
+        composeCompilerVersion = "1.1.0-rc02"
+        androidActivityComposeVersion = "1.4.0"
+
+        bugsnag_gradle_plugin_version = "7.2.0"
+        bugsnag_android_version = "5.19.1"
+    }
 
     repositories {
         google()
@@ -14,9 +19,7 @@ buildscript {
     dependencies {
         classpath 'com.android.tools.build:gradle:7.1.1'
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinVersion"
-
-        // NOTE: Do not place your application dependencies here; they belong
-        // in the individual module build.gradle files
+        classpath "com.bugsnag:bugsnag-android-gradle-plugin:$bugsnag_gradle_plugin_version"
     }
 }
 

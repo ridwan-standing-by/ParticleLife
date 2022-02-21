@@ -13,6 +13,9 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.ParticleLife">
+        <meta-data
+            android:name="com.bugsnag.android.API_KEY"
+            android:value="@string/BUGSNAG_API_KEY"/>
         <activity
             android:name=".ui.ParticleLifeActivity"
             android:exported="true">

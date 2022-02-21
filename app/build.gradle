@@ -1,6 +1,15 @@
 plugins {
     id 'com.android.application'
     id 'kotlin-android'
+    id 'com.bugsnag.android.gradle'
+}
+
+String bugsnagApiKey = "NONE"
+try {
+    Properties props = new Properties()
+    file("../secret.properties").withInputStream { props.load(it) }
+    bugsnagApiKey = props.getProperty("BUGSNAG_API_KEY")
+} catch (FileNotFoundException ignored) {
 }
 
 android {
@@ -17,6 +26,9 @@ android {
     }
 
     buildTypes {
+        all {
+            resValue("string", "BUGSNAG_API_KEY", "\"$bugsnagApiKey\"")
+        }
         release {
             minifyEnabled true
             shrinkResources true
@@ -72,4 +84,7 @@ dependencies {
     implementation("io.insert-koin:koin-androidx-compose:$koinVersion") {
         exclude group: 'org.jetbrains.kotlin', module: 'org.jetbrains.kotlin'
     }
+
+    // Logging
+    implementation "com.bugsnag:bugsnag-android:$bugsnag_android_version"
 }

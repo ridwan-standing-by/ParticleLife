@@ -3,6 +3,7 @@
 package com.ridwanstandingby.particlelife.domain
 
 import android.graphics.Paint
+import com.ridwanstandingby.particlelife.logging.Log
 import com.ridwanstandingby.verve.animation.Animation
 import com.ridwanstandingby.verve.math.sq
 import com.ridwanstandingby.verve.math.toroidalDiff
@@ -163,6 +164,7 @@ class ParticleLifeAnimation(
 
     private inline fun resolveEasterEgg(presses: List<Press>) {
         if (presses.size >= 4 && presses.any { it.runningTime > 2.0 }) {
+            Log.i("ParticleLifeAnimation: Easter egg toggled")
             input.pressDetector?.resetPresses()
             renderer.easterEgg = !renderer.easterEgg
         }

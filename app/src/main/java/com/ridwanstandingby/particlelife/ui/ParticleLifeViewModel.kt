@@ -11,6 +11,7 @@ import com.ridwanstandingby.particlelife.domain.ParticleLifeAnimation
 import com.ridwanstandingby.particlelife.domain.ParticleLifeInput
 import com.ridwanstandingby.particlelife.domain.ParticleLifeParameters
 import com.ridwanstandingby.particlelife.domain.ParticleLifeRenderer
+import com.ridwanstandingby.particlelife.logging.Log
 import com.ridwanstandingby.verve.animation.AnimationRunner
 import com.ridwanstandingby.verve.math.FloatVector2
 import com.ridwanstandingby.verve.sensor.press.PressDetector
@@ -63,6 +64,7 @@ class ParticleLifeViewModel(
 
     private lateinit var animation: ParticleLifeAnimation
     fun start(swipeDetector: SwipeDetector, pressDetector: PressDetector) {
+        Log.i("ParticleLifeViewModel::started")
         input.swipeDetector = swipeDetector
         input.pressDetector = pressDetector
         animationRunner.start(
@@ -71,6 +73,7 @@ class ParticleLifeViewModel(
     }
 
     fun onViewSizeChanged(viewSize: FloatVector2, rotation: Int) {
+        Log.i("ParticleLifeViewModel::onViewSizeChanged")
         when (rotation) {
             Surface.ROTATION_0, Surface.ROTATION_180 -> {
                 parameters.value.runtime.xMax = viewSize.x.toDouble()
@@ -93,6 +96,7 @@ class ParticleLifeViewModel(
     }
 
     fun generateNewParticles() {
+        Log.i("ParticleLifeViewModel::generateNewParticles")
         val newParameters = with(parameters.value) {
             val species = generation.generateSpecies()
             val forceStrengths = generation.generateRandomForceStrengthMatrix()
@@ -121,12 +125,14 @@ class ParticleLifeViewModel(
     }
 
     fun importWallpaperSettings() {
+        Log.i("ParticleLifeViewModel::importWallpaperSettings")
         selectedWallpaperPhysics.value = ParticleLifeParameters.RuntimeParameters.Preset.Custom
         changeWallpaperShuffleForceValues(ParticleLifeParameters.ShuffleForceValues.Never)
         // TODO
     }
 
     fun changeWallpaperShuffleForceValues(value: ParticleLifeParameters.ShuffleForceValues) {
+        Log.i("ParticleLifeViewModel::changeWallpaperShuffleForceValues")
         wallpaperShuffleForceValues.value = value
         prefs.wallpaperShuffleForceValues = value
     }
