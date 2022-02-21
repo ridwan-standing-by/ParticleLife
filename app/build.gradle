@@ -1,6 +1,15 @@
 plugins {
     id 'com.android.application'
     id 'kotlin-android'
+    id 'com.bugsnag.android.gradle'
+}
+
+String bugsnagApiKey = "NONE"
+try {
+    Properties props = new Properties()
+    file("../secret.properties").withInputStream { props.load(it) }
+    bugsnagApiKey = props.getProperty("BUGSNAG_API_KEY")
+} catch (FileNotFoundException ignored) {
 }
 
 android {
@@ -10,13 +19,19 @@ android {
         applicationId "com.ridwanstandingby.particlelife"
         minSdk 21
         targetSdk 31
-        versionCode 6
-        versionName "1.5"
+        versionCode 7
+        versionName "1.6"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
 
     buildTypes {
+        all {
+            manifestPlaceholders = [
+                    bugsnagApiKey: "$bugsnagApiKey"
+            ]
+            buildConfigField("String", "BUGSNAG_API_KEY", "\"$bugsnagApiKey\"")
+        }
         release {
             minifyEnabled true
             shrinkResources true
@@ -72,4 +87,7 @@ dependencies {
     implementation("io.insert-koin:koin-androidx-compose:$koinVersion") {
         exclude group: 'org.jetbrains.kotlin', module: 'org.jetbrains.kotlin'
     }
+
+    // Logging
+    implementation "com.bugsnag:bugsnag-android:$bugsnag_android_version"
 }

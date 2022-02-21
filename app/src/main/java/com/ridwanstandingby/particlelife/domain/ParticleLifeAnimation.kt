@@ -3,6 +3,7 @@
 package com.ridwanstandingby.particlelife.domain
 
 import android.graphics.Paint
+import com.ridwanstandingby.particlelife.logging.Log
 import com.ridwanstandingby.verve.animation.Animation
 import com.ridwanstandingby.verve.math.sq
 import com.ridwanstandingby.verve.math.toroidalDiff
@@ -21,7 +22,7 @@ class ParticleLifeAnimation(
     renderer,
     input
 ) {
-    private var particles = parameters.initialParticles
+    private var particles = parameters.generateRandomParticles()
 
     init {
         renderer.getParticles = { particles }
@@ -34,11 +35,10 @@ class ParticleLifeAnimation(
         particles = emptyList()
         renderer.getParticles = null
         renderer.getSpecies = null
-        parameters.initialParticles = newParameters.initialParticles
         parameters.runtime = newParameters.runtime
         parameters.generation = newParameters.generation
         parameters.species = newParameters.species
-        particles = newParameters.initialParticles
+        particles = newParameters.generateRandomParticles()
         renderer.getParticles = { particles }
         renderer.getSpecies = { parameters.species }
         updateLock.unlock()
@@ -57,10 +57,10 @@ class ParticleLifeAnimation(
 
             if (handOfGodEnabled) {
                 if (herdEnabled) {
-                    input.getSwipes()?.forEach { applySwipeForce(it) }
+                    input.swipeDetector?.getSwipes()?.forEach { applySwipeForce(it) }
                 }
                 if (beckonEnabled) {
-                    input.getPresses(dt)
+                    input.pressDetector?.updateAndGetPresses(dt)
                         ?.also { resolveEasterEgg(it) }
                         ?.forEach { applyPressForce(it) }
                 }
@@ -119,7 +119,7 @@ class ParticleLifeAnimation(
     }
 
     private inline fun ParticleLifeParameters.RuntimeParameters.applyPressForce(press: Press) {
-        if (press.runningTime < beckonPressThresholdTimeDefault) return
+        if (press.runningTime < beckonPressThresholdTime) return
         val pressX = renderer.inverseTransformX(press.screenPosition.x, press.screenPosition.y)
         val pressY = renderer.inverseTransformY(press.screenPosition.x, press.screenPosition.y)
         particles.forEach { particle ->
@@ -162,9 +162,10 @@ class ParticleLifeAnimation(
         }
     }
 
-    private inline fun resolveEasterEgg(presses: MutableList<Press>) {
-        if (presses.size >= 4 && presses.any { it.runningTime > 1.0 }) {
-            presses.forEach { it.runningTime = 0.0 }
+    private inline fun resolveEasterEgg(presses: List<Press>) {
+        if (presses.size >= 4 && presses.any { it.runningTime > 2.0 }) {
+            Log.i("ParticleLifeAnimation: Easter egg toggled")
+            input.pressDetector?.resetPresses()
             renderer.easterEgg = !renderer.easterEgg
         }
     }

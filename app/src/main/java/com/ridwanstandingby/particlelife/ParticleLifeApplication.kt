@@ -2,6 +2,7 @@ package com.ridwanstandingby.particlelife
 
 import android.app.Application
 import com.ridwanstandingby.particlelife.di.KoinInjector
+import com.ridwanstandingby.particlelife.logging.Log
 import org.koin.android.ext.koin.androidContext
 import org.koin.android.ext.koin.androidLogger
 import org.koin.core.context.startKoin
@@ -13,6 +14,7 @@ class ParticleLifeApplication : Application() {
     override fun onCreate() {
         super.onCreate()
         setupKoin()
+        Log.init(this)
     }
 
     private fun setupKoin() {
