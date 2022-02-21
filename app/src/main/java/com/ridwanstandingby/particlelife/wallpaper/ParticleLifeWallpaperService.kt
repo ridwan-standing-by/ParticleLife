@@ -105,6 +105,7 @@ class ParticleLifeWallpaperService : WallpaperService() {
 
         private fun reloadParametersIfNecessary() {
             if (prefs.wallpaperParametersChanged) {
+                prefs.wallpaperParametersChanged = false
                 Log.i("ParticleLifeWallpaperService: Reloading wallpaper parameters")
                 val newParams = getParameters(randomiseMatrices = false)
                 if (newParams.generation != animation.parameters.generation) {
@@ -113,7 +114,6 @@ class ParticleLifeWallpaperService : WallpaperService() {
                     animation.parameters.runtime = newParams.runtime
                 }
                 configureHandOfGod()
-                prefs.wallpaperParametersChanged = false
             }
         }
 

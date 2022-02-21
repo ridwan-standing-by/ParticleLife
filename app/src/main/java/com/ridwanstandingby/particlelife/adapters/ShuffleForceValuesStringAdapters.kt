@@ -13,11 +13,11 @@ fun ParticleLifeParameters.ShuffleForceValues.toPrefsString() =
 
 fun String.toShuffleForceValues() =
     when (this) {
-        "Always" -> ParticleLifeParameters.ShuffleForceValues.Always
-        "Every5Minutes" -> ParticleLifeParameters.ShuffleForceValues.Timed.Every5Minutes
-        "EveryHour" -> ParticleLifeParameters.ShuffleForceValues.Timed.EveryHour
-        "EveryDay" -> ParticleLifeParameters.ShuffleForceValues.Timed.EveryDay
-        "Never" -> ParticleLifeParameters.ShuffleForceValues.Never
+        ALWAYS -> ParticleLifeParameters.ShuffleForceValues.Always
+        EVERY_5_MINUTES -> ParticleLifeParameters.ShuffleForceValues.Timed.Every5Minutes
+        EVERY_HOUR -> ParticleLifeParameters.ShuffleForceValues.Timed.EveryHour
+        EVERY_DAY -> ParticleLifeParameters.ShuffleForceValues.Timed.EveryDay
+        NEVER -> ParticleLifeParameters.ShuffleForceValues.Never
         else -> ParticleLifeParameters.ShuffleForceValues.DEFAULT
     }
 
