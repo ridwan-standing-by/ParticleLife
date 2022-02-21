@@ -6,6 +6,7 @@ import android.view.Surface
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.neverEqualPolicy
 import androidx.lifecycle.ViewModel
+import com.ridwanstandingby.particlelife.data.PreferencesManager
 import com.ridwanstandingby.particlelife.domain.ParticleLifeAnimation
 import com.ridwanstandingby.particlelife.domain.ParticleLifeInput
 import com.ridwanstandingby.particlelife.domain.ParticleLifeParameters
@@ -17,7 +18,8 @@ import com.ridwanstandingby.verve.sensor.swipe.SwipeDetector
 
 class ParticleLifeViewModel(
     val animationRunner: AnimationRunner,
-    easterBitmap: Bitmap
+    private val prefs: PreferencesManager,
+    easterBitmap: Bitmap? = null
 ) : ViewModel() {
 
     val controlPanelExpanded = mutableStateOf(false)
@@ -27,7 +29,12 @@ class ParticleLifeViewModel(
     val editForceStrengthsSelectedSpeciesIndex = mutableStateOf(0)
     val editForceDistancesPanelExpanded = mutableStateOf(false)
     val editForceDistancesSelectedSpeciesIndex = mutableStateOf(0)
-    val editHandOfGodPanelExpanded = mutableStateOf(false)
+    val editHandOfGodPanelExpanded = mutableStateOf(HandOfGodPanelMode.OFF)
+    val selectedWallpaperPhysics = mutableStateOf(
+        if (prefs.wallpaperRandomise) Randomise else prefs.getWallpaperParameters(randomiseMatrices = false)?.runtime?.asPreset()
+            ?: WallpaperPhysicsSetting.default()
+    )
+    val wallpaperShuffleForceValues = mutableStateOf(prefs.wallpaperShuffleForceValues)
 
     val parameters = mutableStateOf(
         ParticleLifeParameters.buildDefault(
@@ -40,6 +47,15 @@ class ParticleLifeViewModel(
     private fun updateParameters(block: ParticleLifeParameters.() -> Unit) {
         parameters.value = parameters.value.apply(block)
     }
+
+    val wallpaperParameters = mutableStateOf(
+        prefs.getWallpaperParameters(randomiseMatrices = false)
+            ?: ParticleLifeParameters.buildDefault(
+                0.0,
+                0.0,
+                ParticleLifeParameters.GenerationParameters()
+            ), neverEqualPolicy()
+    )
 
     private val renderer = ParticleLifeRenderer(easterBitmap = easterBitmap)
 
@@ -78,11 +94,9 @@ class ParticleLifeViewModel(
 
     fun generateNewParticles() {
         val newParameters = with(parameters.value) {
-            val species = generation.generateRandomSpecies()
+            val species = generation.generateSpecies()
             val forceStrengths = generation.generateRandomForceStrengthMatrix()
             val (forceDistanceLowerBounds, forceDistanceUpperBounds) = generation.generateRandomForceDistanceMatrices()
-            val initialParticles =
-                generation.generateRandomParticles(runtime.xMax, runtime.yMax, species)
             ParticleLifeParameters(
                 generation = generation.copy(),
                 runtime = runtime.copy(
@@ -90,14 +104,31 @@ class ParticleLifeViewModel(
                     forceDistanceLowerBounds = forceDistanceLowerBounds,
                     forceDistanceUpperBounds = forceDistanceUpperBounds
                 ),
-                species = species,
-                initialParticles = initialParticles
+                species = species
             )
         }
         animation.restart(newParameters)
         editForceStrengthsSelectedSpeciesIndex.value = 0
         editForceDistancesSelectedSpeciesIndex.value = 0
         parameters.value = newParameters
+    }
+
+    fun changeWallpaperParameters(block: ParticleLifeParameters.() -> Unit?) {
+        wallpaperParameters.value = wallpaperParameters.value.also {
+            prefs.wallpaperRandomise = it.block() == null
+            prefs.setWallpaperParameters(it)
+        }
+    }
+
+    fun importWallpaperSettings() {
+        selectedWallpaperPhysics.value = ParticleLifeParameters.RuntimeParameters.Preset.Custom
+        changeWallpaperShuffleForceValues(ParticleLifeParameters.ShuffleForceValues.Never)
+        // TODO
+    }
+
+    fun changeWallpaperShuffleForceValues(value: ParticleLifeParameters.ShuffleForceValues) {
+        wallpaperShuffleForceValues.value = value
+        prefs.wallpaperShuffleForceValues = value
     }
 
     override fun onCleared() {

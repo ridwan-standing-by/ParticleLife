@@ -504,7 +504,7 @@ fun EditForceStrengthsPanelUiPreview() {
                 },
                 species = remember {
                     mutableStateOf(
-                        ParticleLifeParameters.GenerationParameters().generateRandomSpecies()
+                        ParticleLifeParameters.GenerationParameters().generateSpecies()
                     )
                 },
                 editForceStrengthsSelectedSpeciesIndex = remember { mutableStateOf(0) }
@@ -533,7 +533,7 @@ fun EditForceDistancesPanelUiPreview() {
                 },
                 species = remember {
                     mutableStateOf(
-                        ParticleLifeParameters.GenerationParameters().generateRandomSpecies()
+                        ParticleLifeParameters.GenerationParameters().generateSpecies()
                     )
                 },
                 editForceDistancesSelectedSpeciesIndex = remember { mutableStateOf(0) }
