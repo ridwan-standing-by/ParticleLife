@@ -86,7 +86,7 @@ fun ParticleLifeUi(
     setWallpaperClicked: () -> Unit,
     importWallpaperSettingsClicked: () -> Unit,
     wallpaperParameters: State<ParticleLifeParameters>,
-    wallpaperParametersChanged: (ParticleLifeParameters.() -> Unit?) -> Unit
+    wallpaperParametersChanged: (Boolean?, ParticleLifeParameters.() -> Unit?) -> Unit
 ) {
     ParticleLifeTheme {
         Scaffold {
@@ -164,7 +164,7 @@ fun ControlPanelUi(
     setWallpaperClicked: () -> Unit,
     importWallpaperSettingsClicked: () -> Unit,
     wallpaperParameters: State<ParticleLifeParameters>,
-    wallpaperParametersChanged: (ParticleLifeParameters.() -> Unit?) -> Unit
+    wallpaperParametersChanged: (Boolean?, ParticleLifeParameters.() -> Unit?) -> Unit
 ) {
     val foregroundCardModifier = if (isPortrait()) {
         Modifier
@@ -224,7 +224,7 @@ fun ControlPanelUi(
                 if (editHandOfGodPanelExpanded.value == HandOfGodPanelMode.WALLPAPER) {
                     EditHandOfGodPanelCardContent(
                         derivedStateOf { wallpaperParameters.value.runtime.copy() }
-                    ) { block -> wallpaperParametersChanged { runtime.block() } }
+                    ) { block -> wallpaperParametersChanged(null) { runtime.block() } }
                 } else {
                     EditHandOfGodPanelCardContent(
                         runtimeParameters, runtimeParametersChanged
@@ -267,7 +267,7 @@ fun ControlPanelCardContent(
     setWallpaperClicked: () -> Unit,
     importWallpaperSettingsClicked: () -> Unit,
     wallpaperParameters: State<ParticleLifeParameters>,
-    wallpaperParametersChanged: (ParticleLifeParameters.() -> Unit?) -> Unit
+    wallpaperParametersChanged: (Boolean?, ParticleLifeParameters.() -> Unit?) -> Unit
 ) {
     Column {
         ControlPanelTabs(selectedTabIndex)

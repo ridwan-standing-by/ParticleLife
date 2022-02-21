@@ -111,10 +111,15 @@ class ParticleLifeViewModel(
         parameters.value = newParameters
     }
 
-    fun changeWallpaperParameters(block: ParticleLifeParameters.() -> Unit?) {
+    private var lastKeepMatricesValue: Boolean = false
+    fun changeWallpaperParameters(
+        keepMatrices: Boolean?,
+        block: ParticleLifeParameters.() -> Unit?
+    ) {
+        if (keepMatrices != null) lastKeepMatricesValue = keepMatrices
         wallpaperParameters.value = wallpaperParameters.value.also {
             prefs.wallpaperRandomise = it.block() == null
-            prefs.wallpaperParameters = it
+            prefs.setWallpaperParameters(it, keepMatrices = lastKeepMatricesValue)
         }
     }
 

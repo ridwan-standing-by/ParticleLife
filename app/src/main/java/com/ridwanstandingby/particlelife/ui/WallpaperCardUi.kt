@@ -28,7 +28,7 @@ fun WallpaperContent(
     setWallpaperClicked: () -> Unit,
     importWallpaperSettingsClicked: () -> Unit,
     wallpaperParameters: State<ParticleLifeParameters>,
-    wallpaperParametersChanged: (ParticleLifeParameters.() -> Unit?) -> Unit,
+    wallpaperParametersChanged: (Boolean?, ParticleLifeParameters.() -> Unit?) -> Unit
 ) {
     Column(
         Modifier
@@ -43,11 +43,11 @@ fun WallpaperContent(
         }
         val wallpaperRuntimeParametersChanged =
             { block: ParticleLifeParameters.RuntimeParameters.() -> Unit ->
-                wallpaperParametersChanged { runtime.block() }
+                wallpaperParametersChanged(null) { runtime.block() }
             }
         val wallpaperGenerationParametersChanged =
             { block: ParticleLifeParameters.GenerationParameters.() -> Unit ->
-                wallpaperParametersChanged { generation.block() }
+                wallpaperParametersChanged(null) { generation.block() }
             }
         Text(
             text = stringResource(R.string.wallpaper_info),
@@ -155,7 +155,7 @@ private fun ColumnScope.SetWallpaperButton(setWallpaperClicked: () -> Unit) {
 @Composable
 private fun WallpaperPhysicsSelectionAndImportButton(
     selectedWallpaperPhysics: MutableState<WallpaperPhysicsSetting>,
-    wallpaperParametersChanged: (ParticleLifeParameters.() -> Unit?) -> Unit,
+    wallpaperParametersChanged: (Boolean?, ParticleLifeParameters.() -> Unit?) -> Unit,
     onImportWallpaperSettingsClicked: () -> Unit
 ) {
     Row(
@@ -184,7 +184,7 @@ private fun WallpaperPhysicsSelectionAndImportButton(
 @Composable
 private fun BoxScope.WallpaperPhysicsSelectionWidget(
     selectedWallpaperPhysics: MutableState<WallpaperPhysicsSetting>,
-    wallpaperParametersChanged: (ParticleLifeParameters.() -> Unit?) -> Unit
+    wallpaperParametersChanged: (keepMatrices: Boolean?, ParticleLifeParameters.() -> Unit?) -> Unit
 ) {
     val options = ParticleLifeParameters.RuntimeParameters.Preset.ALL + Randomise
     var expanded by remember { mutableStateOf(false) }
@@ -223,7 +223,9 @@ private fun BoxScope.WallpaperPhysicsSelectionWidget(
                 DropdownMenuItem(
                     onClick = {
                         selectedWallpaperPhysics.value = option
-                        wallpaperParametersChanged { option?.applyPreset(this.runtime) }
+                        wallpaperParametersChanged(option == ParticleLifeParameters.RuntimeParameters.Preset.Custom) {
+                            option?.applyPreset(this.runtime)
+                        }
                         expanded = false
                         focusManager.clearFocus()
                     }
@@ -273,8 +275,9 @@ fun WallpaperCardUiPreview() {
                 setWallpaperClicked = {},
                 importWallpaperSettingsClicked = {},
                 wallpaperParameters = wallpaperParameters,
-                wallpaperParametersChanged = {
-                    wallpaperParameters.value = wallpaperParameters.value.copy().apply { this.it() }
+                wallpaperParametersChanged = { _, block ->
+                    wallpaperParameters.value =
+                        wallpaperParameters.value.copy().apply { this.block() }
                 }
             )
         }

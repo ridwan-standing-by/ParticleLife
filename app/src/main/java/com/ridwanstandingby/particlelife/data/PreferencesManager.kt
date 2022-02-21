@@ -11,7 +11,7 @@ class PreferencesManager(context: Context) {
 
     private val prefs = context.getSharedPreferences(PREFS_FILE_NAME, Context.MODE_PRIVATE)
 
-    var wallpaperParameters: ParticleLifeParameters?
+    var wallpaperParameters: ParticleLifeParameters? = null
         get() = prefs.getString(WALLPAPER_PARAMETERS_KEY, null)
             ?.let {
                 try {
@@ -20,9 +20,12 @@ class PreferencesManager(context: Context) {
                     null
                 }
             }?.extractParameters(0.0, 0.0)
-        set(value) {
-            prefs.edit().putString(WALLPAPER_PARAMETERS_KEY, value?.toJson().toString()).apply()
-        }
+        private set
+
+    fun setWallpaperParameters(value: ParticleLifeParameters?, keepMatrices: Boolean) {
+        prefs.edit().putString(WALLPAPER_PARAMETERS_KEY, value?.toJson(keepMatrices).toString())
+            .apply()
+    }
 
     var wallpaperRandomise: Boolean
         get() = prefs.getBoolean(WALLPAPER_RANDOMISE_KEY, false)

@@ -56,10 +56,10 @@ import org.json.JSONArray
 import org.json.JSONException
 import org.json.JSONObject
 
-fun ParticleLifeParameters.toJson(): JSONObject =
+fun ParticleLifeParameters.toJson(keepMatrices: Boolean): JSONObject =
     JSONObject().apply {
         put(GENERATION_KEY, generation.toJson())
-        put(RUNTIME_KEY, runtime.toJson())
+        put(RUNTIME_KEY, runtime.toJson(keepMatrices = keepMatrices))
         put(SPECIES_KEY, species.toJsonArray())
     }
 
@@ -73,11 +73,13 @@ private fun ParticleLifeParameters.GenerationParameters.toJson(): JSONObject =
         put(FORCE_DISTANCE_UPPER_BOUND_MAX_KEY, forceDistanceUpperBoundMax)
     }
 
-private fun ParticleLifeParameters.RuntimeParameters.toJson(): JSONObject =
+private fun ParticleLifeParameters.RuntimeParameters.toJson(keepMatrices: Boolean): JSONObject =
     JSONObject().apply {
-        put(FORCE_STRENGTHS_KEY, forceStrengths.toJsonArray())
-        put(FORCE_DISTANCE_LOWER_BOUNDS_KEY, forceDistanceLowerBounds.toJsonArray())
-        put(FORCE_DISTANCE_UPPER_BOUNDS_KEY, forceDistanceUpperBounds.toJsonArray())
+        if (keepMatrices) {
+            put(FORCE_STRENGTHS_KEY, forceStrengths.toJsonArray())
+            put(FORCE_DISTANCE_LOWER_BOUNDS_KEY, forceDistanceLowerBounds.toJsonArray())
+            put(FORCE_DISTANCE_UPPER_BOUNDS_KEY, forceDistanceUpperBounds.toJsonArray())
+        }
         put(PRESSURE_STRENGTH_KEY, pressureStrength)
         put(PRESSURE_DISTANCE_KEY, pressureDistance)
         put(FORCE_STRENGTH_SCALE_KEY, forceStrengthScale)
