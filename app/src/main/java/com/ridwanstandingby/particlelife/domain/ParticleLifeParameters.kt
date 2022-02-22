@@ -191,7 +191,7 @@ class ParticleLifeParameters(
         }
 
         fun asPreset(): Preset {
-            Preset.ALL.forEach { preset ->
+            Preset.all().forEach { preset ->
                 if (preset != Preset.Custom && copy().also { preset.applyPreset(it) }
                         .physicsParametersEquals(this)) {
                     return preset
@@ -262,7 +262,8 @@ class ParticleLifeParameters(
 
             companion object {
                 fun default(): Preset = BalancedChaos
-                val ALL = listOf(BalancedChaos, LittleCreatures, LargeCreatures, Behemoths, Custom)
+                fun all() =
+                    listOf(BalancedChaos, LittleCreatures, LargeCreatures, Behemoths, Custom)
             }
         }
 
@@ -341,19 +342,28 @@ class ParticleLifeParameters(
     fun copy() = ParticleLifeParameters(generation.copy(), runtime.copy(), species.toMutableList())
 
     sealed class ShuffleForceValues {
-        object Always : ShuffleForceValues()
+        interface Timed {
+            val time: Duration
+        }
 
-        sealed class Timed(val time: Duration) : ShuffleForceValues() {
-            object Every5Minutes : Timed(5.minutes)
-            object EveryHour : Timed(1.hours)
-            object EveryDay : Timed(1.days)
+        object Always : ShuffleForceValues()
+        object Every5Minutes : ShuffleForceValues(), Timed {
+            override val time: Duration = 5.minutes
+        }
+
+        object EveryHour : ShuffleForceValues(), Timed {
+            override val time: Duration = 1.hours
+        }
+
+        object EveryDay : ShuffleForceValues(), Timed {
+            override val time: Duration = 1.days
         }
 
         object Never : ShuffleForceValues()
 
         companion object {
-            val DEFAULT = Timed.EveryHour
-            val ALL = listOf(Always, Timed.Every5Minutes, Timed.EveryHour, Timed.EveryDay, Never)
+            val DEFAULT = EveryHour
+            fun all() = listOf(Always, Every5Minutes, EveryHour, EveryDay, Never)
         }
     }
 

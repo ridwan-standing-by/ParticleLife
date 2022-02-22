@@ -52,8 +52,8 @@ fun ParticleLifeParameters.RuntimeParameters.Preset?.nameString() =
 fun ParticleLifeParameters.ShuffleForceValues.nameString() =
     when (this) {
         ParticleLifeParameters.ShuffleForceValues.Always -> R.string.shuffle_force_values_always
-        ParticleLifeParameters.ShuffleForceValues.Timed.Every5Minutes -> R.string.shuffle_force_values_every_5_minutes
-        ParticleLifeParameters.ShuffleForceValues.Timed.EveryDay -> R.string.shuffle_force_values_every_day
-        ParticleLifeParameters.ShuffleForceValues.Timed.EveryHour -> R.string.shuffle_force_values_every_hour
+        ParticleLifeParameters.ShuffleForceValues.Every5Minutes -> R.string.shuffle_force_values_every_5_minutes
+        ParticleLifeParameters.ShuffleForceValues.EveryDay -> R.string.shuffle_force_values_every_day
+        ParticleLifeParameters.ShuffleForceValues.EveryHour -> R.string.shuffle_force_values_every_hour
         ParticleLifeParameters.ShuffleForceValues.Never -> R.string.shuffle_force_values_never
     }

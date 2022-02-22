@@ -132,7 +132,7 @@ private fun BoxScope.PresetSelectionWidget(
     selectedPreset: MutableState<ParticleLifeParameters.RuntimeParameters.Preset>,
     runtimeParametersChanged: (ParticleLifeParameters.RuntimeParameters.() -> Unit) -> Unit
 ) {
-    val presets = ParticleLifeParameters.RuntimeParameters.Preset.ALL
+    val presets = ParticleLifeParameters.RuntimeParameters.Preset.all()
     var expanded by remember { mutableStateOf(false) }
 
     val focusManager = LocalFocusManager.current

@@ -197,7 +197,7 @@ private fun BoxScope.WallpaperPhysicsSelectionWidget(
     selectedWallpaperPhysics: MutableState<WallpaperPhysicsSetting>,
     wallpaperParametersChanged: (ParticleLifeParameters.() -> Unit?) -> Unit
 ) {
-    val options = ParticleLifeParameters.RuntimeParameters.Preset.ALL + Randomise
+    val options = ParticleLifeParameters.RuntimeParameters.Preset.all() + Randomise
     var expanded by remember { mutableStateOf(false) }
 
     val focusManager = LocalFocusManager.current
@@ -282,7 +282,7 @@ private fun ColumnScope.WallpaperShuffleForceValuesSelectionWidget(
                 focusManager.clearFocus()
             }
         ) {
-            ParticleLifeParameters.ShuffleForceValues.ALL.forEach { option ->
+            ParticleLifeParameters.ShuffleForceValues.all().forEach { option ->
                 DropdownMenuItem(
                     onClick = {
                         changeWallpaperForceValues(option)
