@@ -123,7 +123,7 @@ class ParticleLifeWallpaperService : WallpaperService() {
                 ParticleLifeParameters.ShuffleForceValues.Always -> true
                 is ParticleLifeParameters.ShuffleForceValues.Timed ->
                     now > lastRandomiseUnixMs + shuffle.time.inWholeMilliseconds
-                ParticleLifeParameters.ShuffleForceValues.Never -> false
+                else -> false
             }
 
             if (doRandomise) {
