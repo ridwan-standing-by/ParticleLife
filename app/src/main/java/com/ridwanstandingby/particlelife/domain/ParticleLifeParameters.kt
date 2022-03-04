@@ -1,6 +1,5 @@
 package com.ridwanstandingby.particlelife.domain
 
-import android.graphics.Color
 import com.ridwanstandingby.verve.animation.AnimationParameters
 import kotlin.math.log2
 import kotlin.math.pow
@@ -26,24 +25,11 @@ class ParticleLifeParameters(
         var forceDistanceUpperBoundMax: Double = FORCE_DISTANCE_RANGE_UPPER_DEFAULT
     ) {
         fun generateSpecies(): List<Species> =
-            listOf(
-                Species(Color.RED),
-                Species(Color.YELLOW),
-                Species(Color.GREEN),
-                Species(Color.CYAN),
-                Species(Color.BLUE),
-                Species(Color.MAGENTA),
-                Species(-0x00C0FF91), // Purple
-                Species(-0x0090C100), // Brown
-                Species(-0x00909091), // Gray
-                Species(Color.WHITE)
-            ).take(
-                when {
-                    nSpecies < N_SPECIES_MIN -> N_SPECIES_MIN
-                    nSpecies > N_SPECIES_MAX -> N_SPECIES_MAX
-                    else -> nSpecies
-                }
-            )
+            when {
+                nSpecies < N_SPECIES_MIN -> N_SPECIES_MIN
+                nSpecies > N_SPECIES_MAX -> N_SPECIES_MAX
+                else -> nSpecies
+            }.let { buildColors(it) }.map { Species(it) }
 
         fun generateRandomForceStrengthMatrix() =
             Array(nSpecies) {
@@ -98,9 +84,9 @@ class ParticleLifeParameters(
             const val N_PARTICLES_MIN = 50
             const val N_PARTICLES_MAX = 1000
 
-            const val N_SPECIES_DEFAULT = 6
+            const val N_SPECIES_DEFAULT = 7
             const val N_SPECIES_MIN = 1
-            const val N_SPECIES_MAX = 10
+            const val N_SPECIES_MAX = 12
 
             const val FORCE_STRENGTH_RANGE_LOWER_DEFAULT = -1.0
             const val FORCE_STRENGTH_RANGE_UPPER_DEFAULT = 1.0

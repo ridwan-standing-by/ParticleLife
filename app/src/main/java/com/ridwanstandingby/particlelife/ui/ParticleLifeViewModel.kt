@@ -59,21 +59,22 @@ class ParticleLifeViewModel(
     )
 
     private val renderer = ParticleLifeRenderer(easterBitmap = easterBitmap)
-
     private val input = ParticleLifeInput()
-
     private lateinit var animation: ParticleLifeAnimation
+
+    private var animationStarted = false
+
     fun start(swipeDetector: SwipeDetector, pressDetector: PressDetector) {
         Log.i("ParticleLifeViewModel::started")
         input.swipeDetector = swipeDetector
         input.pressDetector = pressDetector
+        if (animationStarted) return else animationStarted = true
         animationRunner.start(
             ParticleLifeAnimation(parameters.value, renderer, input).also { animation = it }
         )
     }
 
     fun onViewSizeChanged(viewSize: FloatVector2, rotation: Int) {
-        Log.i("ParticleLifeViewModel::onViewSizeChanged")
         when (rotation) {
             Surface.ROTATION_0, Surface.ROTATION_180 -> {
                 parameters.value.runtime.xMax = viewSize.x.toDouble()

@@ -4,8 +4,8 @@ buildscript {
     ext {
         kotlinVersion = "1.6.10"
         koinVersion = "3.1.4"
-        composeVersion = "1.1.0-rc01"
-        composeCompilerVersion = "1.1.0-rc02"
+        composeVersion = "1.1.1"
+        composeCompilerVersion = "1.1.1"
         androidActivityComposeVersion = "1.4.0"
 
         bugsnag_gradle_plugin_version = "7.2.0"
@@ -17,7 +17,7 @@ buildscript {
         mavenCentral()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:7.1.1'
+        classpath 'com.android.tools.build:gradle:7.1.2'
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinVersion"
         classpath "com.bugsnag:bugsnag-android-gradle-plugin:$bugsnag_gradle_plugin_version"
     }
