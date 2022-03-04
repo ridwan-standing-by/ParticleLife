@@ -4,8 +4,8 @@ buildscript {
     ext {
         kotlinVersion = "1.6.10"
         koinVersion = "3.1.4"
-        composeVersion = "1.1.0-rc01"
-        composeCompilerVersion = "1.1.0-rc02"
+        composeVersion = "1.1.1"
+        composeCompilerVersion = "1.1.1"
         androidActivityComposeVersion = "1.4.0"
 
         bugsnag_gradle_plugin_version = "7.2.0"
