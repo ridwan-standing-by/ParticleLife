@@ -145,9 +145,8 @@ class ParticleLifeAnimation(
         dt: Double,
         timeScale: Double
     ) {
-        val dts = dt * timeScale
-        particle.x += particle.xv * dts
-        particle.y += particle.yv * dts
+        particle.x += particle.xv * dt * timeScale
+        particle.y += particle.yv * dt * timeScale
     }
 
     private inline fun ParticleLifeParameters.RuntimeParameters.applyToroidalWrapping(particle: Particle) {
