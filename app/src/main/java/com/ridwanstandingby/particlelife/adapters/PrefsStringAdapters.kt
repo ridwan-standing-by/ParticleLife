@@ -1,25 +1,25 @@
 package com.ridwanstandingby.particlelife.adapters
 
-import com.ridwanstandingby.particlelife.domain.ParticleLifeParameters
+import com.ridwanstandingby.particlelife.wallpaper.ShuffleForceValues
 import com.ridwanstandingby.particlelife.wallpaper.WallpaperMode
 
-fun ParticleLifeParameters.ShuffleForceValues.toPrefsString() =
+fun ShuffleForceValues.toPrefsString() =
     when (this) {
-        ParticleLifeParameters.ShuffleForceValues.Always -> ALWAYS
-        ParticleLifeParameters.ShuffleForceValues.Every5Minutes -> EVERY_5_MINUTES
-        ParticleLifeParameters.ShuffleForceValues.EveryHour -> EVERY_HOUR
-        ParticleLifeParameters.ShuffleForceValues.EveryDay -> EVERY_DAY
-        ParticleLifeParameters.ShuffleForceValues.Never -> NEVER
+        ShuffleForceValues.Always -> ALWAYS
+        ShuffleForceValues.Every5Minutes -> EVERY_5_MINUTES
+        ShuffleForceValues.EveryHour -> EVERY_HOUR
+        ShuffleForceValues.EveryDay -> EVERY_DAY
+        ShuffleForceValues.Never -> NEVER
     }
 
 fun String?.toShuffleForceValues() =
     when (this) {
-        ALWAYS -> ParticleLifeParameters.ShuffleForceValues.Always
-        EVERY_5_MINUTES -> ParticleLifeParameters.ShuffleForceValues.Every5Minutes
-        EVERY_HOUR -> ParticleLifeParameters.ShuffleForceValues.EveryHour
-        EVERY_DAY -> ParticleLifeParameters.ShuffleForceValues.EveryDay
-        NEVER -> ParticleLifeParameters.ShuffleForceValues.Never
-        else -> ParticleLifeParameters.ShuffleForceValues.DEFAULT
+        ALWAYS -> ShuffleForceValues.Always
+        EVERY_5_MINUTES -> ShuffleForceValues.Every5Minutes
+        EVERY_HOUR -> ShuffleForceValues.EveryHour
+        EVERY_DAY -> ShuffleForceValues.EveryDay
+        NEVER -> ShuffleForceValues.Never
+        else -> ShuffleForceValues.DEFAULT
     }
 
 private const val ALWAYS = "Always"

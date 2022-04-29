@@ -59,7 +59,9 @@
     <string name="wallpaper_info">Customize and set a live wallpaper</string>
     <string name="set_wallpaper_button_label">Set Wallpaper</string>
     <string name="physics_settings_label">Physics settings</string>
-    <string name="import_settings_label">Import settings</string>
+    <string name="wallpaper_mode_preset">Preset</string>
+    <string name="wallpaper_mode_randomise">Randomise</string>
+    <string name="wallpaper_mode_current_settings">Use current settings</string>
     <string name="shuffle_force_values_label">Shuffle force values</string>
     <string name="shuffle_force_values_always">Every time</string>
     <string name="shuffle_force_values_every_5_minutes">Every 5 minutes</string>

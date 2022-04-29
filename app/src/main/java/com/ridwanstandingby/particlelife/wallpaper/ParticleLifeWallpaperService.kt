@@ -120,8 +120,8 @@ class ParticleLifeWallpaperService : WallpaperService() {
         private fun randomiseParametersIfNecessary() {
             val now = System.currentTimeMillis()
             val doRandomise = when (val shuffle = prefs.wallpaperShuffleForceValues) {
-                ParticleLifeParameters.ShuffleForceValues.Always -> true
-                is ParticleLifeParameters.ShuffleForceValues.Timed ->
+                ShuffleForceValues.Always -> true
+                is ShuffleForceValues.Timed ->
                     now > lastRandomiseUnixMs + shuffle.time.inWholeMilliseconds
                 else -> false
             }

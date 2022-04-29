@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.SharedPreferences
 import com.ridwanstandingby.particlelife.adapters.*
 import com.ridwanstandingby.particlelife.domain.ParticleLifeParameters
+import com.ridwanstandingby.particlelife.wallpaper.ShuffleForceValues
 import com.ridwanstandingby.particlelife.wallpaper.WallpaperMode
 import org.json.JSONException
 import org.json.JSONObject
@@ -34,7 +35,7 @@ class PreferencesManager(context: Context) {
         get() = prefs.getString(WALLPAPER_MODE_KEY, null).toWallpaperMode()
         set(value) = prefs.edit().putString(WALLPAPER_MODE_KEY, value.toPrefsString()).apply()
 
-    var wallpaperShuffleForceValues: ParticleLifeParameters.ShuffleForceValues
+    var wallpaperShuffleForceValues: ShuffleForceValues
         get() = prefs.getString(WALLPAPER_SHUFFLE_FORCE_VALUES_KEY, null).toShuffleForceValues()
         set(value) = prefs.edit()
             .putString(WALLPAPER_SHUFFLE_FORCE_VALUES_KEY, value.toPrefsString()).apply()

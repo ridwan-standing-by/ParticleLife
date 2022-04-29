@@ -17,6 +17,7 @@ import androidx.compose.ui.unit.dp
 import com.ridwanstandingby.particlelife.R
 import com.ridwanstandingby.particlelife.domain.ParticleLifeParameters
 import com.ridwanstandingby.particlelife.ui.theme.ParticleLifeTheme
+import com.ridwanstandingby.particlelife.wallpaper.ShuffleForceValues
 
 @Composable
 fun WallpaperContent(
@@ -24,11 +25,10 @@ fun WallpaperContent(
     editHandOfGodPanelExpanded: MutableState<HandOfGodPanelMode>,
     selectedWallpaperPhysics: MutableState<WallpaperPhysicsSetting>,
     setWallpaperClicked: () -> Unit,
-    importWallpaperSettingsClicked: () -> Unit,
     wallpaperParameters: State<ParticleLifeParameters>,
-    wallpaperParametersChanged: (ParticleLifeParameters.() -> Unit?) -> Unit,
-    wallpaperShuffleForceValues: State<ParticleLifeParameters.ShuffleForceValues>,
-    changeWallpaperForceValues: (ParticleLifeParameters.ShuffleForceValues) -> Unit
+    wallpaperParametersChanged: (ParticleLifeParameters.() -> Unit) -> Unit,
+    wallpaperShuffleForceValues: State<ShuffleForceValues>,
+    changeWallpaperForceValues: (ShuffleForceValues) -> Unit
 ) {
     Column(
         Modifier
@@ -64,10 +64,9 @@ fun WallpaperContent(
         )
         if (isPortrait()) {
             SetWallpaperButton(setWallpaperClicked)
-            WallpaperPhysicsSelectionAndImportButton(
+            WallpaperPhysicsSelectionWidget(
                 selectedWallpaperPhysics,
-                wallpaperParametersChanged,
-                importWallpaperSettingsClicked
+                wallpaperParametersChanged
             )
             WallpaperShuffleForceValuesSelectionWidget(
                 wallpaperShuffleForceValues,
@@ -96,10 +95,9 @@ fun WallpaperContent(
                         .padding(end = 12.dp)
                 ) {
                     SetWallpaperButton(setWallpaperClicked)
-                    WallpaperPhysicsSelectionAndImportButton(
+                    WallpaperPhysicsSelectionWidget(
                         selectedWallpaperPhysics,
-                        wallpaperParametersChanged,
-                        importWallpaperSettingsClicked
+                        wallpaperParametersChanged
                     )
                     WallpaperShuffleForceValuesSelectionWidget(
                         wallpaperShuffleForceValues,
@@ -150,34 +148,13 @@ private fun ColumnScope.SetWallpaperButton(setWallpaperClicked: () -> Unit) {
     }
 }
 
-@Composable
-private fun WallpaperPhysicsSelectionAndImportButton(
-    selectedWallpaperPhysics: MutableState<WallpaperPhysicsSetting>,
-    wallpaperParametersChanged: (ParticleLifeParameters.() -> Unit?) -> Unit,
-    @Suppress("UNUSED_PARAMETER") onImportWallpaperSettingsClicked: () -> Unit // TODO : Un-suppress when import implemented
-) {
-    Row(
-        Modifier
-            .fillMaxWidth()
-            .height(IntrinsicSize.Min)
-            .padding(top = 4.dp)
-    ) {
-        Box(
-            Modifier
-                .fillMaxWidth()
-        ) {
-            WallpaperPhysicsSelectionWidget(selectedWallpaperPhysics, wallpaperParametersChanged)
-        }
-    }
-}
-
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
-private fun BoxScope.WallpaperPhysicsSelectionWidget(
+private fun ColumnScope.WallpaperPhysicsSelectionWidget(
     selectedWallpaperPhysics: MutableState<WallpaperPhysicsSetting>,
-    wallpaperParametersChanged: (ParticleLifeParameters.() -> Unit?) -> Unit
+    wallpaperParametersChanged: (ParticleLifeParameters.() -> Unit) -> Unit
 ) {
-    val options = ParticleLifeParameters.RuntimeParameters.Preset.all() + Randomise
+    val options = ParticleLifeParameters.RuntimeParameters.Preset.all()
     var expanded by remember { mutableStateOf(false) }
 
     val focusManager = LocalFocusManager.current
@@ -188,9 +165,9 @@ private fun BoxScope.WallpaperPhysicsSelectionWidget(
             focusManager.clearFocus()
         },
         modifier = Modifier
-            .padding(vertical = 4.dp)
+            .padding(top = 8.dp, bottom = 4.dp)
             .fillMaxWidth()
-            .align(Alignment.Center)
+            .align(Alignment.CenterHorizontally)
     ) {
         TextField(
             readOnly = true,
@@ -213,7 +190,7 @@ private fun BoxScope.WallpaperPhysicsSelectionWidget(
                 DropdownMenuItem(
                     onClick = {
                         selectedWallpaperPhysics.value = option
-                        wallpaperParametersChanged { option?.applyPreset(this.runtime) }
+                        wallpaperParametersChanged { option.applyPreset(this.runtime) }
                         expanded = false
                         focusManager.clearFocus()
                     }
@@ -228,8 +205,8 @@ private fun BoxScope.WallpaperPhysicsSelectionWidget(
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 private fun ColumnScope.WallpaperShuffleForceValuesSelectionWidget(
-    wallpaperShuffleForceValues: State<ParticleLifeParameters.ShuffleForceValues>,
-    changeWallpaperForceValues: (ParticleLifeParameters.ShuffleForceValues) -> Unit
+    wallpaperShuffleForceValues: State<ShuffleForceValues>,
+    changeWallpaperForceValues: (ShuffleForceValues) -> Unit
 ) {
     var expanded by remember { mutableStateOf(false) }
 
@@ -262,7 +239,7 @@ private fun ColumnScope.WallpaperShuffleForceValuesSelectionWidget(
                 focusManager.clearFocus()
             }
         ) {
-            ParticleLifeParameters.ShuffleForceValues.all().forEach { option ->
+            ShuffleForceValues.all().forEach { option ->
                 DropdownMenuItem(
                     onClick = {
                         changeWallpaperForceValues(option)
@@ -297,12 +274,11 @@ fun WallpaperCardUiPreview() {
                     mutableStateOf(ParticleLifeParameters.RuntimeParameters.Preset.default())
                 },
                 setWallpaperClicked = {},
-                importWallpaperSettingsClicked = {},
                 wallpaperParameters = wallpaperParameters,
                 wallpaperParametersChanged = {
                     wallpaperParameters.value = wallpaperParameters.value.copy().apply { this.it() }
                 },
-                wallpaperShuffleForceValues = remember { mutableStateOf(ParticleLifeParameters.ShuffleForceValues.DEFAULT) },
+                wallpaperShuffleForceValues = remember { mutableStateOf(ShuffleForceValues.DEFAULT) },
                 changeWallpaperForceValues = {}
             )
         }
