@@ -1,6 +1,8 @@
-# ParticleLife
+# Particle Life
 
-A particle simulation Android app, designed to illustrate life-like behaviour emerging from particles obeying a set of simple rules.
+![Particle Life demo](particle_life_demo.gif)
+
+A particle simulation Android app, designed to illustrate life-like behaviour emerging from particles obeying a set of simple rules. Also, an Android Live Wallpaper. [Check out the app on Google Play!](https://play.google.com/store/apps/details?id=com.ridwanstandingby.particlelife)
 
 Each particle exerts a force on other nearby particles, depending on their species (represented by the different colours). This can either be a repulsion or an attraction, and is not necessarily symmetric. For example, red can be attracted to green, but green could be repulsed by red, which would result in red "chasing" green.
 
