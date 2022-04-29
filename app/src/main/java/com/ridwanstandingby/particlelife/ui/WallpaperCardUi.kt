@@ -17,8 +17,6 @@ import androidx.compose.ui.unit.dp
 import com.ridwanstandingby.particlelife.R
 import com.ridwanstandingby.particlelife.domain.ParticleLifeParameters
 import com.ridwanstandingby.particlelife.ui.theme.ParticleLifeTheme
-import com.ridwanstandingby.particlelife.ui.theme.icons.Icons
-import com.ridwanstandingby.particlelife.ui.theme.icons.rounded.FileDownload
 
 @Composable
 fun WallpaperContent(
@@ -90,11 +88,6 @@ fun WallpaperContent(
                 wallpaperRuntimeParameters,
                 wallpaperRuntimeParametersChanged
             )
-            TimeStepWidget(
-                selectedPreset = null,
-                wallpaperRuntimeParameters,
-                wallpaperRuntimeParametersChanged
-            )
         } else {
             Row(Modifier.fillMaxWidth()) {
                 Column(
@@ -138,11 +131,6 @@ fun WallpaperContent(
                         wallpaperRuntimeParameters,
                         wallpaperRuntimeParametersChanged
                     )
-                    TimeStepWidget(
-                        selectedPreset = null,
-                        wallpaperRuntimeParameters,
-                        wallpaperRuntimeParametersChanged
-                    )
                 }
             }
         }
@@ -177,17 +165,9 @@ private fun WallpaperPhysicsSelectionAndImportButton(
         Box(
             Modifier
                 .fillMaxWidth()
-//                .weight(0.75f, fill = true) TODO : Uncomment when import implemented
         ) {
             WallpaperPhysicsSelectionWidget(selectedWallpaperPhysics, wallpaperParametersChanged)
         }
-//        Box( TODO : Uncomment when import implemented
-//            Modifier
-//                .weight(0.25f, fill = true)
-//                .fillMaxHeight()
-//        ) {
-//            ImportButton(onImportWallpaperSettingsClicked)
-//        }
     }
 }
 
@@ -294,24 +274,6 @@ private fun ColumnScope.WallpaperShuffleForceValuesSelectionWidget(
                 }
             }
         }
-    }
-}
-
-@Composable
-// TODO : Un-suppress when import implemented
-@Suppress("UNUSED")
-private fun BoxScope.ImportButton(
-    onImportWallpaperSettingsClicked: () -> Unit
-) {
-    Button(
-        onClick = onImportWallpaperSettingsClicked,
-        modifier = Modifier
-            .padding(top = 4.dp, bottom = 4.dp, start = 8.dp)
-            .fillMaxWidth(0.95f)
-            .fillMaxHeight()
-            .align(Alignment.Center)
-    ) {
-        Icon(Icons.Rounded.FileDownload, stringResource(R.string.import_settings_label))
     }
 }
 

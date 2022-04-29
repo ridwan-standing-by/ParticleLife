@@ -6,7 +6,7 @@ import android.view.Surface
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.neverEqualPolicy
 import androidx.lifecycle.ViewModel
-import com.ridwanstandingby.particlelife.data.PreferencesManager
+import com.ridwanstandingby.particlelife.data.prefs.PreferencesManager
 import com.ridwanstandingby.particlelife.domain.ParticleLifeAnimation
 import com.ridwanstandingby.particlelife.domain.ParticleLifeInput
 import com.ridwanstandingby.particlelife.domain.ParticleLifeParameters
