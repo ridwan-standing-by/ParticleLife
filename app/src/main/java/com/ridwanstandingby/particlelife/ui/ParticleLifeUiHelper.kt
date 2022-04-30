@@ -24,6 +24,11 @@ enum class HandOfGodPanelMode {
     OFF, PHYSICS, WALLPAPER
 }
 
+enum class ToastMessage(@StringRes val id: Int) {
+    SAVED_CURRENT_SETTINGS_TO_WALLPAPER(R.string.saved_current_settings_to_wallpaper_toast),
+    LOADED_WALLPAPER_TO_CURRENT_SETTINGS(R.string.loaded_wallpaper_to_current_settings_toast)
+}
+
 typealias WallpaperPhysicsSetting = ParticleLifeParameters.RuntimeParameters.Preset
 
 @StringRes

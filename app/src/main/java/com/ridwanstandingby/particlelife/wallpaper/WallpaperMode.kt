@@ -2,8 +2,8 @@ package com.ridwanstandingby.particlelife.wallpaper
 
 enum class WallpaperMode {
     Preset,
-    Randomise,
-    CurrentSettings;
+    CurrentSettings,
+    Randomise;
 
     companion object {
         val DEFAULT = Preset

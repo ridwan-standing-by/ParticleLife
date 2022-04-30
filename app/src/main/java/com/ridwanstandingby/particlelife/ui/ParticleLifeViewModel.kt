@@ -67,10 +67,16 @@ class ParticleLifeViewModel(
 
     private var animationStarted = false
 
-    fun start(swipeDetector: SwipeDetector, pressDetector: PressDetector) {
-        Log.i("ParticleLifeViewModel::started")
+    private lateinit var makeToast: (ToastMessage) -> Unit
+    fun start(
+        swipeDetector: SwipeDetector,
+        pressDetector: PressDetector,
+        makeToast: (ToastMessage) -> Unit
+    ) {
+        Log.i("ParticleLifeViewModel::start")
         input.swipeDetector = swipeDetector
         input.pressDetector = pressDetector
+        this.makeToast = makeToast
         if (animationStarted) return else animationStarted = true
         animationRunner.start(
             ParticleLifeAnimation(parameters.value, renderer, input).also { animation = it }
@@ -141,15 +147,48 @@ class ParticleLifeViewModel(
         prefs.wallpaperMode = value
     }
 
-    fun saveCurrentSettingsToWallpaper() {
+    fun handleSetWallpaper(setWallpaper: () -> Unit) {
+        Log.i("ParticleLifeViewModel::handleSetWallpaper")
+        if (wallpaperMode.value == WallpaperMode.CurrentSettings) {
+            saveCurrentSettingsToWallpaper(showToast = false)
+        }
+        prefs.wallpaperParametersChanged = true
+        setWallpaper()
+    }
 
+    fun saveCurrentSettingsToWallpaper(showToast: Boolean) {
+        Log.i("ParticleLifeViewModel::saveCurrentSettingsToWallpaper")
+        changeWallpaperParameters {
+            parameters.value.let { current ->
+                generation = current.generation.copy()
+                runtime = current.runtime.copyWithOtherHandOfGodAndDims(this.runtime)
+                species = current.copySpecies()
+            }
+        }
+
+        if (showToast) makeToast(ToastMessage.SAVED_CURRENT_SETTINGS_TO_WALLPAPER)
     }
 
     fun loadCurrentSettingsFromWallpaper() {
+        Log.i("ParticleLifeViewModel::LoadCurrentSettingsFromWallpaper")
+        val newParameters = wallpaperParameters.value.let { wallpaper ->
+            ParticleLifeParameters(
+                generation = wallpaper.generation.copy(),
+                runtime = wallpaper.runtime.copyWithOtherHandOfGodAndDims(parameters.value.runtime),
+                species = wallpaper.copySpecies()
+            )
+        }
 
+        animation.restart(newParameters)
+        editForceStrengthsSelectedSpeciesIndex.value = 0
+        editForceDistancesSelectedSpeciesIndex.value = 0
+        parameters.value = newParameters
+
+        makeToast(ToastMessage.LOADED_WALLPAPER_TO_CURRENT_SETTINGS)
     }
 
     override fun onCleared() {
+        Log.i("ParticleLifeViewModel::onCleared")
         super.onCleared()
         animationRunner.stop()
     }

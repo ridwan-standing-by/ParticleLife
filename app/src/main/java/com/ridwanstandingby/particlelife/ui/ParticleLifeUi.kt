@@ -28,13 +28,14 @@ import com.ridwanstandingby.particlelife.ui.theme.ParticleLifeTheme
 import com.ridwanstandingby.particlelife.ui.theme.icons.Icons
 import com.ridwanstandingby.particlelife.ui.theme.icons.rounded.Tune
 import com.ridwanstandingby.particlelife.wallpaper.ShuffleForceValues
+import com.ridwanstandingby.particlelife.wallpaper.WallpaperMode
 import com.ridwanstandingby.verve.math.FloatVector2
 
 @Composable
 fun ParticleLifeActivityUi(
     createAnimationSurface: () -> SurfaceView,
     onTouchEvent: (MotionEvent?) -> Boolean,
-    setWallpaperClicked: () -> Unit,
+    setWallpaper: () -> Unit,
     vm: ParticleLifeViewModel
 ) {
     ParticleLifeUi(
@@ -56,11 +57,15 @@ fun ParticleLifeActivityUi(
         generationParametersChanged = vm::changeGenerationParameters,
         generateNewParticlesClicked = vm::generateNewParticles,
         selectedWallpaperPhysics = vm.selectedWallpaperPhysics,
-        setWallpaperClicked = setWallpaperClicked,
+        setWallpaperClicked = { vm.handleSetWallpaper(setWallpaper) },
         wallpaperParameters = derivedStateOf { vm.wallpaperParameters.value.copy() },
         wallpaperParametersChanged = vm::changeWallpaperParameters,
+        wallpaperMode = vm.wallpaperMode,
+        changeWallpaperMode = vm::changeWallpaperMode,
         wallpaperShuffleForceValues = vm.wallpaperShuffleForceValues,
-        changeWallpaperForceValues = vm::changeWallpaperShuffleForceValues
+        changeWallpaperForceValues = vm::changeWallpaperShuffleForceValues,
+        saveCurrentSettingsForWallpaper = { vm.saveCurrentSettingsToWallpaper(showToast = true) },
+        loadCurrentSettingsFromWallpaper = vm::loadCurrentSettingsFromWallpaper
     )
 }
 
@@ -88,8 +93,12 @@ fun ParticleLifeUi(
     setWallpaperClicked: () -> Unit,
     wallpaperParameters: State<ParticleLifeParameters>,
     wallpaperParametersChanged: (ParticleLifeParameters.() -> Unit) -> Unit,
+    wallpaperMode: State<WallpaperMode>,
+    changeWallpaperMode: (WallpaperMode) -> Unit,
     wallpaperShuffleForceValues: State<ShuffleForceValues>,
-    changeWallpaperForceValues: (ShuffleForceValues) -> Unit
+    changeWallpaperForceValues: (ShuffleForceValues) -> Unit,
+    saveCurrentSettingsForWallpaper: () -> Unit,
+    loadCurrentSettingsFromWallpaper: () -> Unit
 ) {
     ParticleLifeTheme {
         Scaffold {
@@ -139,8 +148,12 @@ fun ParticleLifeUi(
                     setWallpaperClicked,
                     wallpaperParameters,
                     wallpaperParametersChanged,
+                    wallpaperMode,
+                    changeWallpaperMode,
                     wallpaperShuffleForceValues,
-                    changeWallpaperForceValues
+                    changeWallpaperForceValues,
+                    saveCurrentSettingsForWallpaper,
+                    loadCurrentSettingsFromWallpaper
                 )
             }
         }
@@ -168,8 +181,12 @@ fun ControlPanelUi(
     setWallpaperClicked: () -> Unit,
     wallpaperParameters: State<ParticleLifeParameters>,
     wallpaperParametersChanged: (ParticleLifeParameters.() -> Unit) -> Unit,
+    wallpaperMode: State<WallpaperMode>,
+    changeWallpaperMode: (WallpaperMode) -> Unit,
     wallpaperShuffleForceValues: State<ShuffleForceValues>,
-    changeWallpaperForceValues: (ShuffleForceValues) -> Unit
+    changeWallpaperForceValues: (ShuffleForceValues) -> Unit,
+    saveCurrentSettingsForWallpaper: () -> Unit,
+    loadCurrentSettingsFromWallpaper: () -> Unit
 ) {
     val foregroundCardModifier = if (isPortrait()) {
         Modifier
@@ -200,8 +217,12 @@ fun ControlPanelUi(
                     setWallpaperClicked,
                     wallpaperParameters,
                     wallpaperParametersChanged,
+                    wallpaperMode,
+                    changeWallpaperMode,
                     wallpaperShuffleForceValues,
-                    changeWallpaperForceValues
+                    changeWallpaperForceValues,
+                    saveCurrentSettingsForWallpaper,
+                    loadCurrentSettingsFromWallpaper
                 )
             }
         }
@@ -273,8 +294,12 @@ fun ControlPanelCardContent(
     setWallpaperClicked: () -> Unit,
     wallpaperParameters: State<ParticleLifeParameters>,
     wallpaperParametersChanged: (ParticleLifeParameters.() -> Unit) -> Unit,
+    wallpaperMode: State<WallpaperMode>,
+    changeWallpaperMode: (WallpaperMode) -> Unit,
     wallpaperShuffleForceValues: State<ShuffleForceValues>,
-    changeWallpaperForceValues: (ShuffleForceValues) -> Unit
+    changeWallpaperForceValues: (ShuffleForceValues) -> Unit,
+    saveCurrentSettingsForWallpaper: () -> Unit,
+    loadCurrentSettingsFromWallpaper: () -> Unit
 ) {
     Column {
         ControlPanelTabs(selectedTabIndex)
@@ -301,8 +326,12 @@ fun ControlPanelCardContent(
                 setWallpaperClicked,
                 wallpaperParameters,
                 wallpaperParametersChanged,
+                wallpaperMode,
+                changeWallpaperMode,
                 wallpaperShuffleForceValues,
-                changeWallpaperForceValues
+                changeWallpaperForceValues,
+                saveCurrentSettingsForWallpaper,
+                loadCurrentSettingsFromWallpaper
             )
             ControlPanelTab.ABOUT -> AboutContent()
         }

@@ -114,7 +114,14 @@ private fun PresetSelectionAndRandomiseButton(
             Modifier
                 .weight(0.80f, fill = true)
         ) {
-            PresetSelectionWidget(selectedPreset, runtimeParametersChanged)
+            PresetSelectionWidget(
+                selectedPreset,
+                runtimeParametersChanged,
+                Modifier
+                    .padding(vertical = 4.dp)
+                    .fillMaxWidth(0.9f)
+                    .align(Alignment.Center)
+            )
         }
         Box(
             Modifier
@@ -128,9 +135,10 @@ private fun PresetSelectionAndRandomiseButton(
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
-private fun BoxScope.PresetSelectionWidget(
+fun PresetSelectionWidget(
     selectedPreset: MutableState<ParticleLifeParameters.RuntimeParameters.Preset>,
-    runtimeParametersChanged: (ParticleLifeParameters.RuntimeParameters.() -> Unit) -> Unit
+    runtimeParametersChanged: (ParticleLifeParameters.RuntimeParameters.() -> Unit) -> Unit,
+    modifier: Modifier
 ) {
     val presets = ParticleLifeParameters.RuntimeParameters.Preset.all()
     var expanded by remember { mutableStateOf(false) }
@@ -142,10 +150,7 @@ private fun BoxScope.PresetSelectionWidget(
             expanded = !expanded
             focusManager.clearFocus()
         },
-        modifier = Modifier
-            .padding(vertical = 4.dp)
-            .fillMaxWidth(0.9f)
-            .align(Alignment.Center)
+        modifier = modifier
     ) {
         TextField(
             readOnly = true,
@@ -164,7 +169,6 @@ private fun BoxScope.PresetSelectionWidget(
                 focusManager.clearFocus()
             }
         ) {
-
             presets.forEach { preset ->
                 DropdownMenuItem(
                     onClick = {
@@ -341,7 +345,8 @@ fun HandOfGodEnabledSwitchWidget(
         }
         Text(
             text = stringResource(R.string.enable_hand_of_god_description),
-            style = MaterialTheme.typography.caption
+            style = MaterialTheme.typography.caption,
+            modifier = Modifier.padding(bottom = 6.dp)
         )
     }
 }

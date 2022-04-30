@@ -5,10 +5,6 @@ import kotlin.math.log2
 import kotlin.math.pow
 import kotlin.math.sqrt
 import kotlin.random.Random
-import kotlin.time.Duration
-import kotlin.time.Duration.Companion.days
-import kotlin.time.Duration.Companion.hours
-import kotlin.time.Duration.Companion.minutes
 
 class ParticleLifeParameters(
     var generation: GenerationParameters,
@@ -123,9 +119,12 @@ class ParticleLifeParameters(
     ) {
 
         fun copy(
-            forceStrengths: Array<Array<Double>> = this.forceStrengths,
-            forceDistanceLowerBounds: Array<Array<Double>> = this.forceDistanceLowerBounds,
+            forceStrengths: Array<Array<Double>> = this.forceStrengths
+                .map { it.clone() }.toTypedArray(),
+            forceDistanceLowerBounds: Array<Array<Double>> = this.forceDistanceLowerBounds
+                .map { it.clone() }.toTypedArray(),
             forceDistanceUpperBounds: Array<Array<Double>> = this.forceDistanceUpperBounds
+                .map { it.clone() }.toTypedArray()
         ) = RuntimeParameters(
             xMax = xMax,
             yMax = yMax,
@@ -145,6 +144,30 @@ class ParticleLifeParameters(
             beckonEnabled = beckonEnabled,
             beckonStrength = beckonStrength,
             beckonRadius = beckonRadius
+        )
+
+        fun copyWithOtherHandOfGodAndDims(other: RuntimeParameters) = RuntimeParameters(
+            xMax = other.xMax,
+            yMax = other.yMax,
+            forceStrengths = forceStrengths
+                .map { it.clone() }.toTypedArray(),
+            forceDistanceLowerBounds = forceDistanceLowerBounds
+                .map { it.clone() }.toTypedArray(),
+            forceDistanceUpperBounds = forceDistanceUpperBounds
+                .map { it.clone() }.toTypedArray(),
+            pressureStrength = pressureStrength,
+            pressureDistance = pressureDistance,
+            forceStrengthScale = forceStrengthScale,
+            forceDistanceScale = forceDistanceScale,
+            friction = friction,
+            timeScale = timeScale,
+            handOfGodEnabled = other.handOfGodEnabled,
+            herdEnabled = other.herdEnabled,
+            herdStrength = other.herdStrength,
+            herdRadius = other.herdRadius,
+            beckonEnabled = other.beckonEnabled,
+            beckonStrength = other.beckonStrength,
+            beckonRadius = other.beckonRadius
         )
 
         fun randomise() {
@@ -325,7 +348,9 @@ class ParticleLifeParameters(
     fun generateRandomParticles(): List<Particle> =
         generation.generateRandomParticles(runtime.xMax, runtime.yMax, species)
 
-    fun copy() = ParticleLifeParameters(generation.copy(), runtime.copy(), species.toMutableList())
+    fun copy() = ParticleLifeParameters(generation.copy(), runtime.copy(), copySpecies())
+
+    fun copySpecies() = species.map { it.copy() }
 
     companion object {
         fun buildDefault(
