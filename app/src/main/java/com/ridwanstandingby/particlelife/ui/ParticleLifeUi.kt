@@ -22,10 +22,12 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.compose.ui.zIndex
+import com.ridwanstandingby.particlelife.R
 import com.ridwanstandingby.particlelife.domain.ParticleLifeParameters
 import com.ridwanstandingby.particlelife.domain.Species
 import com.ridwanstandingby.particlelife.ui.theme.ParticleLifeTheme
 import com.ridwanstandingby.particlelife.ui.theme.icons.Icons
+import com.ridwanstandingby.particlelife.ui.theme.icons.rounded.ArrowBack
 import com.ridwanstandingby.particlelife.ui.theme.icons.rounded.Tune
 import com.ridwanstandingby.particlelife.wallpaper.ShuffleForceValues
 import com.ridwanstandingby.particlelife.wallpaper.WallpaperMode
@@ -261,7 +263,9 @@ fun ControlPanelUi(
         }
         FloatingActionButton(onClick = {
             when {
-                editForceStrengthsPanelExpanded.value || editForceDistancesPanelExpanded.value || editHandOfGodPanelExpanded.value != HandOfGodPanelMode.OFF -> {
+                editForceStrengthsPanelExpanded.value ||
+                        editForceDistancesPanelExpanded.value ||
+                        editHandOfGodPanelExpanded.value != HandOfGodPanelMode.OFF -> {
                     editForceStrengthsPanelExpanded.value = false
                     editForceDistancesPanelExpanded.value = false
                     editHandOfGodPanelExpanded.value = HandOfGodPanelMode.OFF
@@ -272,7 +276,24 @@ fun ControlPanelUi(
                 }
             }
         }) {
-            Icon(imageVector = Icons.Rounded.Tune, null)
+            val anyPanelExpanded = listOf(
+                controlPanelExpanded.value,
+                editForceStrengthsPanelExpanded.value,
+                editForceDistancesPanelExpanded.value,
+                editHandOfGodPanelExpanded.value != HandOfGodPanelMode.OFF
+            ).any { it }
+            Icon(
+                imageVector = if (anyPanelExpanded) {
+                    Icons.Rounded.ArrowBack
+                } else {
+                    Icons.Rounded.Tune
+                },
+                contentDescription = if (anyPanelExpanded) {
+                    stringResource(R.string.back_icon_content_description)
+                } else {
+                    stringResource(R.string.open_settings_icon_content_description)
+                }
+            )
         }
     }
 }

@@ -4,6 +4,8 @@
     <string name="wallpaper_title">Wallpaper</string>
     <string name="particles_title">Particles</string>
     <string name="about_title">About</string>
+    <string name="open_settings_icon_content_description">Open Settings</string>
+    <string name="back_icon_content_description">Back</string>
     <string name="physics_info">Change global simulation parameters</string>
     <string name="randomise_label">Randomise</string>
     <string name="preset_label">Physics preset</string>
