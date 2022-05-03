@@ -4,6 +4,7 @@ import android.app.WallpaperManager
 import android.content.ComponentName
 import android.content.Intent
 import android.os.Bundle
+import android.widget.Toast
 import androidx.activity.compose.setContent
 import com.ridwanstandingby.particlelife.wallpaper.ParticleLifeWallpaperService
 import com.ridwanstandingby.verve.activities.AnimationActivity
@@ -27,7 +28,7 @@ class ParticleLifeActivity : AnimationActivity() {
                 vm
             )
         }
-        vm.start(createSwipeDetector(), createPressDetector())
+        vm.start(createSwipeDetector(), createPressDetector(), ::makeToast)
     }
 
     override fun getAnimationRunner(): AnimationRunner = vm.animationRunner
@@ -45,6 +46,10 @@ class ParticleLifeActivity : AnimationActivity() {
             vm.controlPanelExpanded.value -> vm.controlPanelExpanded.value = false
             else -> super.onBackPressed()
         }
+
+    private fun makeToast(toast: ToastMessage) {
+        Toast.makeText(this, toast.id, Toast.LENGTH_LONG).show()
+    }
 
     private fun setWallpaperClicked() {
         val intent = Intent(WallpaperManager.ACTION_CHANGE_LIVE_WALLPAPER)

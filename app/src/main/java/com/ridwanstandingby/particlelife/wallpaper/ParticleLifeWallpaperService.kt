@@ -4,7 +4,7 @@ import android.content.res.Resources
 import android.service.wallpaper.WallpaperService
 import android.view.MotionEvent
 import android.view.SurfaceHolder
-import com.ridwanstandingby.particlelife.data.PreferencesManager
+import com.ridwanstandingby.particlelife.data.prefs.PreferencesManager
 import com.ridwanstandingby.particlelife.domain.ParticleLifeAnimation
 import com.ridwanstandingby.particlelife.domain.ParticleLifeInput
 import com.ridwanstandingby.particlelife.domain.ParticleLifeParameters
@@ -62,7 +62,7 @@ class ParticleLifeWallpaperService : WallpaperService() {
                     latestWidth ?: Resources.getSystem().displayMetrics.widthPixels.toDouble()
                 runtime.yMax =
                     latestHeight ?: Resources.getSystem().displayMetrics.heightPixels.toDouble()
-                if (prefs.wallpaperRandomise) runtime.randomise()
+                if (prefs.wallpaperMode == WallpaperMode.Randomise) runtime.randomise()
             }
 
         private fun configureHandOfGod() {
@@ -120,8 +120,8 @@ class ParticleLifeWallpaperService : WallpaperService() {
         private fun randomiseParametersIfNecessary() {
             val now = System.currentTimeMillis()
             val doRandomise = when (val shuffle = prefs.wallpaperShuffleForceValues) {
-                ParticleLifeParameters.ShuffleForceValues.Always -> true
-                is ParticleLifeParameters.ShuffleForceValues.Timed ->
+                ShuffleForceValues.Always -> true
+                is ShuffleForceValues.Timed ->
                     now > lastRandomiseUnixMs + shuffle.time.inWholeMilliseconds
                 else -> false
             }

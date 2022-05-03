@@ -7,6 +7,8 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.unit.dp
 import com.ridwanstandingby.particlelife.R
 import com.ridwanstandingby.particlelife.domain.ParticleLifeParameters
+import com.ridwanstandingby.particlelife.wallpaper.ShuffleForceValues
+import com.ridwanstandingby.particlelife.wallpaper.WallpaperMode
 
 val fabDiameter = 56.dp
 
@@ -22,9 +24,11 @@ enum class HandOfGodPanelMode {
     OFF, PHYSICS, WALLPAPER
 }
 
-typealias WallpaperPhysicsSetting = ParticleLifeParameters.RuntimeParameters.Preset?
+enum class ToastMessage(@StringRes val id: Int) {
+    LOADED_WALLPAPER_TO_CURRENT_SETTINGS(R.string.loaded_wallpaper_to_current_settings_toast)
+}
 
-val Randomise: WallpaperPhysicsSetting = null
+typealias WallpaperPhysicsSetting = ParticleLifeParameters.RuntimeParameters.Preset
 
 @StringRes
 fun ControlPanelTab.toTabNameString() =
@@ -49,11 +53,19 @@ fun ParticleLifeParameters.RuntimeParameters.Preset?.nameString() =
     }
 
 @StringRes
-fun ParticleLifeParameters.ShuffleForceValues.nameString() =
+fun ShuffleForceValues.nameString() =
     when (this) {
-        ParticleLifeParameters.ShuffleForceValues.Always -> R.string.shuffle_force_values_always
-        ParticleLifeParameters.ShuffleForceValues.Every5Minutes -> R.string.shuffle_force_values_every_5_minutes
-        ParticleLifeParameters.ShuffleForceValues.EveryDay -> R.string.shuffle_force_values_every_day
-        ParticleLifeParameters.ShuffleForceValues.EveryHour -> R.string.shuffle_force_values_every_hour
-        ParticleLifeParameters.ShuffleForceValues.Never -> R.string.shuffle_force_values_never
+        ShuffleForceValues.Always -> R.string.shuffle_force_values_always
+        ShuffleForceValues.Every5Minutes -> R.string.shuffle_force_values_every_5_minutes
+        ShuffleForceValues.EveryDay -> R.string.shuffle_force_values_every_day
+        ShuffleForceValues.EveryHour -> R.string.shuffle_force_values_every_hour
+        ShuffleForceValues.Never -> R.string.shuffle_force_values_never
+    }
+
+@StringRes
+fun WallpaperMode.nameString() =
+    when (this) {
+        WallpaperMode.Preset -> R.string.wallpaper_mode_preset
+        WallpaperMode.Randomise -> R.string.wallpaper_mode_randomise
+        WallpaperMode.CurrentSettings -> R.string.wallpaper_mode_current_settings
     }
