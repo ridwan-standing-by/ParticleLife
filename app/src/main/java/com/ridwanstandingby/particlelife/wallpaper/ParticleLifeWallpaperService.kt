@@ -1,13 +1,8 @@
 package com.ridwanstandingby.particlelife.wallpaper
 
-import android.content.BroadcastReceiver
-import android.content.Context
-import android.content.Intent
 import android.service.wallpaper.WallpaperService
 import android.view.MotionEvent
-import android.view.Surface
 import android.view.SurfaceHolder
-import android.view.WindowManager
 import com.ridwanstandingby.particlelife.data.prefs.PreferencesManager
 import com.ridwanstandingby.particlelife.domain.ParticleLifeAnimation
 import com.ridwanstandingby.particlelife.domain.ParticleLifeInput
