@@ -1,9 +1,13 @@
 package com.ridwanstandingby.particlelife.wallpaper
 
-import android.content.res.Resources
+import android.content.BroadcastReceiver
+import android.content.Context
+import android.content.Intent
 import android.service.wallpaper.WallpaperService
 import android.view.MotionEvent
+import android.view.Surface
 import android.view.SurfaceHolder
+import android.view.WindowManager
 import com.ridwanstandingby.particlelife.data.prefs.PreferencesManager
 import com.ridwanstandingby.particlelife.domain.ParticleLifeAnimation
 import com.ridwanstandingby.particlelife.domain.ParticleLifeInput
@@ -59,9 +63,9 @@ class ParticleLifeWallpaperService : WallpaperService() {
                     ParticleLifeParameters.GenerationParameters()
                 )).apply {
                 runtime.xMax =
-                    latestWidth ?: Resources.getSystem().displayMetrics.widthPixels.toDouble()
+                    latestWidth ?: desiredMinimumWidth.toDouble()
                 runtime.yMax =
-                    latestHeight ?: Resources.getSystem().displayMetrics.heightPixels.toDouble()
+                    latestHeight ?: desiredMinimumHeight.toDouble()
                 if (prefs.wallpaperMode == WallpaperMode.Randomise) runtime.randomise()
             }
 
@@ -82,6 +86,15 @@ class ParticleLifeWallpaperService : WallpaperService() {
                 setTouchEventsEnabled(false)
                 motionEventHandlers.clear()
             }
+        }
+
+        override fun onSurfaceChanged(
+            holder: SurfaceHolder?, format: Int, width: Int, height: Int
+        ) {
+            super.onSurfaceChanged(holder, format, width, height)
+            Log.i("ParticleLifeWallpaperService::onSurfaceChanged")
+            animation.parameters.runtime.xMax = width.toDouble().also { latestWidth = it }
+            animation.parameters.runtime.yMax = height.toDouble().also { latestHeight = it }
         }
 
         override fun onDesiredSizeChanged(desiredWidth: Int, desiredHeight: Int) {
