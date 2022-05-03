@@ -133,6 +133,7 @@ class ParticleLifeViewModel(
             prefs.setWallpaperParameters(it)
             prefs.wallpaperParametersChanged = true
         }
+        selectedWallpaperPhysics.value = wallpaperParameters.value.runtime.asPreset()
     }
 
     fun changeWallpaperShuffleForceValues(value: ShuffleForceValues) {
@@ -149,14 +150,11 @@ class ParticleLifeViewModel(
 
     fun handleSetWallpaper(setWallpaper: () -> Unit) {
         Log.i("ParticleLifeViewModel::handleSetWallpaper")
-        if (wallpaperMode.value == WallpaperMode.CurrentSettings) {
-            saveCurrentSettingsToWallpaper(showToast = false)
-        }
         prefs.wallpaperParametersChanged = true
         setWallpaper()
     }
 
-    fun saveCurrentSettingsToWallpaper(showToast: Boolean) {
+    fun saveCurrentSettingsToWallpaper(setWallpaper: () -> Unit) {
         Log.i("ParticleLifeViewModel::saveCurrentSettingsToWallpaper")
         changeWallpaperParameters {
             parameters.value.let { current ->
@@ -166,7 +164,7 @@ class ParticleLifeViewModel(
             }
         }
 
-        if (showToast) makeToast(ToastMessage.SAVED_CURRENT_SETTINGS_TO_WALLPAPER)
+        handleSetWallpaper(setWallpaper)
     }
 
     fun loadCurrentSettingsFromWallpaper() {
@@ -183,6 +181,7 @@ class ParticleLifeViewModel(
         editForceStrengthsSelectedSpeciesIndex.value = 0
         editForceDistancesSelectedSpeciesIndex.value = 0
         parameters.value = newParameters
+        selectedPreset.value = newParameters.runtime.asPreset()
 
         makeToast(ToastMessage.LOADED_WALLPAPER_TO_CURRENT_SETTINGS)
     }

@@ -66,7 +66,7 @@ fun ParticleLifeActivityUi(
         changeWallpaperMode = vm::changeWallpaperMode,
         wallpaperShuffleForceValues = vm.wallpaperShuffleForceValues,
         changeWallpaperForceValues = vm::changeWallpaperShuffleForceValues,
-        saveCurrentSettingsForWallpaper = { vm.saveCurrentSettingsToWallpaper(showToast = true) },
+        saveCurrentSettingsForWallpaper = { vm.saveCurrentSettingsToWallpaper(setWallpaper) },
         loadCurrentSettingsFromWallpaper = vm::loadCurrentSettingsFromWallpaper
     )
 }

@@ -72,7 +72,6 @@ fun WallpaperContent(
                 .padding(vertical = 4.dp)
         )
         if (isPortrait()) {
-            SetWallpaperButton(setWallpaperClicked)
             WallpaperModeOptions(wallpaperMode, changeWallpaperMode)
 
             Divider(
@@ -106,7 +105,6 @@ fun WallpaperContent(
                         .weight(0.5f)
                         .padding(end = 12.dp)
                 ) {
-                    SetWallpaperButton(setWallpaperClicked)
                     WallpaperModeOptions(wallpaperMode, changeWallpaperMode)
                 }
                 Divider(
@@ -160,6 +158,7 @@ private fun ColumnScope.WidgetsForMode(
 ) {
     when (wallpaperMode.value) {
         WallpaperMode.Preset -> {
+            SetWallpaperButton(setWallpaperClicked)
             WallpaperPhysicsSelectionWidget(
                 selectedWallpaperPhysics,
                 wallpaperRuntimeParametersChanged
@@ -185,6 +184,7 @@ private fun ColumnScope.WidgetsForMode(
             )
         }
         WallpaperMode.Randomise -> {
+            SetWallpaperButton(setWallpaperClicked)
             WallpaperShuffleForceValuesSelectionWidget(
                 wallpaperShuffleForceValues,
                 changeWallpaperForceValues
@@ -220,19 +220,6 @@ private fun ColumnScope.WidgetsForMode(
                 wallpaperRuntimeParametersChanged
             )
         }
-    }
-}
-
-@Composable
-private fun ColumnScope.SetWallpaperButton(setWallpaperClicked: () -> Unit) {
-    Button(
-        onClick = setWallpaperClicked,
-        modifier = Modifier
-            .padding(vertical = 4.dp)
-            .fillMaxWidth(0.95f)
-            .align(CenterHorizontally)
-    ) {
-        Text(stringResource(R.string.set_wallpaper_button_label))
     }
 }
 
@@ -274,6 +261,19 @@ private fun WallpaperModeOption(
                 .padding(horizontal = 4.dp)
                 .align(CenterVertically)
         )
+    }
+}
+
+@Composable
+private fun ColumnScope.SetWallpaperButton(setWallpaperClicked: () -> Unit) {
+    Button(
+        onClick = setWallpaperClicked,
+        modifier = Modifier
+            .padding(vertical = 4.dp)
+            .fillMaxWidth(0.95f)
+            .align(CenterHorizontally)
+    ) {
+        Text(stringResource(R.string.set_wallpaper_button_label))
     }
 }
 
@@ -349,7 +349,7 @@ private fun ColumnScope.SaveSettingsButton(saveSettingsClicked: () -> Unit) {
     Button(
         onClick = saveSettingsClicked,
         modifier = Modifier
-            .padding(top = 6.dp)
+            .padding(top = 4.dp)
             .fillMaxWidth(0.95f)
             .align(CenterHorizontally)
     ) {
