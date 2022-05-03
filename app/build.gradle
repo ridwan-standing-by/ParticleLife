@@ -19,8 +19,8 @@ android {
         applicationId "com.ridwanstandingby.particlelife"
         minSdk 21
         targetSdk 31
-        versionCode 9
-        versionName "1.6.2"
+        versionCode 10
+        versionName "1.7"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -61,8 +61,6 @@ android {
 dependencies {
     implementation project(path: ':verve')
 
-    implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlinVersion"
-
     // Android
     implementation 'androidx.core:core-ktx:1.7.0'
     implementation 'androidx.appcompat:appcompat:1.4.1'
@@ -89,5 +87,5 @@ dependencies {
     }
 
     // Logging
-    implementation "com.bugsnag:bugsnag-android:$bugsnag_android_version"
+    implementation "com.bugsnag:bugsnag-android:$bugsnagAndroidVersion"
 }

@@ -22,18 +22,22 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.compose.ui.zIndex
+import com.ridwanstandingby.particlelife.R
 import com.ridwanstandingby.particlelife.domain.ParticleLifeParameters
 import com.ridwanstandingby.particlelife.domain.Species
 import com.ridwanstandingby.particlelife.ui.theme.ParticleLifeTheme
 import com.ridwanstandingby.particlelife.ui.theme.icons.Icons
+import com.ridwanstandingby.particlelife.ui.theme.icons.rounded.ArrowBack
 import com.ridwanstandingby.particlelife.ui.theme.icons.rounded.Tune
+import com.ridwanstandingby.particlelife.wallpaper.ShuffleForceValues
+import com.ridwanstandingby.particlelife.wallpaper.WallpaperMode
 import com.ridwanstandingby.verve.math.FloatVector2
 
 @Composable
 fun ParticleLifeActivityUi(
     createAnimationSurface: () -> SurfaceView,
     onTouchEvent: (MotionEvent?) -> Boolean,
-    setWallpaperClicked: () -> Unit,
+    setWallpaper: () -> Unit,
     vm: ParticleLifeViewModel
 ) {
     ParticleLifeUi(
@@ -55,12 +59,15 @@ fun ParticleLifeActivityUi(
         generationParametersChanged = vm::changeGenerationParameters,
         generateNewParticlesClicked = vm::generateNewParticles,
         selectedWallpaperPhysics = vm.selectedWallpaperPhysics,
-        setWallpaperClicked = setWallpaperClicked,
-        importWallpaperSettingsClicked = vm::importWallpaperSettings,
+        setWallpaperClicked = { vm.handleSetWallpaper(setWallpaper) },
         wallpaperParameters = derivedStateOf { vm.wallpaperParameters.value.copy() },
         wallpaperParametersChanged = vm::changeWallpaperParameters,
+        wallpaperMode = vm.wallpaperMode,
+        changeWallpaperMode = vm::changeWallpaperMode,
         wallpaperShuffleForceValues = vm.wallpaperShuffleForceValues,
-        changeWallpaperForceValues = vm::changeWallpaperShuffleForceValues
+        changeWallpaperForceValues = vm::changeWallpaperShuffleForceValues,
+        saveCurrentSettingsForWallpaper = { vm.saveCurrentSettingsToWallpaper(setWallpaper) },
+        loadCurrentSettingsFromWallpaper = vm::loadCurrentSettingsFromWallpaper
     )
 }
 
@@ -86,11 +93,14 @@ fun ParticleLifeUi(
     generateNewParticlesClicked: () -> Unit,
     selectedWallpaperPhysics: MutableState<WallpaperPhysicsSetting>,
     setWallpaperClicked: () -> Unit,
-    importWallpaperSettingsClicked: () -> Unit,
     wallpaperParameters: State<ParticleLifeParameters>,
-    wallpaperParametersChanged: (ParticleLifeParameters.() -> Unit?) -> Unit,
-    wallpaperShuffleForceValues: State<ParticleLifeParameters.ShuffleForceValues>,
-    changeWallpaperForceValues: (ParticleLifeParameters.ShuffleForceValues) -> Unit
+    wallpaperParametersChanged: (ParticleLifeParameters.() -> Unit) -> Unit,
+    wallpaperMode: State<WallpaperMode>,
+    changeWallpaperMode: (WallpaperMode) -> Unit,
+    wallpaperShuffleForceValues: State<ShuffleForceValues>,
+    changeWallpaperForceValues: (ShuffleForceValues) -> Unit,
+    saveCurrentSettingsForWallpaper: () -> Unit,
+    loadCurrentSettingsFromWallpaper: () -> Unit
 ) {
     ParticleLifeTheme {
         Scaffold {
@@ -138,11 +148,14 @@ fun ParticleLifeUi(
                     generateNewParticlesClicked,
                     selectedWallpaperPhysics,
                     setWallpaperClicked,
-                    importWallpaperSettingsClicked,
                     wallpaperParameters,
                     wallpaperParametersChanged,
+                    wallpaperMode,
+                    changeWallpaperMode,
                     wallpaperShuffleForceValues,
-                    changeWallpaperForceValues
+                    changeWallpaperForceValues,
+                    saveCurrentSettingsForWallpaper,
+                    loadCurrentSettingsFromWallpaper
                 )
             }
         }
@@ -168,11 +181,14 @@ fun ControlPanelUi(
     generateNewParticlesClicked: () -> Unit,
     selectedWallpaperPhysics: MutableState<WallpaperPhysicsSetting>,
     setWallpaperClicked: () -> Unit,
-    importWallpaperSettingsClicked: () -> Unit,
     wallpaperParameters: State<ParticleLifeParameters>,
-    wallpaperParametersChanged: (ParticleLifeParameters.() -> Unit?) -> Unit,
-    wallpaperShuffleForceValues: State<ParticleLifeParameters.ShuffleForceValues>,
-    changeWallpaperForceValues: (ParticleLifeParameters.ShuffleForceValues) -> Unit
+    wallpaperParametersChanged: (ParticleLifeParameters.() -> Unit) -> Unit,
+    wallpaperMode: State<WallpaperMode>,
+    changeWallpaperMode: (WallpaperMode) -> Unit,
+    wallpaperShuffleForceValues: State<ShuffleForceValues>,
+    changeWallpaperForceValues: (ShuffleForceValues) -> Unit,
+    saveCurrentSettingsForWallpaper: () -> Unit,
+    loadCurrentSettingsFromWallpaper: () -> Unit
 ) {
     val foregroundCardModifier = if (isPortrait()) {
         Modifier
@@ -201,11 +217,14 @@ fun ControlPanelUi(
                     generateNewParticlesClicked,
                     selectedWallpaperPhysics,
                     setWallpaperClicked,
-                    importWallpaperSettingsClicked,
                     wallpaperParameters,
                     wallpaperParametersChanged,
+                    wallpaperMode,
+                    changeWallpaperMode,
                     wallpaperShuffleForceValues,
-                    changeWallpaperForceValues
+                    changeWallpaperForceValues,
+                    saveCurrentSettingsForWallpaper,
+                    loadCurrentSettingsFromWallpaper
                 )
             }
         }
@@ -244,7 +263,9 @@ fun ControlPanelUi(
         }
         FloatingActionButton(onClick = {
             when {
-                editForceStrengthsPanelExpanded.value || editForceDistancesPanelExpanded.value || editHandOfGodPanelExpanded.value != HandOfGodPanelMode.OFF -> {
+                editForceStrengthsPanelExpanded.value ||
+                        editForceDistancesPanelExpanded.value ||
+                        editHandOfGodPanelExpanded.value != HandOfGodPanelMode.OFF -> {
                     editForceStrengthsPanelExpanded.value = false
                     editForceDistancesPanelExpanded.value = false
                     editHandOfGodPanelExpanded.value = HandOfGodPanelMode.OFF
@@ -255,7 +276,24 @@ fun ControlPanelUi(
                 }
             }
         }) {
-            Icon(imageVector = Icons.Rounded.Tune, null)
+            val anyPanelExpanded = listOf(
+                controlPanelExpanded.value,
+                editForceStrengthsPanelExpanded.value,
+                editForceDistancesPanelExpanded.value,
+                editHandOfGodPanelExpanded.value != HandOfGodPanelMode.OFF
+            ).any { it }
+            Icon(
+                imageVector = if (anyPanelExpanded) {
+                    Icons.Rounded.ArrowBack
+                } else {
+                    Icons.Rounded.Tune
+                },
+                contentDescription = if (anyPanelExpanded) {
+                    stringResource(R.string.back_icon_content_description)
+                } else {
+                    stringResource(R.string.open_settings_icon_content_description)
+                }
+            )
         }
     }
 }
@@ -275,11 +313,14 @@ fun ControlPanelCardContent(
     generateNewParticlesClicked: () -> Unit,
     selectedWallpaperPhysics: MutableState<WallpaperPhysicsSetting>,
     setWallpaperClicked: () -> Unit,
-    importWallpaperSettingsClicked: () -> Unit,
     wallpaperParameters: State<ParticleLifeParameters>,
-    wallpaperParametersChanged: (ParticleLifeParameters.() -> Unit?) -> Unit,
-    wallpaperShuffleForceValues: State<ParticleLifeParameters.ShuffleForceValues>,
-    changeWallpaperForceValues: (ParticleLifeParameters.ShuffleForceValues) -> Unit
+    wallpaperParametersChanged: (ParticleLifeParameters.() -> Unit) -> Unit,
+    wallpaperMode: State<WallpaperMode>,
+    changeWallpaperMode: (WallpaperMode) -> Unit,
+    wallpaperShuffleForceValues: State<ShuffleForceValues>,
+    changeWallpaperForceValues: (ShuffleForceValues) -> Unit,
+    saveCurrentSettingsForWallpaper: () -> Unit,
+    loadCurrentSettingsFromWallpaper: () -> Unit
 ) {
     Column {
         ControlPanelTabs(selectedTabIndex)
@@ -304,11 +345,14 @@ fun ControlPanelCardContent(
                 editHandOfGodPanelExpanded,
                 selectedWallpaperPhysics,
                 setWallpaperClicked,
-                importWallpaperSettingsClicked,
                 wallpaperParameters,
                 wallpaperParametersChanged,
+                wallpaperMode,
+                changeWallpaperMode,
                 wallpaperShuffleForceValues,
-                changeWallpaperForceValues
+                changeWallpaperForceValues,
+                saveCurrentSettingsForWallpaper,
+                loadCurrentSettingsFromWallpaper
             )
             ControlPanelTab.ABOUT -> AboutContent()
         }

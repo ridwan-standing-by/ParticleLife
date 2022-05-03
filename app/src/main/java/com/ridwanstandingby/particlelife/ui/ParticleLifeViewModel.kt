@@ -6,12 +6,14 @@ import android.view.Surface
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.neverEqualPolicy
 import androidx.lifecycle.ViewModel
-import com.ridwanstandingby.particlelife.data.PreferencesManager
+import com.ridwanstandingby.particlelife.data.prefs.PreferencesManager
 import com.ridwanstandingby.particlelife.domain.ParticleLifeAnimation
 import com.ridwanstandingby.particlelife.domain.ParticleLifeInput
 import com.ridwanstandingby.particlelife.domain.ParticleLifeParameters
 import com.ridwanstandingby.particlelife.domain.ParticleLifeRenderer
 import com.ridwanstandingby.particlelife.logging.Log
+import com.ridwanstandingby.particlelife.wallpaper.ShuffleForceValues
+import com.ridwanstandingby.particlelife.wallpaper.WallpaperMode
 import com.ridwanstandingby.verve.animation.AnimationRunner
 import com.ridwanstandingby.verve.math.FloatVector2
 import com.ridwanstandingby.verve.sensor.press.PressDetector
@@ -32,9 +34,10 @@ class ParticleLifeViewModel(
     val editForceDistancesSelectedSpeciesIndex = mutableStateOf(0)
     val editHandOfGodPanelExpanded = mutableStateOf(HandOfGodPanelMode.OFF)
     val selectedWallpaperPhysics = mutableStateOf(
-        if (prefs.wallpaperRandomise) Randomise else prefs.getWallpaperParameters(randomiseMatrices = false)?.runtime?.asPreset()
+        prefs.getWallpaperParameters(randomiseMatrices = false)?.runtime?.asPreset()
             ?: WallpaperPhysicsSetting.default()
     )
+    val wallpaperMode = mutableStateOf(prefs.wallpaperMode)
     val wallpaperShuffleForceValues = mutableStateOf(prefs.wallpaperShuffleForceValues)
 
     val parameters = mutableStateOf(
@@ -64,10 +67,16 @@ class ParticleLifeViewModel(
 
     private var animationStarted = false
 
-    fun start(swipeDetector: SwipeDetector, pressDetector: PressDetector) {
-        Log.i("ParticleLifeViewModel::started")
+    private lateinit var makeToast: (ToastMessage) -> Unit
+    fun start(
+        swipeDetector: SwipeDetector,
+        pressDetector: PressDetector,
+        makeToast: (ToastMessage) -> Unit
+    ) {
+        Log.i("ParticleLifeViewModel::start")
         input.swipeDetector = swipeDetector
         input.pressDetector = pressDetector
+        this.makeToast = makeToast
         if (animationStarted) return else animationStarted = true
         animationRunner.start(
             ParticleLifeAnimation(parameters.value, renderer, input).also { animation = it }
@@ -118,29 +127,67 @@ class ParticleLifeViewModel(
         parameters.value = newParameters
     }
 
-    fun changeWallpaperParameters(block: ParticleLifeParameters.() -> Unit?) {
+    fun changeWallpaperParameters(block: ParticleLifeParameters.() -> Unit) {
         wallpaperParameters.value = wallpaperParameters.value.also {
-            prefs.wallpaperRandomise = it.block() == null
+            it.block()
             prefs.setWallpaperParameters(it)
             prefs.wallpaperParametersChanged = true
         }
+        selectedWallpaperPhysics.value = wallpaperParameters.value.runtime.asPreset()
     }
 
-    fun importWallpaperSettings() {
-        Log.i("ParticleLifeViewModel::importWallpaperSettings")
-        selectedWallpaperPhysics.value = ParticleLifeParameters.RuntimeParameters.Preset.Custom
-        changeWallpaperShuffleForceValues(ParticleLifeParameters.ShuffleForceValues.Never)
-        prefs.wallpaperParametersChanged = true
-        // TODO
-    }
-
-    fun changeWallpaperShuffleForceValues(value: ParticleLifeParameters.ShuffleForceValues) {
+    fun changeWallpaperShuffleForceValues(value: ShuffleForceValues) {
         Log.i("ParticleLifeViewModel::changeWallpaperShuffleForceValues")
         wallpaperShuffleForceValues.value = value
         prefs.wallpaperShuffleForceValues = value
     }
 
+    fun changeWallpaperMode(value: WallpaperMode) {
+        Log.i("ParticleLifeViewModel::changeWallpaperMode")
+        wallpaperMode.value = value
+        prefs.wallpaperMode = value
+    }
+
+    fun handleSetWallpaper(setWallpaper: () -> Unit) {
+        Log.i("ParticleLifeViewModel::handleSetWallpaper")
+        prefs.wallpaperParametersChanged = true
+        setWallpaper()
+    }
+
+    fun saveCurrentSettingsToWallpaper(setWallpaper: () -> Unit) {
+        Log.i("ParticleLifeViewModel::saveCurrentSettingsToWallpaper")
+        changeWallpaperParameters {
+            parameters.value.let { current ->
+                generation = current.generation.copy()
+                runtime = current.runtime.copyWithOtherHandOfGodAndDims(this.runtime)
+                species = current.copySpecies()
+            }
+        }
+
+        handleSetWallpaper(setWallpaper)
+    }
+
+    fun loadCurrentSettingsFromWallpaper() {
+        Log.i("ParticleLifeViewModel::LoadCurrentSettingsFromWallpaper")
+        val newParameters = wallpaperParameters.value.let { wallpaper ->
+            ParticleLifeParameters(
+                generation = wallpaper.generation.copy(),
+                runtime = wallpaper.runtime.copyWithOtherHandOfGodAndDims(parameters.value.runtime),
+                species = wallpaper.copySpecies()
+            )
+        }
+
+        animation.restart(newParameters)
+        editForceStrengthsSelectedSpeciesIndex.value = 0
+        editForceDistancesSelectedSpeciesIndex.value = 0
+        parameters.value = newParameters
+        selectedPreset.value = newParameters.runtime.asPreset()
+
+        makeToast(ToastMessage.LOADED_WALLPAPER_TO_CURRENT_SETTINGS)
+    }
+
     override fun onCleared() {
+        Log.i("ParticleLifeViewModel::onCleared")
         super.onCleared()
         animationRunner.stop()
     }
