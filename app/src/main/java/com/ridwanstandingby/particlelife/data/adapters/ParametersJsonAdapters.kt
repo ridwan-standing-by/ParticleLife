@@ -1,4 +1,4 @@
-package com.ridwanstandingby.particlelife.adapters
+package com.ridwanstandingby.particlelife.data.adapters
 
 import com.ridwanstandingby.particlelife.domain.ParticleLifeParameters
 import com.ridwanstandingby.particlelife.domain.ParticleLifeParameters.GenerationParameters.Companion.FORCE_DISTANCE_RANGE_LOWER_DEFAULT

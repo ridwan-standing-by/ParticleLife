@@ -1,4 +1,4 @@
-package com.ridwanstandingby.particlelife.adapters
+package com.ridwanstandingby.particlelife.data.adapters
 
 import com.ridwanstandingby.particlelife.wallpaper.ShuffleForceValues
 import com.ridwanstandingby.particlelife.wallpaper.WallpaperMode

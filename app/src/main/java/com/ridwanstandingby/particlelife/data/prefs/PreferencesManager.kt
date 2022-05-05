@@ -2,7 +2,7 @@ package com.ridwanstandingby.particlelife.data.prefs
 
 import android.content.Context
 import android.content.SharedPreferences
-import com.ridwanstandingby.particlelife.adapters.*
+import com.ridwanstandingby.particlelife.data.adapters.*
 import com.ridwanstandingby.particlelife.domain.ParticleLifeParameters
 import com.ridwanstandingby.particlelife.wallpaper.ShuffleForceValues
 import com.ridwanstandingby.particlelife.wallpaper.WallpaperMode
