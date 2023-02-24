@@ -16,7 +16,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.ridwanstandingby.particlelife.R
 import com.ridwanstandingby.particlelife.domain.ParticleLifeParameters
-import com.ridwanstandingby.particlelife.ui.theme.ParticleLifeTheme
 import com.ridwanstandingby.particlelife.ui.theme.icons.Icons
 import com.ridwanstandingby.particlelife.ui.theme.icons.rounded.Casino
 import com.ridwanstandingby.particlelife.ui.theme.icons.rounded.Tune
@@ -362,17 +361,15 @@ fun PhysicsCardUiPreview() {
             ).runtime, neverEqualPolicy()
         )
     }
-    ParticleLifeTheme {
-        Scaffold {
-            PhysicsContent(
-                controlPanelExpanded = remember { mutableStateOf(true) },
-                editHandOfGodPanelExpanded = remember { mutableStateOf(HandOfGodPanelMode.OFF) },
-                selectedPreset = remember { mutableStateOf(ParticleLifeParameters.RuntimeParameters.Preset.default()) },
-                runtimeParameters = runtimeParameters,
-                runtimeParametersChanged = {
-                    runtimeParameters.value = runtimeParameters.value.copy().apply(it)
-                }
-            )
-        }
+    ParticleLifePreview {
+        PhysicsContent(
+            controlPanelExpanded = remember { mutableStateOf(true) },
+            editHandOfGodPanelExpanded = remember { mutableStateOf(HandOfGodPanelMode.OFF) },
+            selectedPreset = remember { mutableStateOf(ParticleLifeParameters.RuntimeParameters.Preset.default()) },
+            runtimeParameters = runtimeParameters,
+            runtimeParametersChanged = {
+                runtimeParameters.value = runtimeParameters.value.copy().apply(it)
+            }
+        )
     }
 }

@@ -5,7 +5,6 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Button
 import androidx.compose.material.Divider
-import androidx.compose.material.Scaffold
 import androidx.compose.material.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -17,7 +16,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.ridwanstandingby.particlelife.R
 import com.ridwanstandingby.particlelife.domain.ParticleLifeParameters
-import com.ridwanstandingby.particlelife.ui.theme.ParticleLifeTheme
 import kotlin.math.roundToInt
 
 @Composable
@@ -224,18 +222,16 @@ fun ParticlesCardUiPreview() {
     val generationParameters = remember {
         mutableStateOf(ParticleLifeParameters.GenerationParameters(), neverEqualPolicy())
     }
-    ParticleLifeTheme {
-        Scaffold {
-            ParticlesContent(
-                controlPanelExpanded = remember { mutableStateOf(true) },
-                editForceStrengthsPanelExpanded = remember { mutableStateOf(false) },
-                editForceDistancesPanelExpanded = remember { mutableStateOf(false) },
-                generationParameters = generationParameters,
-                generationParametersChanged = {
-                    generationParameters.value = generationParameters.value.copy().apply(it)
-                },
-                generateNewParticlesClicked = {}
-            )
-        }
+    ParticleLifePreview {
+        ParticlesContent(
+            controlPanelExpanded = remember { mutableStateOf(true) },
+            editForceStrengthsPanelExpanded = remember { mutableStateOf(false) },
+            editForceDistancesPanelExpanded = remember { mutableStateOf(false) },
+            generationParameters = generationParameters,
+            generationParametersChanged = {
+                generationParameters.value = generationParameters.value.copy().apply(it)
+            },
+            generateNewParticlesClicked = {}
+        )
     }
 }

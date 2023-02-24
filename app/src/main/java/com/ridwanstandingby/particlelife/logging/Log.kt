@@ -9,6 +9,7 @@ object Log {
     private var bugsnagStarted = false
 
     fun init(context: Context) {
+        @Suppress("KotlinConstantConditions")
         if (BuildConfig.BUGSNAG_API_KEY != "NONE" && !BuildConfig.DEBUG) {
             Bugsnag.start(context)
             bugsnagStarted = true

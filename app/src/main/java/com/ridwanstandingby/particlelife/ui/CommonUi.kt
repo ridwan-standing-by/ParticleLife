@@ -109,7 +109,7 @@ fun TextRangePair(
                     .align(Alignment.CenterVertically)
             ) {
                 RangeSlider(
-                    values = values.first..values.second,
+                    value = values.first..values.second,
                     onValueChange = { onValueChange(Pair(it.start, it.endInclusive)) },
                     valueRange = range,
                     steps = steps

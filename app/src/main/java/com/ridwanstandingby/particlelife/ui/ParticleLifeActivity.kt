@@ -17,6 +17,8 @@ import org.koin.androidx.viewmodel.ext.android.viewModel
 class ParticleLifeActivity : AnimationActivity() {
 
     private val vm by viewModel<ParticleLifeViewModel>()
+    private val backHandler =
+        ParticleLifeActivityBackHandler(this, { vm }, { onBackPressedDispatcher })
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -27,25 +29,13 @@ class ParticleLifeActivity : AnimationActivity() {
                 ::setWallpaperClicked,
                 vm
             )
+            backHandler.updateCallbackEnabledState()
         }
         vm.start(createSwipeDetector(), createPressDetector(), ::makeToast)
+        backHandler.addCallbacks()
     }
 
     override fun getAnimationRunner(): AnimationRunner = vm.animationRunner
-
-    override fun onBackPressed() =
-        when {
-            vm.editHandOfGodPanelExpanded.value == HandOfGodPanelMode.OFF ||
-                    vm.editForceStrengthsPanelExpanded.value ||
-                    vm.editForceDistancesPanelExpanded.value -> {
-                vm.editHandOfGodPanelExpanded.value = HandOfGodPanelMode.OFF
-                vm.editForceStrengthsPanelExpanded.value = false
-                vm.editForceDistancesPanelExpanded.value = false
-                vm.controlPanelExpanded.value = true
-            }
-            vm.controlPanelExpanded.value -> vm.controlPanelExpanded.value = false
-            else -> super.onBackPressed()
-        }
 
     private fun makeToast(toast: ToastMessage) {
         Toast.makeText(this, toast.id, Toast.LENGTH_LONG).show()

@@ -20,7 +20,6 @@ import androidx.compose.ui.unit.dp
 import com.ridwanstandingby.particlelife.R
 import com.ridwanstandingby.particlelife.domain.ParticleLifeParameters
 import com.ridwanstandingby.particlelife.domain.Species
-import com.ridwanstandingby.particlelife.ui.theme.ParticleLifeTheme
 import com.ridwanstandingby.particlelife.ui.theme.icons.Icons
 import com.ridwanstandingby.particlelife.ui.theme.icons.rounded.ChevronRight
 import kotlin.math.roundToInt
@@ -243,7 +242,6 @@ fun EditForceDistancesPanelCardContent(
     }
 }
 
-@OptIn(ExperimentalMaterialApi::class)
 @Composable
 private fun EditForceStrengthSlider(
     thisSpeciesIndex: Int,
@@ -386,7 +384,7 @@ private fun EditForceDistanceSlider(
                 .align(Alignment.CenterVertically)
         ) {
             RangeSlider(
-                values = lowerValue..upperValue,
+                value = lowerValue..upperValue,
                 onValueChange = {
                     runtimeParametersChanged {
                         forceDistanceLowerBounds[selectedSpeciesIndex.value][thisSpeciesIndex] =
@@ -495,21 +493,19 @@ fun EditForceStrengthsPanelUiPreview() {
             ).runtime
         )
     }
-    ParticleLifeTheme {
-        Scaffold {
-            EditForceStrengthsPanelCardContent(
-                runtimeParameters = runtimeParameters,
-                runtimeParametersChanged = {
-                    runtimeParameters.value = runtimeParameters.value.copy().apply(it)
-                },
-                species = remember {
-                    mutableStateOf(
-                        ParticleLifeParameters.GenerationParameters().generateSpecies()
-                    )
-                },
-                editForceStrengthsSelectedSpeciesIndex = remember { mutableStateOf(0) }
-            )
-        }
+    ParticleLifePreview {
+        EditForceStrengthsPanelCardContent(
+            runtimeParameters = runtimeParameters,
+            runtimeParametersChanged = {
+                runtimeParameters.value = runtimeParameters.value.copy().apply(it)
+            },
+            species = remember {
+                mutableStateOf(
+                    ParticleLifeParameters.GenerationParameters().generateSpecies()
+                )
+            },
+            editForceStrengthsSelectedSpeciesIndex = remember { mutableStateOf(0) }
+        )
     }
 }
 
@@ -524,20 +520,18 @@ fun EditForceDistancesPanelUiPreview() {
             ).runtime
         )
     }
-    ParticleLifeTheme {
-        Scaffold {
-            EditForceDistancesPanelCardContent(
-                runtimeParameters = runtimeParameters,
-                runtimeParametersChanged = {
-                    runtimeParameters.value = runtimeParameters.value.copy().apply(it)
-                },
-                species = remember {
-                    mutableStateOf(
-                        ParticleLifeParameters.GenerationParameters().generateSpecies()
-                    )
-                },
-                editForceDistancesSelectedSpeciesIndex = remember { mutableStateOf(0) }
-            )
-        }
+    ParticleLifePreview {
+        EditForceDistancesPanelCardContent(
+            runtimeParameters = runtimeParameters,
+            runtimeParametersChanged = {
+                runtimeParameters.value = runtimeParameters.value.copy().apply(it)
+            },
+            species = remember {
+                mutableStateOf(
+                    ParticleLifeParameters.GenerationParameters().generateSpecies()
+                )
+            },
+            editForceDistancesSelectedSpeciesIndex = remember { mutableStateOf(0) }
+        )
     }
 }

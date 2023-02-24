@@ -19,7 +19,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.ridwanstandingby.particlelife.R
 import com.ridwanstandingby.particlelife.domain.ParticleLifeParameters
-import com.ridwanstandingby.particlelife.ui.theme.ParticleLifeTheme
 import com.ridwanstandingby.particlelife.wallpaper.ShuffleForceValues
 import com.ridwanstandingby.particlelife.wallpaper.WallpaperMode
 
@@ -382,26 +381,24 @@ fun WallpaperCardUiPreview() {
             ), neverEqualPolicy()
         )
     }
-    ParticleLifeTheme {
-        Scaffold {
-            WallpaperContent(
-                controlPanelExpanded = remember { mutableStateOf(true) },
-                editHandOfGodPanelExpanded = remember { mutableStateOf(HandOfGodPanelMode.OFF) },
-                selectedWallpaperPhysics = remember {
-                    mutableStateOf(ParticleLifeParameters.RuntimeParameters.Preset.default())
-                },
-                setWallpaperClicked = {},
-                wallpaperParameters = wallpaperParameters,
-                wallpaperParametersChanged = {
-                    wallpaperParameters.value = wallpaperParameters.value.copy().apply { this.it() }
-                },
-                wallpaperMode = remember { mutableStateOf(WallpaperMode.DEFAULT) },
-                changeWallpaperMode = {},
-                wallpaperShuffleForceValues = remember { mutableStateOf(ShuffleForceValues.DEFAULT) },
-                changeWallpaperForceValues = {},
-                saveCurrentSettingsForWallpaper = {},
-                loadCurrentSettingsFromWallpaper = {}
-            )
-        }
+    ParticleLifePreview {
+        WallpaperContent(
+            controlPanelExpanded = remember { mutableStateOf(true) },
+            editHandOfGodPanelExpanded = remember { mutableStateOf(HandOfGodPanelMode.OFF) },
+            selectedWallpaperPhysics = remember {
+                mutableStateOf(ParticleLifeParameters.RuntimeParameters.Preset.default())
+            },
+            setWallpaperClicked = {},
+            wallpaperParameters = wallpaperParameters,
+            wallpaperParametersChanged = {
+                wallpaperParameters.value = wallpaperParameters.value.copy().apply { this.it() }
+            },
+            wallpaperMode = remember { mutableStateOf(WallpaperMode.DEFAULT) },
+            changeWallpaperMode = {},
+            wallpaperShuffleForceValues = remember { mutableStateOf(ShuffleForceValues.DEFAULT) },
+            changeWallpaperForceValues = {},
+            saveCurrentSettingsForWallpaper = {},
+            loadCurrentSettingsFromWallpaper = {}
+        )
     }
 }

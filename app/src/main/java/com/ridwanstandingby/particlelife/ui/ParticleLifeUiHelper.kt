@@ -1,12 +1,15 @@
 package com.ridwanstandingby.particlelife.ui
 
+import android.annotation.SuppressLint
 import android.content.res.Configuration
 import androidx.annotation.StringRes
+import androidx.compose.material.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.unit.dp
 import com.ridwanstandingby.particlelife.R
 import com.ridwanstandingby.particlelife.domain.ParticleLifeParameters
+import com.ridwanstandingby.particlelife.ui.theme.ParticleLifeTheme
 import com.ridwanstandingby.particlelife.wallpaper.ShuffleForceValues
 import com.ridwanstandingby.particlelife.wallpaper.WallpaperMode
 
@@ -69,3 +72,13 @@ fun WallpaperMode.nameString() =
         WallpaperMode.Randomise -> R.string.wallpaper_mode_randomise
         WallpaperMode.CurrentSettings -> R.string.wallpaper_mode_current_settings
     }
+
+@SuppressLint("UnusedMaterialScaffoldPaddingParameter")
+@Composable
+fun ParticleLifePreview(content: @Composable () -> Unit) {
+    ParticleLifeTheme {
+        Scaffold {
+            content()
+        }
+    }
+}

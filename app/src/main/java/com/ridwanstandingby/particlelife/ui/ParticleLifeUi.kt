@@ -3,13 +3,9 @@ package com.ridwanstandingby.particlelife.ui
 import android.view.MotionEvent
 import android.view.SurfaceView
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.State
-import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.*
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -52,15 +48,15 @@ fun ParticleLifeActivityUi(
         editForceDistancesPanelExpanded = vm.editForceDistancesPanelExpanded,
         editForceDistancesSelectedSpeciesIndex = vm.editForceDistancesSelectedSpeciesIndex,
         editHandOfGodPanelExpanded = vm.editHandOfGodPanelExpanded,
-        runtimeParameters = derivedStateOf { vm.parameters.value.runtime.copy() },
-        generationParameters = derivedStateOf { vm.parameters.value.generation.copy() },
-        species = derivedStateOf { vm.parameters.value.species },
+        runtimeParameters = remember { derivedStateOf { vm.parameters.value.runtime.copy() } },
+        generationParameters = remember { derivedStateOf { vm.parameters.value.generation.copy() } },
+        species = remember { derivedStateOf { vm.parameters.value.species } },
         runtimeParametersChanged = vm::changeRuntimeParameters,
         generationParametersChanged = vm::changeGenerationParameters,
         generateNewParticlesClicked = vm::generateNewParticles,
         selectedWallpaperPhysics = vm.selectedWallpaperPhysics,
         setWallpaperClicked = { vm.handleSetWallpaper(setWallpaper) },
-        wallpaperParameters = derivedStateOf { vm.wallpaperParameters.value.copy() },
+        wallpaperParameters = remember { derivedStateOf { vm.wallpaperParameters.value.copy() } },
         wallpaperParametersChanged = vm::changeWallpaperParameters,
         wallpaperMode = vm.wallpaperMode,
         changeWallpaperMode = vm::changeWallpaperMode,
@@ -103,9 +99,11 @@ fun ParticleLifeUi(
     loadCurrentSettingsFromWallpaper: () -> Unit
 ) {
     ParticleLifeTheme {
-        Scaffold {
+        Scaffold { paddingValues ->
             BoxWithConstraints(
-                modifier = Modifier.fillMaxSize()
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(paddingValues)
             ) {
                 with(LocalDensity.current) {
                     val rotation = LocalView.current.display.rotation
@@ -162,7 +160,6 @@ fun ParticleLifeUi(
     }
 }
 
-@OptIn(ExperimentalAnimationApi::class)
 @Composable
 fun ControlPanelUi(
     controlPanelExpanded: MutableState<Boolean>,
@@ -252,7 +249,7 @@ fun ControlPanelUi(
             Card(modifier = foregroundCardModifier) {
                 if (editHandOfGodPanelExpanded.value == HandOfGodPanelMode.WALLPAPER) {
                     EditHandOfGodPanelCardContent(
-                        derivedStateOf { wallpaperParameters.value.runtime.copy() }
+                        remember { derivedStateOf { wallpaperParameters.value.runtime.copy() } }
                     ) { block -> wallpaperParametersChanged { runtime.block() } }
                 } else {
                     EditHandOfGodPanelCardContent(
