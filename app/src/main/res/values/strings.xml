@@ -72,6 +72,7 @@
     <string name="save_current_settings_to_wallpaper_label">Save Current As Wallpaper</string>
     <string name="load_wallpaper_to_current_settings_label">Load Wallpaper As Current</string>
     <string name="loaded_wallpaper_to_current_settings_toast">Loaded wallpaper settings into current world</string>
+    <string name="live_wallpaper_not_supported">This device does not properly support live wallpapers</string>
     <string name="about_particle_simulation">A particle simulation, designed to illustrate life-like behaviour emerging from particles obeying a set of simple rules.</string>
     <string name="about_particle_force_explanation">Each particle exerts a force on other nearby particles, depending on their species (represented by the different colours). This can either be a repulsion or an attraction, and is not necessarily symmetric. For example, red can be attracted to green, but green could be repulsed by red, which would result in red \"chasing\" green.</string>
     <string name="about_particle_extras">To avoid particles speeding up forever, a global friction is applied that slows particles down. Additionally, all particles repel each other if they get too close for comfort, like a kind of degeneracy pressure</string>

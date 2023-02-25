@@ -1,6 +1,7 @@
 package com.ridwanstandingby.particlelife.ui
 
 import android.app.WallpaperManager
+import android.content.ActivityNotFoundException
 import android.content.ComponentName
 import android.content.Intent
 import android.os.Bundle
@@ -47,6 +48,10 @@ class ParticleLifeActivity : AnimationActivity() {
             WallpaperManager.EXTRA_LIVE_WALLPAPER_COMPONENT,
             ComponentName(this, ParticleLifeWallpaperService::class.java)
         )
-        startActivity(intent)
+        try {
+            startActivity(intent)
+        } catch (e: ActivityNotFoundException) {
+            makeToast(ToastMessage.LIVE_WALLPAPER_NOT_SUPPORTED)
+        }
     }
 }

@@ -31,7 +31,7 @@ class ParticleLifeParameters(
             Array(nSpecies) {
                 Array(nSpecies) {
                     try {
-                        Random.nextDouble(maxRepulsion, maxAttraction)
+                        randomDouble(maxRepulsion, maxAttraction)
                     } catch (e: Exception) {
                         maxRepulsion
                     }
@@ -66,8 +66,8 @@ class ParticleLifeParameters(
         ): List<Particle> {
             return List(nParticles) {
                 Particle(
-                    x = Random.nextDouble(from = 0.0, until = xMax),
-                    y = Random.nextDouble(from = 0.0, until = yMax),
+                    x = randomDouble(from = 0.0, until = xMax),
+                    y = randomDouble(from = 0.0, until = yMax),
                     xv = 0.0,
                     yv = 0.0,
                     speciesIndex = species.indices.random()
@@ -171,23 +171,15 @@ class ParticleLifeParameters(
         )
 
         fun randomise() {
-            friction = 2.0.pow(Random.nextDouble(log2(FRICTION_MIN), log2(FRICTION_MAX)))
-            forceStrengthScale =
-                2.0.pow(
-                    Random.nextDouble(
-                        log2(FORCE_STRENGTH_SCALE_MIN),
-                        log2(FORCE_STRENGTH_SCALE_MAX)
-                    )
-                )
-            forceDistanceScale =
-                2.0.pow(
-                    Random.nextDouble(
-                        log2(FORCE_DISTANCE_SCALE_MIN),
-                        log2(FORCE_DISTANCE_SCALE_MAX)
-                    )
-                )
+            friction = 2.0.pow(randomDouble(log2(FRICTION_MIN), log2(FRICTION_MAX)))
+            forceStrengthScale = 2.0.pow(
+                randomDouble(log2(FORCE_STRENGTH_SCALE_MIN), log2(FORCE_STRENGTH_SCALE_MAX))
+            )
+            forceDistanceScale = 2.0.pow(
+                randomDouble(log2(FORCE_DISTANCE_SCALE_MIN), log2(FORCE_DISTANCE_SCALE_MAX))
+            )
             pressureStrength =
-                2.0.pow(Random.nextDouble(log2(PRESSURE_STRENGTH_MIN), log2(PRESSURE_STRENGTH_MAX)))
+                2.0.pow(randomDouble(log2(PRESSURE_STRENGTH_MIN), log2(PRESSURE_STRENGTH_MAX)))
         }
 
         fun reset() {
@@ -350,7 +342,7 @@ class ParticleLifeParameters(
 
     fun copy() = ParticleLifeParameters(generation.copy(), runtime.copy(), copySpecies())
 
-    fun copySpecies() = species.map { it.copy() }
+    private fun copySpecies() = species.map { it.copy() }
 
     companion object {
         fun buildDefault(
@@ -365,5 +357,8 @@ class ParticleLifeParameters(
             )
 
         private const val MAX_TIME_STEP = 1.0 / 60.0
+
+        fun randomDouble(from: Double, until: Double) =
+            if (until <= from) from else Random.nextDouble(from, until)
     }
 }
