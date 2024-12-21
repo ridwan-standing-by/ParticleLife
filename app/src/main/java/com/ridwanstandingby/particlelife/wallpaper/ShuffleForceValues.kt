@@ -10,7 +10,7 @@ sealed class ShuffleForceValues {
         val time: Duration
     }
 
-    object Always : ShuffleForceValues()
+    data object Always : ShuffleForceValues()
     object Every5Minutes : ShuffleForceValues(), Timed {
         override val time: Duration = 5.minutes
     }

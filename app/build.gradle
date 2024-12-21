@@ -2,6 +2,7 @@ plugins {
     id 'com.android.application'
     id 'kotlin-android'
     id 'com.bugsnag.android.gradle'
+    id 'org.jetbrains.kotlin.plugin.compose'
 }
 
 String bugsnagApiKey = "NONE"
@@ -13,12 +14,14 @@ try {
 }
 
 android {
-    compileSdk 33
+    compileSdk 35
+
+    namespace "com.ridwanstandingby.particlelife"
 
     defaultConfig {
         applicationId "com.ridwanstandingby.particlelife"
-        minSdk 21
-        targetSdk 33
+        minSdk 24
+        targetSdk 35
         versionCode 11
         versionName "1.7.1"
 
@@ -39,15 +42,16 @@ android {
         }
     }
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
     }
     kotlinOptions {
-        jvmTarget = '1.8'
+        jvmTarget = '17'
         freeCompilerArgs += ['-Xopt-in=kotlin.RequiresOptIn']
     }
     buildFeatures {
         compose true
+        buildConfig true
     }
     composeOptions {
         kotlinCompilerExtensionVersion "$composeCompilerVersion"
@@ -61,9 +65,9 @@ dependencies {
     implementation project(path: ':verve')
 
     // Android
-    implementation 'androidx.core:core-ktx:1.9.0'
-    implementation 'androidx.appcompat:appcompat:1.6.1'
-    implementation 'com.google.android.material:material:1.8.0'
+    implementation 'androidx.core:core-ktx:1.15.0'
+    implementation 'androidx.appcompat:appcompat:1.7.0'
+    implementation 'com.google.android.material:material:1.12.0'
 
     // Compose
     implementation "androidx.activity:activity-compose:$androidActivityComposeVersion"

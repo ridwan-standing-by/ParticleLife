@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-@file:Suppress("unused")
+@file:Suppress("unused", "UnusedReceiverParameter")
 
 package com.ridwanstandingby.particlelife.ui.theme.icons.rounded
 

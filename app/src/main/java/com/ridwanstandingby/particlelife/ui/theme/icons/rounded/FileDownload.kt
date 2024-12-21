@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-@file:Suppress("unused")
+@file:Suppress("unused", "UnusedReceiverParameter")
 
 package com.ridwanstandingby.particlelife.ui.theme.icons.rounded
 
-import androidx.compose.material.icons.materialIcon
-import androidx.compose.material.icons.materialPath
+import com.ridwanstandingby.particlelife.ui.theme.icons.materialIcon
+import com.ridwanstandingby.particlelife.ui.theme.icons.materialPath
 import androidx.compose.ui.graphics.vector.ImageVector
 import com.ridwanstandingby.particlelife.ui.theme.icons.Icons
 

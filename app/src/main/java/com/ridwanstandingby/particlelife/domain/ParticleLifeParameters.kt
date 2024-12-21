@@ -215,7 +215,7 @@ class ParticleLifeParameters(
 
             abstract fun applyPreset(runtimeParameters: RuntimeParameters)
 
-            object BalancedChaos : Preset() {
+            data object BalancedChaos : Preset() {
                 override fun applyPreset(runtimeParameters: RuntimeParameters) {
                     with(runtimeParameters) {
                         reset()
@@ -223,7 +223,7 @@ class ParticleLifeParameters(
                 }
             }
 
-            object LittleCreatures : Preset() {
+            data object LittleCreatures : Preset() {
                 override fun applyPreset(runtimeParameters: RuntimeParameters) {
                     with(runtimeParameters) {
                         reset()
@@ -234,7 +234,7 @@ class ParticleLifeParameters(
                 }
             }
 
-            object LargeCreatures : Preset() {
+            data object LargeCreatures : Preset() {
                 override fun applyPreset(runtimeParameters: RuntimeParameters) {
                     with(runtimeParameters) {
                         reset()
@@ -244,7 +244,7 @@ class ParticleLifeParameters(
                 }
             }
 
-            object Behemoths : Preset() {
+            data object Behemoths : Preset() {
                 override fun applyPreset(runtimeParameters: RuntimeParameters) {
                     with(runtimeParameters) {
                         reset()
@@ -255,7 +255,7 @@ class ParticleLifeParameters(
                 }
             }
 
-            object Custom : Preset() {
+            data object Custom : Preset() {
                 override fun applyPreset(runtimeParameters: RuntimeParameters) {
                     /* do nothing */
                 }
@@ -342,7 +342,7 @@ class ParticleLifeParameters(
 
     fun copy() = ParticleLifeParameters(generation.copy(), runtime.copy(), copySpecies())
 
-    private fun copySpecies() = species.map { it.copy() }
+    fun copySpecies() = species.map { it.copy() }
 
     companion object {
         fun buildDefault(

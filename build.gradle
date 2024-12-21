@@ -2,15 +2,15 @@
 buildscript {
 
     ext {
-        kotlinVersion = "1.8.10"
-        kotlinGradlePluginVersion = '7.3.1'
-        koinVersion = "3.1.4"
-        composeVersion = "1.3.+"
-        composeCompilerVersion = "1.4.3"
-        androidActivityComposeVersion = "1.6.1"
+        kotlinVersion = "2.0.20"
+        kotlinGradlePluginVersion = '8.6.0'
+        koinVersion = "3.4.3"
+        composeVersion = "1.7.6"
+        composeCompilerVersion = "1.5.15"
+        androidActivityComposeVersion = "1.9.3"
 
         bugsnagGradlePluginVersion = "7.2.0"
-        bugsnagAndroidVersion = "5.19.1"
+        bugsnagAndroidVersion = "5.31.1"
     }
 
     repositories {
@@ -21,6 +21,7 @@ buildscript {
         classpath "com.android.tools.build:gradle:$kotlinGradlePluginVersion"
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinVersion"
         classpath "com.bugsnag:bugsnag-android-gradle-plugin:$bugsnagGradlePluginVersion"
+        classpath 'org.jetbrains.kotlin:compose-compiler-gradle-plugin:2.0.20'
     }
 }
 
